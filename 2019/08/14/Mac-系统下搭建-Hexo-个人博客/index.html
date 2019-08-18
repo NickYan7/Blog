@@ -8,7 +8,7 @@
 <li>环境搭建</li>
 </ul>
 <h4 id="创建一个-GitHub-账号"><a href="#创建一个-GitHub-账号" class="headerlink" title="创建一个 GitHub 账号"></a>创建一个 GitHub 账号</h4><p>百度搜索 GitHub 进入官网，初次登录会直接进入注册页面（Sign up），填写用户名（Username）、电子邮件（Email）、登录密码（Password），最后单击注册（Sign up for GitHub）即可。</p>
-<p>![image-20190814095444748](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814095444748.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814095444748.png" alt></p>
 <p>####新建一个「仓库」</p>
 <p>然后新建一个仓库。单击页面右侧 Repositories 后面的 New，即可开始创建一个仓库。</p>
 <p>在 Create a new repository 页面开始创建仓库。其中仓库名（Repository name）属于必填项，这里要注意仓库名必须为「username.github.io」，username 可以替换为你的用户名，我的 username 为 NickYan7，所以我的仓库名就设置为 NickYan7.github.io，这一点非常重要。</p>
@@ -33,7 +33,7 @@
 <li>安装 Node.JS</li>
 </ul>
 <p>首先打开 <a href="https://nodejs.org/en/#download" target="_blank" rel="noopener">Node 官网</a>，会看到如下界面：</p>
-<p>![image-20190814103122181](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814103122181.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814103122181.png" alt></p>
 <p>LTS 表示稳定版本，Current 表示最新版本，两者皆可。点击下载之后一路傻瓜式安装，最后就 OK 了。最后测试一下是否安装成功，在终端输入：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br></pre></td></tr></table></figure>
 
@@ -55,12 +55,12 @@
 <li><p>通过终端命令创建 SSH key。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#email 填写你在注册时填写的 email</span><br><span class="line">ssh-keygen -t rsa -C &quot;email@email.com&quot;</span><br></pre></td></tr></table></figure>
 
-<p>![image-20190814105126923](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814105126923.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814105126923.png" alt="image-20190814105126923"></p>
 <p>这里会确认路径：～/.ssh/id_rsa，回车确认，然后输入密码（可以直接回车选择空密码），最后会在 ~/ 下生成 .ssh 文件夹，cd 进入，cat 打开 id_rsa.pub，复制里面的key。</p>
 </li>
 <li><p>登录 GitHub 添加 SSH key。</p>
 <p>单击右上角头像 👉 settings 👉 左侧 SSH and GPG keys，Title 可以填写为「Blog」，复制 key 后单击 Add SSH key。</p>
-<p><img src="https://img2018.cnblogs.com/blog/1493506/201810/1493506-20181013144311067-1647740102.png" alt="1493506-20181013144311067-1647740102"></p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/1493506-20181013144311067-1647740102.png" alt="1493506-20181013144311067-1647740102"></p>
 </li>
 </ol>
 </li>
@@ -69,7 +69,7 @@
 <li><p>最后链接验证，在终端输入：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
 
-<p>![image-20190814105827792](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814105827792.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814105827792.png" alt="image1"></p>
 <p>如果之前设置了密码，这里会提示输入密码。回车后输出 successfully authenticated 表示链接成功。</p>
 </li>
 </ol>
@@ -77,7 +77,7 @@
 <li><p>提交本地项目到 GitHub</p>
 <ol>
 <li><p>我们已经在 GitHub 新建了一个仓库，首先进入仓库，右上角点击 Clone or download，Clone 工程到本地，首先复制 ssh 地址。</p>
-<p>![image-20190814110442079](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814110442079.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814110442079.png" alt="image-20190814110442079"></p>
 </li>
 <li><p>新创建一个名为 Git 文件夹，在里面新建一个专门用来存放博客数据的文件夹，命名为 Blog。打开终端一路 cd 进入 Blog，把你要上传的代码等文件移动到 Blog 文件夹里，然后输入：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文件添加到仓库。（.代表提交所有文件，如果只提交单个文件可输入文件名）</span><br><span class="line">git add .</span><br><span class="line">#把文件提交到仓库，引号内的内容是每次上传的任务名称</span><br><span class="line">git commit -m &quot;first commit&quot;</span><br><span class="line">#上传到GitHub</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
@@ -97,14 +97,14 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#在file文件夹目录下用终端输入</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
 
 <p>如图所示，说明可以本地访问博客页面，在浏览器地址栏输入 localhost:4000，就可以看到博客首页。</p>
-<p><img src="https://upload-images.jianshu.io/upload_images/3478485-05ee93d0cccbdbe0.png" alt="3478485-05ee93d0cccbdbe0"></p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/3478485-05ee93d0cccbdbe0.png" alt="3478485-05ee93d0cccbdbe0"></p>
 </li>
 <li><p>配置 Hexo 关联到 GitHub 仓库</p>
 <p>本地服务已经搭建成功，接下来将 Hexo 部署到 GitHub 上即可。</p>
 <p>首先打开终端在 file 目录下执行 ls 命令，修改 _config.yml 文件。</p>
-<p>![image-20190814112816379](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814112816379.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814112816379.png" alt="image-20190814112816379"></p>
 <p>在终端 vim 修改 _config.yml 文件，在最后修改 type、repo、branch 如下：</p>
-<p>![image-20190814113020854](/Users/nickyan/Library/Application Support/typora-user-images/image-20190814113020854.png)</p>
+<p><img src="/Users/nickyan/Documents/Git/Blog/files/source/uploads/pic/image-20190814113020854.png" alt="image-20190814113020854"></p>
 <p>注：冒号后都有空格。repo 的格式应为「<a href="https://github.com/username/username.github.io.git」其中第一个" target="_blank" rel="noopener">https://github.com/username/username.github.io.git」其中第一个</a> username 是注册时设置的，第二个 username 是创建仓库时设置的，按照我们的步骤，两者应该是相同的。其余的 github.io.git 照写即可。</p>
 <p>修改完成后 wq 保存退出，然后在 file 目录下执行如下命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#产生静态网页</span><br><span class="line">hexo g</span><br><span class="line">#部署到github</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure>
@@ -129,7 +129,7 @@
 <li>初始化 Hexo 的文件夹必须在 Git 文件夹内，也就是 GitBash，否则会部署失败。</li>
 </ul>
 <p>剩下的博客美化等内容会放在下次文章里，希望以后可以养成经常写博客的习惯。这个 Blog 也不会仅限于技术内容，其余的文章内容例如「揮發物」的影评和乐评也会在这里发布。</p>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjzau3ikg0001kqozs88j6ss0" data-title="Mac 系统下搭建 Hexo 个人博客" data-url="http://yoursite.com/2019/08/14/Mac-系统下搭建-Hexo-个人博客/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cjzgdc1r20001uwjc3pgazg7s" data-title="Mac 系统下搭建 Hexo 个人博客" data-url="http://yoursite.com/2019/08/14/Mac-系统下搭建-Hexo-个人博客/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
