@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>内网 | 深入研究 MS14-068 [漏洞分析] - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">内网 | 深入研究 MS14-068 [漏洞分析]</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>February 2, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="内网-深入研究-MS14-068-漏洞分析"><a href="#内网-深入研究-MS14-068-漏洞分析" class="headerlink" title="内网 | 深入研究 MS14-068 [漏洞分析]"></a><center>内网 | 深入研究 MS14-068 [漏洞分析]</center></h2><h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h3><p>不得不说 58src 的效率真的很高，早上投简历，下午面试官老师就打来电话了。。。面试过程中面试官问到了 MS14-068 这个漏洞的利用以及细节问题，不幸的是由于我太过紧张，加上 Kerberos 这个一向以复杂烧脑著称的协议本身就比较绕，因此回答得支支吾吾（简直像个铁憨憨）。但是跟面试官老师交流一番后很有收获，于是周末休息的时候决定静下心来再好好研究一下这个漏洞的整个复现过程（具体到抓包）以及 Kerberos 的三个交互认证流程的细节。</p>
+<p>由于这篇文章篇幅很长，这里主要分几点：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. Kerberos 协议细节（具体到抓包）</span><br><span class="line">2. MS14-068 漏洞实际利用</span><br><span class="line">3. MS14-068 漏洞实现细节（具体到抓包、源码审计）</span><br><span class="line">4. 突破「本地用户漏洞利用的限制」实现过程</span><br><span class="line">5. 针对 MS14-068 漏洞的总结，思考该漏洞背后的意义</span><br><span class="line">6. 后话  此次漏洞研究的体会</span><br></pre></td></tr></table></figure>
+
+<p>感谢 58src 的廖老师，在交流过程中给我很多启发。</p>
+<h3 id="0x01-Kerberos-协议"><a href="#0x01-Kerberos-协议" class="headerlink" title="0x01 Kerberos 协议"></a>0x01 Kerberos 协议</h3><p>在谈 MS14-068 之前，我们需要再来详细过一遍 Kerberos 协议的认证流程，一些简单的知识概念在此就不再赘述。</p>
+<h4 id="0x01-1-Kerberos-认证"><a href="#0x01-1-Kerberos-认证" class="headerlink" title="0x01-1 Kerberos 认证"></a>0x01-1 Kerberos 认证</h4><p><img src="http://47.95.140.43/tu/ms14068/kerberos.jpg" alt="kerberos"></p>
+<p><img src="http://47.95.140.43/tu/ms14068/IMG_6240.jpg" alt="IMG_6240"></p>
+<p>这里先简单说一下 Kerberos 的认证流程：</p>
+<ol>
+<li><p>首先是 client 和 AS 通信。</p>
+<p>client 首先请求 AS 认证，AS 会在 AD 中查询是否存在 username，确认权限，提取 NTLM Hash，生成 session key（随机数），加密得到 client Pass Hash(session key)，同时用自己内部的 krbtgt 用户的 NTLM Hash（这里成为 KDC Hash）来加密 session key、client info 等信息，得到 TGT，发送给 client。</p>
+<p>这里要注意 TGT 到期时间一般为 8 小时，且 client 可以解密得到 session key，但由于它没有 KDC Hash，所以它无法解密 TGT，这里就防止了 TGT 的伪造。</p>
+</li>
+<li><ul>
+<li><p>第二步是 client 和 TGS 通信。</p>
+</li>
+<li><p>接着 client 拿着 TGT、client info、server name、时间戳请求 TGS。TGS 是 KDC 的一部分，它有 KDC Hash，但它没有 session key，于是它先用 KDC Hash 解密 TGT，得到 session key。然后再用 session key 来解密 client info 和时间戳。再将解密得到的 client info、时间戳等信息与 TGT 中解密得到的 client info、时间戳等信息进行比对校验，看 client 是否有权限访问 server。</p>
+</li>
+<li><p>当校验通过后，TGS 又随机生成一个 server session key，用 session key 加密 server session key，得到 session key(server session key)。然后 TGS 再用 server master key（其实也就是 server Hash）来加密 client info、session key 等信息来生成一个 Ticket，然后发送给 client。</p>
+</li>
+<li><p>client 收到后，由于它没有 server Hash，所以它无法解密 Ticket，也就防止了 Ticket 的伪造，但是它有 session key，因此它可以解密得到 server session key。</p>
+</li>
+</ul>
+<p>这里要注意：Ticket 里面有：server session key、client info、到期时间。</p>
+</li>
+<li><ul>
+<li>第三步是 client 和 server 通信。</li>
+<li>client 解密得到 server session key 之后，用 server session key 加密 client info、时间戳等信息，连带 Ticket 一同发送给 server。</li>
+<li>server 接收到后，它有自己的 server Hash，因此它可以解密 Ticket，得到 server session key、client info、End Time 等信息，然后进行比对校验，校验通过后，就允许了 client 的访问请求。</li>
+</ul>
+<p><strong>抓包来看看（详细）</strong></p>
+<p>首先说说环境吧：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// DC 域控</span><br><span class="line">windows server 2008				192.168.0.210</span><br><span class="line"></span><br><span class="line">// xiaoshoubu 销售部</span><br><span class="line">windows 7									192.168.0.207</span><br><span class="line"></span><br><span class="line">// gaunli 管理层</span><br><span class="line">windows server 2012				192.168.0.211</span><br><span class="line"></span><br><span class="line">// domain user 域用户</span><br><span class="line">yankai@nick.test.com</span><br><span class="line">Nsfocus!@#123&apos;</span><br><span class="line"></span><br><span class="line">// 攻击机</span><br><span class="line">Kali Linux								192.168.0.105</span><br></pre></td></tr></table></figure>
+
+<p>![屏幕快照 2020-01-11 下午8.36.45](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午8.36.45.png)</p>
+<p><strong>Client -&gt; KDC_AS</strong></p>
+<p>![屏幕快照 2020-01-11 下午8.39.00](<a href="http://47.95.140.43/tu/ms14068//屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068//屏幕快照</a> 2020-01-11 下午8.39.00.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AS-REQ = key-client&#123;Stamp&#125; + client info + nonce</span><br></pre></td></tr></table></figure>
+
+<p><strong>KDC_AS -&gt; Client</strong></p>
+<p>![屏幕快照 2020-01-11 下午8.48.06](<a href="http://47.95.140.43/tu/ms14068//屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068//屏幕快照</a> 2020-01-11 下午8.48.06.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">TGT = KDC-Hash&#123;Client info + session key&#125;</span><br><span class="line"></span><br><span class="line">AS-REP = TGT + Client Pass Hash&#123;session key，时间戳，随机字符串&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Client -&gt; KDC_TGS</strong></p>
+<p>![屏幕快照 2020-01-11 下午9.05.04](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午9.05.04.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TGS-REQ = TGT + session key&#123;client info、时间戳 + server info&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>KDC_TGS -&gt; Client</strong></p>
+<p>![屏幕快照 2020-01-11 下午9.12.25](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午9.12.25.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Ticket = server Hash&#123;client info + server session key&#125;</span><br><span class="line"></span><br><span class="line">TGS-REP = Ticket + session key&#123;server session key&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Client -&gt; Server</strong></p>
+<ul>
+<li>client 收到响应包之后，用 session key 解密得到 server session key，Ticket 保存下来发送给 server。加入接下来需要多次访问资源，都可以使用同一个 Ticket，而不需要每次都向 KDC 申请，这样很大程度减轻了 KDC 的负担。</li>
+<li>client 用 server session key 加密自己的信息和时间戳以及 Ticket 发送给 server，构成了 AP-REQ。</li>
+</ul>
+<p>![屏幕快照 2020-01-11 下午9.29.33](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午9.29.33.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AP=REQ = Ticket + server session key&#123;client info + 时间戳&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Server -&gt; Client</strong></p>
+<ul>
+<li>server 收到 AP-REQ，如果有人冒充 server，那么他无法解密 Ticket。如果 server 为真，就用自己的 server Hash 解密 Ticket，得到 server session key 和 client 的信息以及时间戳。</li>
+<li>利用 server session key 解开密文拿到 client 的信息和时间戳，将其与 Tick 中得到的信息进行对比，如果一致，就发送 AP-REP 向 client 表明验证通过。</li>
+<li>最后 client 通过解密 AP-REP 得到的时间戳来判断 server 是否为真。</li>
+</ul>
+<p>![屏幕快照 2020-01-11 下午9.37.35](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午9.37.35.png)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AP=REP = server session key&#123;时间戳&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>到这里 Kerberos 的认证流程大致结束，但是有几个问题需要注意。</strong></p>
+<ol>
+<li>整个认证过程中，TGT 和 Ticket 结构大体相同，但精华在于 session key 和 server session key 的不同：session key 是 AS 发送给 client 的，server session key 是 TGS 发送给 client 的。</li>
+<li>server 在与 client 通信之前，它是不知道 client 究竟有没有和 KDC 做交互认证的，因此这里便为票据伪造提供了可能。</li>
+<li>Kerberos 协议只解决了「who am I ?」的问题，但没有解决「what can I do ?」这个问题，也就是权限的划分。因此微软对 Kerberos 进行了一些扩充，那就是 PAC，这里详细说一下 PAC，因为它和 MS14-068 密切相关。</li>
+</ol>
+</li>
+</ol>
+<h4 id="0x01-2-PAC-和-Kerberos-的联系"><a href="#0x01-2-PAC-和-Kerberos-的联系" class="headerlink" title="0x01-2 PAC 和 Kerberos 的联系"></a>0x01-2 PAC 和 Kerberos 的联系</h4><p>在 Kerberos 认证的最后一步，当 client 和 server 认证时，只是向 server 证明了 client 就是所谓的 client，但此时 client 如果需要访问 server 上的资源，但 server 其实不知道 client 是否有访问自身资源的权限。</p>
+<p>在域环境中，知道某个域用户的所拥有的权限，需要提供域用户的 SID 和所在组的 SID。在 client、KDC、server 中，server 只信任 KDC 所提供的 client 到底是什么权限。在一个域初始时，KDC 上拥有 client 和 server 的权限，KDC 必须告诉 server 关于 client 的权限，这样 server 验证通过后才能决定让不让 client 进行访问自身的网络资源。因此微软在 AS_REP 中的 TGT 增加了 client 的 PAC（特权属性证书），也就是 client 的权限，包括 client 的 user SID、group SID。</p>
+<p><strong>下面这张图要注意，PAC 理论上是被放在 TGT 和 Ticket 中的。</strong></p>
+<p><img src="http://47.95.140.43/tu/ms14068/t01b0e2c85d2ffd319f.png" alt="t01b0e2c85d2ffd319f"></p>
+<p><img src="http://47.95.140.43/tu/ms14068/14208234397566.png" alt="14208234397566"></p>
+<p>PAC 对于用户和服务来说都是全程不可见的，只有 KDC 能制作和查看 PAC。</p>
+<p>由图可知为了防止 KDC 被篡改（即使已经被加密），在 PAC 的尾部增加了两个校验 server signature 和 KDC signature，<strong>这两个签名需要注意，很重要。</strong></p>
+<p>这两个校验一个是 server signature，另一个是 KDC signature，微软的方法是想办法把 PAC 从 KDC 传送到 server，做法是：</p>
+<ul>
+<li>将 PAC 放在 TGT 中加密后从 AS 服务经 client 中转给 TGS，再由 TGS 返回的 Ticket 加密后经 client 返回给 server。</li>
+</ul>
+<p><img src="http://47.95.140.43/tu/ms14068/14211277383314.png" alt="14211277383314"></p>
+<p><strong>需要注意的是（重点）：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 这里参考了 walkerfuz 关于 PAC 的总结</span><br><span class="line"></span><br><span class="line">在 TGS-REQ 阶段，携带 PAC 的 TGT 被 TGS 接收后，认证 client 的合法性之后会将 PAC 解密出来，验证尾部两个签名的合法性，如果合法则认为 PAC 没有被篡改，于是重新在 PAC 的尾部更换了另外两个签名，一个是 server signature，由 server Hash 的密码副本生成的签名。另一个是 KDC signature，最终成为 New Signed PAC 被拷贝在 Ticket 里面。</span><br></pre></td></tr></table></figure>
+
+<p>于是 PAC 就这样被传送到了 server 手中。</p>
+<p>至此，Kerberos 认证结束，真的烧脑，不借助手稿确实很难一下说清楚这些细节。</p>
+<h3 id="0x02-MS14-068"><a href="#0x02-MS14-068" class="headerlink" title="0x02 MS14-068"></a>0x02 MS14-068</h3><p>该漏洞是域中最严重的漏洞之一，它允许任意用户提升到域管理员权限，这里漏洞利用的脚本是 PyKek。再重申一次环境：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// DC 域控 								win-m17s57mr0al.nick.test.com</span><br><span class="line">windows server 2008				192.168.0.210</span><br><span class="line"></span><br><span class="line">// xiaoshoubu 销售部				xiaoshoubu.nick.test.com</span><br><span class="line">windows 7									192.168.0.207</span><br><span class="line"></span><br><span class="line">// gaunli 管理层						gianli.nick.test.com</span><br><span class="line">windows server 2012				192.168.0.211</span><br><span class="line"></span><br><span class="line">// domain user 域用户</span><br><span class="line">yankai@nick.test.com</span><br><span class="line">Nsfocus!@#123&apos;</span><br><span class="line"></span><br><span class="line">// win7 本地账户</span><br><span class="line">diquan/test!@#123</span><br></pre></td></tr></table></figure>
+
+<h4 id="0x02-1-漏洞利用"><a href="#0x02-1-漏洞利用" class="headerlink" title="0x02-1 漏洞利用"></a>0x02-1 漏洞利用</h4><ol>
+<li><p>首先利用域用户 yankai/Nsfocus!@#123’ 登录普通域内主机 win7，获取该用户的域 SID：</p>
+<p>![屏幕快照 2020-01-11 下午10.39.10](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午10.39.10.png)</p>
+</li>
+<li><p>然后用本地用户 diquan/test!@#123 登录到域内主机 win7，然后运行 pykek 的漏洞利用程序，这里需要提供域用户的用户名及密码，user SID 和域名：</p>
+<p>![屏幕快照 2020-01-11 下午10.50.34](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午10.50.34.png)</p>
+<p>这里在 c:\pykek 文件夹下生成了 MIT 格式的 TGT 文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TGT_yankai@nick.test.com.ccache</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后利用神器 mimikatz 将得到的 TGT 文件写入内存，创建缓存证书：</p>
+<p>![屏幕快照 2020-01-11 下午10.53.33](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午10.53.33.png)</p>
+</li>
+<li><p>接着在普通域内主机 win7 的本地账户 diquan 中执行命令连接域控，会发现，不需要密码就可以直接建立对域控主机 win-m17s57mr0al 的 C 盘连接，可以访问 C 盘下的文件：</p>
+<p>![屏幕快照 2020-01-11 下午10.53.18](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午10.53.18.png)</p>
+<p>有一说一，漏洞利用成功后，域用户在不知道域控密码的情况下，确实可以随意访问域控上的资源。</p>
+<p>但是需要注意的是，user SID 是以域用户 yankai 登录 win7 获得的，而漏洞利用需要在该域内主机的本地账户下测试才能够成功，实际测试后，会觉得这个过程很蛋疼。</p>
+</li>
+</ol>
+<h4 id="0x02-2-深入分析漏洞利用的具体细节"><a href="#0x02-2-深入分析漏洞利用的具体细节" class="headerlink" title="0x02-2 深入分析漏洞利用的具体细节"></a>0x02-2 深入分析漏洞利用的具体细节</h4><p>通过 walkerfuz 对于 pykek PoC 源码的分析，可以得知该漏洞是通过客户端伪造高权限的 PAC 产生的，但是理论上 PAC 只有 KDC 可见，客户端应该是没有机会伪造 PAC 的，那是怎么回事？抓包后发现如下：</p>
+<p>利用 Pykek 进行攻击时抓到的包：</p>
+<p>![屏幕快照 2020-01-11 下午11.24.16](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午11.24.16.png)</p>
+<p>利用 mimikatz 将凭证注入内存后，net use 命令时抓包：</p>
+<p>![屏幕快照 2020-01-11 下午11.25.30](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午11.25.30.png)</p>
+<p>可以看到，攻击过程中产生了两次 TGS-REQ 和 TGS-REP 过程，这很奇怪。根据 walkfuz 对 pykek PoC 源码的审计，可以得知整个漏洞的利用过程经历了以下几步：</p>
+<p><img src="http://47.95.140.43/tu/ms14068/IMG_6242.jpg" alt="IMG_6242"></p>
+<p>理论上来说，client 接收到 TGS-REP 后应该得到的是 Ticket，但这里得到的还是 TGT，这里就是漏洞的根源。</p>
+<p>根据 wlakerfuz 对 pykek PoC 的解读审计，分成几步：</p>
+<ol>
+<li><p><strong>构造 AS-REQ</strong></p>
+<p>源码主要用 current_time 和 key 构造了用于提交给 AS 的 Authenticator，另外又增加了一个 include-PAC 标志，发现该 include-PAC 标志被设置为了 false：</p>
+<p>![屏幕快照 2020-01-12 上午12.10.51](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.10.51.png)</p>
+<p>通过抓包可以看得更清楚：</p>
+<p>![屏幕快照 2020-01-11 下午11.46.10](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午11.46.10.png)</p>
+<p>为了对比方便，再放一个正常认证的数据包：</p>
+<p>![屏幕快照 2020-01-11 下午11.45.51](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-11 下午11.45.51.png)</p>
+<p>这是为什么呢？查阅资料得知，微软在实现 PAC 的过程中，特意增加了一个 include-PAC 标志，通常情况下，AS_REQ 请求中如果该标志被设置为 true，只要 AS 服务对 Client 通过认证，那么会在返回的 AS_REP 数据包中的 TGT 中加入 PAC 信息；而如果在 AS_REQ 请求时，include-PAC 标志被设置为 false，那么 AS_REP 返回的 TGT 中就不会包含 PAC 信息。</p>
+<p>通常携带 PAC 的数据包的体积都会比较大。</p>
+</li>
+<li><p><strong>接收 AS-REP</strong></p>
+<p>按照协议规定，KDC 返回的数据包中含有：用 client server Hash 加密的 session key，还有用 KDC Hash 加密的 TGT，这里的 TGT 不含 PAC。然后 pykek 接收 AS-REP 并进行解密，原理和之前类似。</p>
+<p>![屏幕快照 2020-01-12 上午12.14.22](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.14.22.png)</p>
+</li>
+<li><p><strong>构造 PAC</strong></p>
+<p>接着就开始最重要的一步，pykek 构造 PAC 并把它放入 TGS_REQ 中：</p>
+<p>![屏幕快照 2020-01-12 上午12.17.10](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.17.10.png)</p>
+<p>在前文的图中我们得知了 PAC 的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User SID &amp; Group SID</span><br><span class="line">chksum of server Hash</span><br><span class="line">chksum of kdc Hash</span><br></pre></td></tr></table></figure>
+
+<p>在构造 PAC 时，pykek 其实是将该域用户的 SID 截断，留取前面的部分，构造高权限的 User。</p>
+<p>![屏幕快照 2020-01-12 上午1.09.53](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.09.53-8762651.png)</p>
+<p>对于后面两个 chksum 的构造，pykek 直接用不需要 key 的 MD5 构造的签名，也就是说，只要客户端构造了前面的 data（User SID &amp; Group SID），接着就只需要对 data 进行 MD5 运算，生成一个 32 位的 MD5 值即可。</p>
+<p>接着 KDC 如何认证呢？它将前面的 data 取出来，进行 MD5 运算，如果得到的 MD5 值和后面的签名一致，就认为该签名是合法的。</p>
+<p><strong>那么问题来了：</strong></p>
+<p>关于 PAC 尾部的签名，不是说需要 Server Hash 和 KDC Hash 的参与吗？这就是该漏洞蹊跷的第一个地方：</p>
+<p><strong>在 KDC 对 PAC 进行验证时，对于 PAC 尾部的签名算法，理论上规定必须是带有 Hash 的签名算法才可以，但微软在实现上，却允许任意算法，只要客户端指定任意签名算法，KDC 就会使用指定的算法进行验证。What the fuck。</strong></p>
+<p>那么 PAC 不是被放在 TGT 中吗？理论上 include-PAC 标志被设置为 false 后，AS-REP 解密得到的 TGT 是不携带 PAC 的，这里就是第二个蹊跷之处了：</p>
+<p><strong>PAC 没有被放在 TGT 中，而是放在了 TGS_REQ 数据包的其他地方。很蹊跷的是，KDC 居然允许这样的构造，说明 KDC 可以正确解析出没有放在正确位置上的 PAC 信息。What the fuck！！</strong></p>
+</li>
+<li><p><strong>接着，构造 TGS_REQ</strong></p>
+<p>![屏幕快照 2020-01-12 上午12.30.00](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.30.00.png)</p>
+<p>抓包查看：</p>
+<p>![屏幕快照 2020-01-12 上午12.35.03](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.35.03.png)</p>
+<p>可以看到，PAC 被放在 TGS_REQ 数据包中的 REQ_BODY 中，被 subkey 加密，而 TGT 被放在 REQ_BODY 前面的 PADATA 中，说明 TGT 并没有携带 PAC，include-PAC 标志也被设置成了 false。</p>
+<p>那么，subkey 是何方神圣？查看源码：</p>
+<p>![屏幕快照 2020-01-12 上午12.49.05](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午12.49.05.png)</p>
+<p>可以得知，subkey 是客户端 pykek 生成的一个随机数。。。。。</p>
+<p>pykek 为了使 KDC 能够解密 PAC 信息，将这个生成的 subkey 随机数一同放在了 TGS_REQ 数据包的 Authenticator 中，发送给 KDC。KDC 接收后，让人无语的是，它居然可以正确解密 PAC 信息，因为它允许任意加密算法的签名，于是这个 PAC 信息被认为合法。</p>
+</li>
+<li><p><strong>接收 TGS_REP</strong></p>
+<p>根据 Kerberos 协议，在返回包中包含由 session key 加密的 server session key，还有 Ticket，但是这里漏洞利用的过程中，<strong>KDC 从 Authenticator 中提取了 subkey，解密了 PAC 信息，利用客户端设定的签名算法验证了签名，同时将另外的 TGT 进行解密得到 session key；</strong></p>
+<p><strong>验证成功后，KDC 在解密的 PAC 信息的尾部，重新采用自己的 server Hash 和 KDC Hash 生成一个带 Hash 的签名，把 server session key 用 subkey 加密，组成一个新的 TGT 返回给 client。</strong></p>
+<p>这很令人吃惊，因为它跟协议规定的 KDC 运转机制完全不同。TGS 应当返回的是 Ticket，这里它却返回的是 TGT。</p>
+<p>最终，这个 TGT 和 server session key 制作成了 <a href="mailto:TGT_yankai@nick.test.com.ccache" target="_blank" rel="noopener">TGT_yankai@nick.test.com.ccache</a> 文件。</p>
+</li>
+</ol>
+<h4 id="0x02-3-KDC-令人细思恐极的三个蹊跷操作"><a href="#0x02-3-KDC-令人细思恐极的三个蹊跷操作" class="headerlink" title="0x02-3 KDC 令人细思恐极的三个蹊跷操作"></a>0x02-3 KDC 令人细思恐极的三个蹊跷操作</h4><p>整个漏洞利用分析完毕，提取精华，我们总结出该漏洞中 KDC 最蹊跷的三个操作：</p>
+<ol>
+<li><p>在 KDC 对 PAC 进行验证时，根据协议规定必须是带有 server Hash、KDC Hash 的签名算法才可以（原本的设计是 HMAC 系列的 checksum 算法），但微软在实现上，却允许任意签名算法。只要客户端指定任意签名算法，KDC 就会使用指定的算法进行签名验证。</p>
+</li>
+<li><p>PAC 没有被放在 TGT 中，而是放在了 TGS_REQ 数据包的其他地方，根据协议规定 KDC 无法解析，但这里它却很神奇地解析了：说明 KDC 能够正确解析出没有被放在正确位置的 PAC。</p>
+</li>
+<li><p>按照 pykek 的方法构造 TGS_REQ 数据包然后发送，KDC 会从 Authenticator 里提取出 subkey（客户端生成的随机数）来解密 PAC，然后利用客户端设定的签名算法来验证签名，同时将 TGT 进行解密得到 session key。</p>
+<p>验证成功后，在 PAC 信息的尾部重新采用自身的 server Hash 和 KDC Hash 生成一个带 Hash 的签名，把 server session key 用 subkey 加密，组合成新的 TGT 返回给 client，而不是 Ticket。</p>
+</li>
+</ol>
+<p>以上这三点，根据协议来说 ，KDC 是完全不可能被允许执行这样的操作的，这真的是「有内鬼」。这不是低级的代码错误，而是给人一种特意为之的感觉，细思恐极啊。</p>
+<h4 id="0x02-4-突破「本地账户才能漏洞利用」的限制"><a href="#0x02-4-突破「本地账户才能漏洞利用」的限制" class="headerlink" title="0x02-4 突破「本地账户才能漏洞利用」的限制"></a>0x02-4 突破「本地账户才能漏洞利用」的限制</h4><p>这里参考了 walkerfuz 的漏洞利用技巧。</p>
+<p>先简单总结一下：在使用本地用户（diquan）进行漏洞利用时，利用 mimikatz 将 TGT 注入内存之前，使用 klist 命令查看本地是没有凭证的，然后再利用 mimikatz 进行后来的操作即可提权至域管理员。</p>
+<p>而使用域用户身份（yankai）登录时，使用 klist 命令查看是存在凭证的，所以这里先使用 klist purge 命令来清除本地凭证，然后再利用 mimikatz 将高权限的 TGT 注入内存，接着漏洞利用即可成功。</p>
+<p>姿势如下：</p>
+<ol>
+<li><p>以用户身份（yankai/Nsofocus!@#123’）登录，klist 命令查看本地凭证（共 4 个凭证）：</p>
+<p>![屏幕快照 2020-01-12 上午1.44.50](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.44.50.png)</p>
+</li>
+<li><p>klist purge 清除凭证：</p>
+<p>![屏幕快照 2020-01-12 上午1.46.12](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.46.12.png)</p>
+</li>
+<li><p>利用域用户身份（yankai）漏洞利用成功：</p>
+<p>![屏幕快照 2020-01-12 上午1.48.22](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.48.22.png)</p>
+<p>![屏幕快照 2020-01-12 上午1.48.39](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.48.39.png)</p>
+<p>![屏幕快照 2020-01-12 上午1.48.57](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.48.57.png)</p>
+<p>![屏幕快照 2020-01-12 上午1.58.08](<a href="http://47.95.140.43/tu/ms14068/屏幕快照" target="_blank" rel="noopener">http://47.95.140.43/tu/ms14068/屏幕快照</a> 2020-01-12 上午1.58.08.png)</p>
+</li>
+</ol>
+<h3 id="0x03-漏洞总结"><a href="#0x03-漏洞总结" class="headerlink" title="0x03 漏洞总结"></a>0x03 漏洞总结</h3><p>整个漏洞分析下来，其实就是一句话，在设计 OS 安全架构的时候，「有关部门」参与进来了。这也让我们思考，究竟还有多少后门我们没有发现呢？这真的令人细思恐极，也说明了国产系统是很有必要的。思索一下，这个漏洞是大概六年前爆出的，今天研究起来仍然觉得心里非常震撼，六年过去，又产生了多少新技术、新思路、新方法呢？水太深。</p>
+<h3 id="0x04-后话"><a href="#0x04-后话" class="headerlink" title="0x04 后话"></a>0x04 后话</h3><p>洋洋洒洒整篇文章写完，已经到了深夜，感觉收获很多。中间也产生了各种各样的问题，询问了不少前辈、朋友，也还有其他的疑惑还没有解开。这次静下心来进行漏洞研究，发现自己的不足还是太多，首先是代码审计部分，打算这个寒假扎扎实实补一下代码基础。其次是了解网络安全的广度还不够，还需要放开思路，多了解一些新东西、新思路。在网络安全的学习中，最深的体会是学的越多，越发现自己无知，所以越要谦逊地静下心来继续学习，放下浮躁，才能更好地做安全。</p>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck6562blx000g5fozvxl43kck" data-title="内网 | 深入研究 MS14-068 [漏洞分析]" data-url="http://yoursite.com/2020/02/02/MS14-068/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/02/PHP文件包含漏洞复现/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>

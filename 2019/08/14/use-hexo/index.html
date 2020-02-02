@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>手把手教你在 macOS 上搭建 Hexo Blog - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">手把手教你在 macOS 上搭建 Hexo Blog</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>13 Minutes</li><li><i class="icon icon-calendar"></i>August 14, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="Mac-系统下利用-Hexo-GitHub-搭建个人博客"><a href="#Mac-系统下利用-Hexo-GitHub-搭建个人博客" class="headerlink" title="Mac 系统下利用 Hexo + GitHub 搭建个人博客"></a><center>Mac 系统下利用 Hexo + GitHub 搭建个人博客</center></h2><h3 id="0x01-引子"><a href="#0x01-引子" class="headerlink" title="0x01 引子"></a>0x01 引子</h3><p>2019 年夏天的时候终于购置了一台真正属于自己的笔记本电脑：MacBook Pro 2019 13’’。新电脑的配置很强劲，足够我反复折腾。这段时间也开始半只脚踏进网络安全圈子，东碰西撞一番之后发现平日里还是需要多总结 + 记录所学到的东西，方便查阅的同时也可以回过头来查漏补缺。</p>
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>手把手教你在 macOS 上搭建 Hexo Blog - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">手把手教你在 macOS 上搭建 Hexo Blog</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>15 Minutes</li><li><i class="icon icon-calendar"></i>August 14, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="Mac-系统下利用-Hexo-GitHub-搭建个人博客"><a href="#Mac-系统下利用-Hexo-GitHub-搭建个人博客" class="headerlink" title="Mac 系统下利用 Hexo + GitHub 搭建个人博客"></a><center>Mac 系统下利用 Hexo + GitHub 搭建个人博客</center></h2><h3 id="0x01-引子"><a href="#0x01-引子" class="headerlink" title="0x01 引子"></a>0x01 引子</h3><p>2019 年夏天的时候终于购置了一台真正属于自己的笔记本电脑：MacBook Pro 2019 13’’。新电脑的配置很强劲，足够我反复折腾。这段时间也开始半只脚踏进网络安全圈子，东碰西撞一番之后发现平日里还是需要多总结 + 记录所学到的东西，方便查阅的同时也可以回过头来查漏补缺。</p>
 <p>一直在纠结是在别的网站注册一个博客账号合适还是另寻他路，最后受了朋友的启发，决定搭建一个属于自己的博客网站，这样也更能体现自己的风格。因为害怕以后会忘记在搭建这个网站时的一些操作，于是就有了这篇教程。这篇文章适合已经初步具备「捣鼓」能力的同学，一些基础知识在这里就不再赘述，如有相关问题可以联络我首页下方的新浪微博。</p>
 <p>注：这篇文章适用于 macOS。</p>
 <h3 id="0x02-前期准备"><a href="#0x02-前期准备" class="headerlink" title="0x02 前期准备"></a>0x02 前期准备</h3><ul>
@@ -51,7 +51,7 @@
 <p>在终端输入：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#username 填写你在注册时填写的 username</span><br><span class="line">git config --global user.name &quot;username&quot;</span><br><span class="line"></span><br><span class="line">#email 填写你在注册时填写的 email</span><br><span class="line">git config --global user.email &quot;email@email.com&quot;</span><br></pre></td></tr></table></figure>
 
-
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
 </li>
 </ol>
 </li>
@@ -110,42 +110,15 @@
 <p><img src="http://47.95.140.43/tu/hexo/image-20190814113020854.png" alt="image-20190814113020854"></p>
 <p>注：冒号后都有空格。repo 的格式应为「 <a href="https://github.com/username/username.github.io.git" target="_blank" rel="noopener">https://github.com/username/username.github.io.git</a> 」其中第一个 username 是注册时设置的，第二个 username 是创建仓库时设置的，按照我们的步骤，两者应该是相同的。其余的 github.io.git 照写即可。</p>
 <p>修改完成后 wq 保存退出，然后在 file 目录下执行如下命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#产生静态网页</span><br><span class="line">  hexo g</span><br><span class="line">  #部署到github</span><br><span class="line">  hexo d</span><br></pre></td></tr></table></figure>
-
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<p>  然后打开浏览器地址栏输入：<a href="https://username.github.io" target="_blank" rel="noopener">https://username.github.io</a> ，就可以成功访问到博客页面了，至此博客搭建成功。</p>
-<h3 id="0x04-使用博客"><a href="#0x04-使用博客" class="headerlink" title="0x04 使用博客"></a>0x04 使用博客</h3><ul>
-<li><p>创建新的文章并发布</p>
-<p>/Users/nickyan/Documents/Git/Blog/files 目录下输入命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new &quot;文章名称&quot;</span><br></pre></td></tr></table></figure>
-
-<p>会输出文件保存的位置，然后就可以在该文件内输入你要写的博客内容，这里推荐使用 markdown 神器 Typora 来编辑 .md 文件。修改好之后 ⌘ + S 保存，然后回到 file 目录下执行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br><span class="line">hexo d</span><br></pre></td></tr></table></figure>
-
-<p>一般部署网站时会有延迟，稍等片刻即可。</p>
-</li>
-</ul>
-<h3 id="0x05-结语"><a href="#0x05-结语" class="headerlink" title="0x05 结语"></a>0x05 结语</h3><p>在搭建博客时遇到的一些问题总结：</p>
-<ul>
-<li>Hexo 初始化必须在一个空文件夹内执行，否则会报错。</li>
-<li>初始化 Hexo 的文件夹必须在 Git 文件夹内，也就是 GitBash，否则会部署失败。</li>
-</ul>
-<h3 id="0x06-2-2-20-关于-typora-插入图片问题"><a href="#0x06-2-2-20-关于-typora-插入图片问题" class="headerlink" title="0x06 2/2/20 关于 typora 插入图片问题"></a>0x06 2/2/20 关于 typora 插入图片问题</h3><p>自从在使用 hexo 写博客以来，插入图片问题一直让我头疼，因为 typora 不像 word 一样将图片保存在文件里，所以在写博客时插入的图片都只是本地图片的路径，部署到 github 之后访问是访问不到本地的图片的，一直没有一个完美的办法搞定，这段时间以来总结了几点解决方案，这里记录一下。</p>
-<ol>
-<li><p>利用 ipic 上传图床解决</p>
-<p>ipic 目前在 Mac App Store 出售，专业版 6 元。利用 ipic 可能是最好的解决方案，操作逻辑也非常简单，和 typora 无缝搭配，售价颇为良心。操作方式详见 ipic 开发者介绍页面。</p>
-<p><a href="https://toolinbox.net/iPic/" target="_blank" rel="noopener">ipic 开发者介绍</a></p>
-</li>
-<li><p>利用云服务器设置网络图片文件路径</p>
-<p>这里用到的方法其实同样简单粗暴，在 VPS 上搭建 HTTP 服务专门用来访问图片文件，将编写 md 文件时需要用到的图片文件全部存在 VPS 上，编写时直接拖动到 typora 即可，但是可能略费时，因为你不一定知道每一个文件对应的是哪一个图片。</p>
-</li>
-<li><p>放弃使用 hexo，该用其它博客</p>
-<p>🤣</p>
-</li>
-</ol>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck653vcau000c3cozt2zfxhal" data-title="手把手教你在 macOS 上搭建 Hexo Blog" data-url="http://yoursite.com/2019/08/14/use-hexo/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+<p>#产生静态网页<br>  hexo g</p>
+<p>  #部署到github<br>  hexo d<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line">  然后打开浏览器地址栏输入：https://username.github.io ，就可以成功访问到博客页面了，至此博客搭建成功。</span><br><span class="line"></span><br><span class="line">### 0x04 使用博客</span><br><span class="line"></span><br><span class="line">* 创建新的文章并发布</span><br><span class="line"></span><br><span class="line">  /Users/nickyan/Documents/Git/Blog/files 目录下输入命令：</span><br></pre></td></tr></table></figure></p>
+<p>  hexo new “文章名称”<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">会输出文件保存的位置，然后就可以在该文件内输入你要写的博客内容，这里推荐使用 markdown 神器 Typora 来编辑 .md 文件。修改好之后 ⌘ + S 保存，然后回到 file 目录下执行：</span><br></pre></td></tr></table></figure></p>
+<p>  hexo g<br>  hexo d<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  一般部署网站时会有延迟，稍等片刻即可。</span><br><span class="line"></span><br><span class="line">### 0x05 结语</span><br><span class="line"></span><br><span class="line">在搭建博客时遇到的一些问题总结：</span><br><span class="line"></span><br><span class="line">* Hexo 初始化必须在一个空文件夹内执行，否则会报错。</span><br><span class="line">* 初始化 Hexo 的文件夹必须在 Git 文件夹内，也就是 GitBash，否则会部署失败。</span><br><span class="line"></span><br><span class="line">### 0x06 2/2/20 关于 typora 插入图片问题</span><br><span class="line"></span><br><span class="line">自从在使用 hexo 写博客以来，插入图片问题一直让我头疼，因为 typora 不像 word 一样将图片保存在文件里，所以在写博客时插入的图片都只是本地图片的路径，部署到 github 之后访问是访问不到本地的图片的，一直没有一个完美的办法搞定，这段时间以来总结了几点解决方案，这里记录一下。</span><br><span class="line"></span><br><span class="line">1. 利用 ipic 上传图床解决</span><br><span class="line"></span><br><span class="line">   ipic 目前在 Mac App Store 出售，专业版 6 元。利用 ipic 可能是最好的解决方案，操作逻辑也非常简单，和 typora 无缝搭配，售价颇为良心。操作方式详见 ipic 开发者介绍页面。</span><br><span class="line"></span><br><span class="line">   [ipic 开发者介绍](https://toolinbox.net/iPic/)</span><br><span class="line"></span><br><span class="line">2. 利用云服务器设置网络图片文件路径</span><br><span class="line"></span><br><span class="line">   这里用到的方法其实同样简单粗暴，在 VPS 上搭建 HTTP 服务专门用来访问图片文件，将编写 md 文件时需要用到的图片文件全部存放在 VPS 上，编写时正常拖入图片。md 文件编写完成后，利用 typora 搜索功能将所有图片的本地路径一键修改为网络路径即可。</span><br><span class="line"></span><br><span class="line">3. 放弃使用 hexo，该用其它博客</span><br><span class="line"></span><br><span class="line">   🤣</span><br></pre></td></tr></table></figure></p>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck6562blj000c5foz8o752m9x" data-title="手把手教你在 macOS 上搭建 Hexo Blog" data-url="http://yoursite.com/2019/08/14/use-hexo/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
@@ -154,7 +127,7 @@ var duoshuoQuery = {short_name: siteName};
   ds.charset = 'UTF-8';
   (document.getElementsByTagName('head')[0] 
   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/11/06/CVE-2014-0610/"><i class="icon icon-arror-left"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="https://www.baidu.com" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/11/06/CVE-2014-0610/"><i class="icon icon-arror-left"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {
   wrap.className += ' done';
 }</script></body></html>
