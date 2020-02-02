@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>手把手教你在 macOS 上搭建 Hexo Blog - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">手把手教你在 macOS 上搭建 Hexo Blog</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>15 Minutes</li><li><i class="icon icon-calendar"></i>March 2, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="Mac-系统下利用-Hexo-GitHub-搭建个人博客"><a href="#Mac-系统下利用-Hexo-GitHub-搭建个人博客" class="headerlink" title="Mac 系统下利用 Hexo + GitHub 搭建个人博客"></a><center>Mac 系统下利用 Hexo + GitHub 搭建个人博客</center></h2><h3 id="0x01-引子"><a href="#0x01-引子" class="headerlink" title="0x01 引子"></a>0x01 引子</h3><p>终于购置了一台真正属于自己的笔记本电脑：MacBook Pro 2019 13’’。新电脑的配置很强劲，足够我反复折腾。这段时间也开始努力学习网络安全，东碰西撞一番之后发现平日里还是需要多总结 + 记录所学到的东西，方便查阅的同时也可以回过头来查漏补缺。</p>
+<p>一直在纠结是在别的网站注册一个博客账号合适还是另寻他路，最后受了朋友的启发，决定搭建一个属于自己的博客网站，这样也更能体现自己的风格。因为害怕以后会忘记在搭建这个网站时的一些操作，于是就有了这篇教程。这篇文章适合已经初步具备「捣鼓」能力的同学，一些基础知识在这里就不再赘述，如有相关问题可以联络我首页下方的新浪微博。</p>
+<p>注：这篇文章适用于 macOS。</p>
+<h3 id="0x02-前期准备"><a href="#0x02-前期准备" class="headerlink" title="0x02 前期准备"></a>0x02 前期准备</h3><ul>
+<li>GitHub 账号</li>
+<li>新建一个「仓库」</li>
+<li>安装 Git、Node.JS、Hexo</li>
+<li>环境搭建</li>
+</ul>
+<h4 id="创建一个-GitHub-账号"><a href="#创建一个-GitHub-账号" class="headerlink" title="创建一个 GitHub 账号"></a>创建一个 GitHub 账号</h4><p>百度搜索 GitHub 进入官网，初次登录会直接进入注册页面（Sign up），填写用户名（Username）、电子邮件（Email）、登录密码（Password），最后单击注册（Sign up for GitHub）即可。</p>
+<h4 id="新建一个「仓库」"><a href="#新建一个「仓库」" class="headerlink" title="新建一个「仓库」"></a>新建一个「仓库」</h4><p>然后新建一个仓库。单击页面右侧 Repositories 后面的 New，即可开始创建一个仓库。</p>
+<p>在 Create a new repository 页面开始创建仓库。其中仓库名（Repository name）属于必填项，这里要注意仓库名必须为「username.github.io」，username 可以替换为你的用户名，我的 username 为 NickYan7，所以我的仓库名就设置为 NickYan7.github.io，这一点非常重要。</p>
+<p>仓库描述（Description）用以描述你的仓库，属于选填项。接下来选择公开（Public）或私密（Private），最后选择是否初始化一个 README 文件，然后单击 Create repository。这一部分基本完成。</p>
+<h4 id="安装-Git、Node-JS、Hexo"><a href="#安装-Git、Node-JS、Hexo" class="headerlink" title="安装 Git、Node.JS、Hexo"></a>安装 Git、Node.JS、Hexo</h4><p>首先，如果你不知道你的系统里是否安装了以上三项，你可以打开终端（Terminal），然后依次输入三个命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#查询Git版本</span><br><span class="line">git --version</span><br><span class="line"></span><br><span class="line">#查询Node.JS版本</span><br><span class="line">node -v</span><br><span class="line"></span><br><span class="line">#查询Hexo版本</span><br><span class="line">hexo-v</span><br></pre></td></tr></table></figure>
+
+<p>已安装的程序会直接根据命令输出版本号，未安装的程序会报错显示这条命令（command not found）。</p>
+<ul>
+<li>安装 Git（通过 Homebrew 安装）</li>
+</ul>
+<p>macOS 是基于 Unix 的，它可以使用很多 Linux 平台上开源的优秀工具，比如 wget 等。但是 macOS 系统本身却缺少 Linux 下的包管理器，比如 Fedora 的 yum 和 dnf，比如 Ubuntu 的 apt-get 等。</p>
+<p>有一个开源的项目叫 Homebrew，完美解决了 macOS 上没有包管理器的尴尬。</p>
+<p>如果之前未安装 Homebrew，可以在终端输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后开始安装 Git：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install git</span><br></pre></td></tr></table></figure>
+
+<p>macOS 还可以通过其他方式安装 Git，这里就不再赘述。</p>
+<ul>
+<li>安装 Node.JS</li>
+</ul>
+<p>首先打开 <a href="https://nodejs.org/en/#download" target="_blank" rel="noopener">Node 官网</a></p>
+<img src="http://47.95.140.43/tu/hexo/image-20190814103122181.png" alt="image-20190814103122181" style="zoom:50%;">
+
+<p>LTS 表示稳定版本，Current 表示最新版本，两者皆可。点击下载之后一路傻瓜式安装，最后就 OK 了。最后测试一下是否安装成功，在终端输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br></pre></td></tr></table></figure>
+
+<p>输出版本号则说明安装成功。</p>
+<ul>
+<li>安装 Hexo</li>
+</ul>
+<p>在终端输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#安装Hexo</span><br><span class="line">npm install -g hexo-cli</span><br><span class="line"></span><br><span class="line">#测试Hexo是否安装成功</span><br><span class="line">hexo -v</span><br></pre></td></tr></table></figure>
+
+<h4 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h4><p>这里会涉及 Git 的操作以及 GitHub 的基本使用。</p>
+<ul>
+<li><p>创建 SSH key、配置 Git</p>
+<ol>
+<li><p>设置 username 和 email，每次提交项目（commit）时都会记录这些。</p>
+<p>在终端输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#username 填写你在注册时填写的 username</span><br><span class="line">git config --global user.name &quot;username&quot;</span><br><span class="line"></span><br><span class="line">#email 填写你在注册时填写的 email</span><br><span class="line">git config --global user.email &quot;email@email.com&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<ol start="2">
+<li><p>通过终端命令创建 SSH key。</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#email 填写你在注册时填写的 email</span><br><span class="line">ssh-keygen -t rsa -C &quot;email@email.com&quot;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<p>   <img src="http://47.95.140.43/tu/hexo/image-20190814105126923.png" alt="image-20190814105126923"></p>
+<p>   这里会确认路径：～/.ssh/id_rsa，回车确认，然后输入密码（可以直接回车选择空密码），最后会在 ~/ 下生成 .ssh 文件夹，cd 进入，cat 打开 id_rsa.pub，复制里面的key。</p>
+<ol start="3">
+<li><p>登录 GitHub 添加 SSH key。</p>
+<p>单击右上角头像 👉 settings 👉 左侧 SSH and GPG keys，Title 可以填写为「Blog」，复制 key 后单击 Add SSH key。</p>
+<p><img src="http://47.95.140.43/tu/hexo/1493506-20181013144311067-1647740102.png" alt="1493506-20181013144311067-1647740102"></p>
+<p><img src="https://img2018.cnblogs.com/blog/1493506/201810/1493506-20181013144423995-1334229603.png" alt="1493506-20181013144423995-1334229603"></p>
+</li>
+<li><p>最后链接验证，在终端输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -T git@github.com</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<p>   如果之前设置了密码，这里会提示输入密码。回车后输出 successfully authenticated 表示链接成功。</p>
+<p>   <img src="http://47.95.140.43/tu/hexo/image-20190814105827792.png" alt="image-20190814105827792"></p>
+<ul>
+<li><p>提交本地项目到 GitHub</p>
+<ol>
+<li><p>我们已经在 GitHub 新建了一个仓库，首先进入仓库，右上角点击 Clone or download，Clone 工程到本地，首先复制 ssh 地址。</p>
+<p><img src="http://47.95.140.43/tu/hexo/image-20190814110442079.png" alt="image-20190814110442079"></p>
+</li>
+<li><p>新创建一个名为 Git 文件夹，在里面新建一个专门用来存放博客数据的文件夹，命名为 Blog。打开终端一路 cd 进入 Blog，把你要上传的代码等文件移动到 Blog 文件夹里，然后输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文件添加到仓库。（.代表提交所有文件，如果只提交单个文件可输入文件名）</span><br><span class="line">git add .</span><br><span class="line">#把文件提交到仓库，引号内的内容是每次上传的任务名称</span><br><span class="line">git commit -m &quot;first commit&quot;</span><br><span class="line">#上传到GitHub</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在打开浏览器刷新 GitHub 页面就可以发现你的项目就已经成功提交了，这里说明和 GitHub 的链接是正常的。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h3 id="0x03-将博客关联到-GitHub-仓库"><a href="#0x03-将博客关联到-GitHub-仓库" class="headerlink" title="0x03 将博客关联到 GitHub 仓库"></a>0x03 将博客关联到 GitHub 仓库</h3><ul>
+<li><p>初始化 Hexo</p>
+<p>首先打开终端，一路 cd 切换到 Git/Blog/ 文件夹下，我们称之为 GitBash。在 Blog 文件夹下新建一个文件夹，命名为 file，这里会存储所有有关博客网站的配置文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#进入GitBash</span><br><span class="line">cd ~/Git/Blog</span><br><span class="line"></span><br><span class="line">#新建file文件夹</span><br><span class="line">mkdir file</span><br><span class="line"></span><br><span class="line">#进入file</span><br><span class="line">cd file</span><br><span class="line"></span><br><span class="line">#开始Hexo初始化</span><br><span class="line">hexo init</span><br></pre></td></tr></table></figure>
+
+<p>初始化后 file 文件夹里会新建网站的配置文件，然后开启本地服务。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#在file文件夹目录下用终端输入</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器地址栏输入 localhost:4000，就可以看到博客首页。</p>
+</li>
+<li><p>配置 Hexo 关联到 GitHub 仓库</p>
+<p>本地服务已经搭建成功，接下来将 Hexo 部署到 GitHub 上即可。</p>
+<p>首先打开终端在 file 目录下执行 ls 命令，修改 _config.yml 文件。</p>
+<p>在终端 vim 修改 _config.yml 文件，在最后修改 type、repo、branch 如下：</p>
+<p><img src="http://47.95.140.43/tu/hexo/image-20190814113020854.png" alt="image-20190814113020854"></p>
+<p>注：冒号后都有空格。repo 的格式应为「 <a href="https://github.com/username/username.github.io.git" target="_blank" rel="noopener">https://github.com/username/username.github.io.git</a> 」其中第一个 username 是注册时设置的，第二个 username 是创建仓库时设置的，按照我们的步骤，两者应该是相同的。其余的 github.io.git 照写即可。</p>
+<p>修改完成后 wq 保存退出，然后在 file 目录下执行如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> </span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>#产生静态网页<br>  hexo g</p>
+<p>  #部署到github<br>  hexo d<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line">  然后打开浏览器地址栏输入：https://username.github.io ，就可以成功访问到博客页面了，至此博客搭建成功。</span><br><span class="line"></span><br><span class="line">### 0x04 使用博客</span><br><span class="line"></span><br><span class="line">* 创建新的文章并发布</span><br><span class="line"></span><br><span class="line">  /Users/nickyan/Documents/Git/Blog/files 目录下输入命令：</span><br></pre></td></tr></table></figure></p>
+<p>  hexo new “文章名称”<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">会输出文件保存的位置，然后就可以在该文件内输入你要写的博客内容，这里推荐使用 markdown 神器 Typora 来编辑 .md 文件。修改好之后 ⌘ + S 保存，然后回到 file 目录下执行：</span><br></pre></td></tr></table></figure></p>
+<p>  hexo g<br>  hexo d<br>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">  一般部署网站时会有延迟，稍等片刻即可。</span><br><span class="line"></span><br><span class="line">### 0x05 结语</span><br><span class="line"></span><br><span class="line">在搭建博客时遇到的一些问题总结：</span><br><span class="line"></span><br><span class="line">* Hexo 初始化必须在一个空文件夹内执行，否则会报错。</span><br><span class="line">* 初始化 Hexo 的文件夹必须在 Git 文件夹内，也就是 GitBash，否则会部署失败。</span><br><span class="line"></span><br><span class="line">### 0x06 2/2/20 关于 typora 插入图片问题</span><br><span class="line"></span><br><span class="line">自从在使用 hexo 写博客以来，插入图片问题一直让我头疼，因为 typora 不像 word 一样将图片保存在文件里，所以在写博客时插入的图片都只是本地图片的路径，部署到 github 之后访问是访问不到本地的图片的，一直没有一个完美的办法搞定，这段时间以来总结了几点解决方案，这里记录一下。</span><br><span class="line"></span><br><span class="line">1. 利用 ipic 上传图床解决</span><br><span class="line"></span><br><span class="line">   ipic 目前在 Mac App Store 出售，专业版 6 元。利用 ipic 可能是最好的解决方案，操作逻辑也非常简单，和 typora 无缝搭配，售价颇为良心。操作方式详见 ipic 开发者介绍页面。</span><br><span class="line"></span><br><span class="line">   [ipic 开发者介绍](https://toolinbox.net/iPic/)</span><br><span class="line"></span><br><span class="line">2. 利用云服务器设置网络图片文件路径</span><br><span class="line"></span><br><span class="line">   这里用到的方法其实同样简单粗暴，在 VPS 上搭建 HTTP 服务专门用来访问图片文件，将编写 md 文件时需要用到的图片文件全部存放在 VPS 上，编写时正常拖入图片。md 文件编写完成后，利用 typora 搜索功能将所有图片的本地路径一键修改为网络路径即可。</span><br><span class="line">   ⚠️ 注意：图片路径需要编码，如果有中文或空格可能会导致无法解析，typora 全局图像设置中打开「插入时自动转义图片 URL」。</span><br><span class="line"></span><br><span class="line">3. 放弃使用 hexo，该用其它博客</span><br><span class="line"></span><br><span class="line">   🤣</span><br></pre></td></tr></table></figure></p>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/日常/">日常</a><span class="tag-list-count">1</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck658bs7j000ixiozyyi3cdnl" data-title="手把手教你在 macOS 上搭建 Hexo Blog" data-url="http://yoursite.com/2019/03/02/use-hexo/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/05/05/MS17-010漏洞复现/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2018/04/05/study/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>

