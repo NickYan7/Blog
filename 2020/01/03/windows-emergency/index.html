@@ -42,14 +42,14 @@
 <li><p>检查服务器是否有异常的启动项。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 1</span><br><span class="line">登录服务器，【开始】-【所有程序】-【启动】，默认情况下此目录应该是一个空目录，确认是否有非业务程序在该目录下。</span><br><span class="line"></span><br><span class="line">// 2</span><br><span class="line">运行 - msconfig</span><br><span class="line">查看是否存在命名异常的启动项目，如果有则取消勾选命名异常的启动项目，并到命令中显示的路径中删除文件。</span><br></pre></td></tr></table></figure>
 
-<p><img src="//yoursite.com/2020/01/03/windows-emergency/../../../../../Library/Mobile%2520Documents/com~apple~CloudDocs/%25E5%25AE%2589%25E5%2585%25A8%25E6%259C%258D%25E5%258A%25A1/%25E5%25BA%2594%25E6%2580%25A5%25E5%2593%258D%25E5%25BA%2594/windows-emergency-response.assets/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258B%25E5%258D%25883.59.04.png" alt="屏幕快照 2020-01-07 下午3.59.04"></p>
+<p><img src="http://47.95.140.43/tu/windows-emergency/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258B%25E5%258D%25883.59.04.png" alt="屏幕快照 2020-01-07 下午3.59.04"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 3</span><br><span class="line">运行 - regedit 打开注册表，查看开机启动项是否正常，尤其是一下三个注册表项：</span><br><span class="line"></span><br><span class="line">HKEY_CURRENT_USER\software\micorsoft\windows\currentversion\run</span><br><span class="line"></span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line"></span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Runonce</span><br></pre></td></tr></table></figure>
 
 <p>检查右侧是否有启动异常的项目，如果有则删除，安装杀毒软件查杀病毒或木马。</p>
 <p>也可利用安全软件查看启动项、开机时间管理等。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">运行 - gpedit.msc 打开组策略</span><br><span class="line">计算机配置 - Windows 设置 - 脚本</span><br></pre></td></tr></table></figure>
 
-<p><img src="//yoursite.com/2020/01/03/windows-emergency/../../../../../Library/Mobile%2520Documents/com~apple~CloudDocs/%25E5%25AE%2589%25E5%2585%25A8%25E6%259C%258D%25E5%258A%25A1/%25E5%25BA%2594%25E6%2580%25A5%25E5%2593%258D%25E5%25BA%2594/windows-emergency-response.assets/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258B%25E5%258D%25884.05.24.png" alt="屏幕快照 2020-01-07 下午4.05.24"></p>
+<p><img src="http://47.95.140.43/tu/windows-emergency/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258B%25E5%258D%25884.05.24.png" alt="屏幕快照 2020-01-07 下午4.05.24"></p>
 </li>
 <li><p>检查计划任务</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 1</span><br><span class="line">控制面板 - 任务计划，查看计划任务属性，便可发现木马文件的路径</span><br><span class="line"></span><br><span class="line">// 2</span><br><span class="line">c:\&gt; at</span><br><span class="line">检查计算机与网络上的其他计算机之间的会话或计划任务，如果有的话需要确认是正常连接。</span><br></pre></td></tr></table></figure>
@@ -89,7 +89,7 @@
 
 </li>
 </ul>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck65cgzsc000b1hozc0ueibvf" data-title="🚨 应急响应 | Emergency Response for Windows" data-url="http://yoursite.com/2020/01/03/windows-emergency/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck65cqh5k000ccjozyv864fbc" data-title="🚨 应急响应 | Emergency Response for Windows" data-url="http://yoursite.com/2020/01/03/windows-emergency/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
