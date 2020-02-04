@@ -19,7 +19,7 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">windows server 2003 SP1 开启了 webdav 服务和 .net 服务</span><br></pre></td></tr></table></figure>
 
-<p><img src="http://47.95.140.43/tu/IISshortcut/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-03%2520%25E4%25B8%258B%25E5%258D%25884.56.44.png" alt="屏幕快照 2020-01-03 下午4.56.44"></p>
+<p><img src="http://47.95.140.43/tu/IISshortcut/a.png" alt="屏幕快照 2020-01-03 下午4.56.44"></p>
 <p>网站目录设置一个长文件名的文件夹为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.\wenjian test.123.456\</span><br><span class="line"></span><br><span class="line">Windows 生成的短文件名为</span><br><span class="line">.\WENJIA~1.456\</span><br></pre></td></tr></table></figure>
 
@@ -33,15 +33,15 @@
 <li><p>利用短文件名访问测试文件：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://172.16.97.129:8080/THISIS~1.ASP</span><br></pre></td></tr></table></figure>
 
-<p><img src="http://47.95.140.43/tu/IISshortcut/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-03%2520%25E4%25B8%258B%25E5%258D%25885.13.53.png" alt="屏幕快照 2020-01-03 下午5.13.53"></p>
+<p><img src="http://47.95.140.43/tu/IISshortcut/b.png" alt="屏幕快照 2020-01-03 下午5.13.53"></p>
 </li>
 <li><p>正常情况访问应当报 400 错误，所以判断目标系统具有 IIS 短文件名枚举漏洞：</p>
-<p><img src="http://47.95.140.43/tu/IISshortcut/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-03%2520%25E4%25B8%258B%25E5%258D%25885.39.53.png" alt="屏幕快照 2020-01-03 下午5.39.53"></p>
+<p><img src="http://47.95.140.43/tu/IISshortcut/c.png" alt="屏幕快照 2020-01-03 下午5.39.53"></p>
 </li>
 <li><p>用长文件名访问 this is a test file.456.789.aspx，访问成功：</p>
 </li>
 </ol>
-<p><img src="http://47.95.140.43/tu/IISshortcut/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-03%2520%25E4%25B8%258B%25E5%258D%25885.10.48.png" alt="屏幕快照 2020-01-03 下午5.10.48"></p>
+<p><img src="http://47.95.140.43/tu/IISshortcut/d.png" alt="屏幕快照 2020-01-03 下午5.10.48"></p>
 <p>攻击者可利用此漏洞对敏感文件名进行枚举猜解，如数据库备份（.rar/.zip/.bak/.sql 等）、网站后台等。</p>
 <p>⚙️ <strong>但是该漏洞局限性较大：</strong></p>
 <ol>
@@ -61,7 +61,7 @@
 <p>注意：此方法只能禁止 NTFS 8.3 格式文件名创建，已经存在的短文件名无法移除，需要重新复制才会消失。</p>
 </li>
 </ol>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck66lujzg0003ceoztoc1eeta" data-title="IIS 短文件名漏洞复现" data-url="http://yoursite.com/2019/08/03/IIS-短文件名漏洞/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck67g2sth0003gnozzna25mhj" data-title="IIS 短文件名漏洞复现" data-url="http://yoursite.com/2019/08/03/IIS-短文件名漏洞/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');

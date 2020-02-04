@@ -1,25 +1,25 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>演练 | 一次应急响应 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">演练 | 一次应急响应</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>2 Minutes</li><li><i class="icon icon-calendar"></i>October 3, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="演练-一次应急响应"><a href="#演练-一次应急响应" class="headerlink" title="演练 | 一次应急响应"></a><center>演练 | 一次应急响应</center></h2><p>客户内网遭到黑客攻击，攻击者留下的后门大量占用系统资源，导致系统非常卡顿。</p>
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>演练 | 一次应急响应 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">演练 | 一次应急响应</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>1 Minutes</li><li><i class="icon icon-calendar"></i>October 3, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="演练-一次应急响应"><a href="#演练-一次应急响应" class="headerlink" title="演练 | 一次应急响应"></a><center>演练 | 一次应急响应</center></h2><p>客户内网遭到黑客攻击，攻击者留下的后门大量占用系统资源，导致系统非常卡顿。</p>
 <p>环境：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">windows server 2003</span><br></pre></td></tr></table></figure>
 
 <p>客户防火墙设置被攻击者恶意篡改，netstat 命令发现有异常端口连接：</p>
-<p><img src="http://47.95.140.43/tu/emergency0/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258A%25E5%258D%258810.45.11.png" alt="屏幕快照 2020-01-07 上午10.45.11"></p>
+<p><img src="http://47.95.140.43/tu/emergency0/1.png" alt="屏幕快照 2020-01-07 上午10.45.11"></p>
 <p>任务管理器发现有程序占用大量资源，tasklist 命令判断该文件是攻击者留下的后门程序：</p>
-<p><img src="http://47.95.140.43/tu/emergency0/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258A%25E5%258D%258810.47.29.png" alt="屏幕快照 2020-01-07 上午10.47.29"></p>
+<p><img src="http://47.95.140.43/tu/emergency0/2.png" alt="屏幕快照 2020-01-07 上午10.47.29"></p>
 <p>因为客户系统是 Windows server 2003，所以无法直接定位文件后门程序文件位置，因此利用命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">win + R -&gt; 运行 -&gt; 输入 wmic -&gt; 命令提示符下输入 process</span><br></pre></td></tr></table></figure>
 
 <p>找到对应进程，后面即文件位置路径：</p>
-<p><img src="http://47.95.140.43/tu/emergency0/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258A%25E5%258D%258810.50.52.png" alt="屏幕快照 2020-01-07 上午10.50.52"></p>
+<p><img src="http://47.95.140.43/tu/emergency0/3.png" alt="屏幕快照 2020-01-07 上午10.50.52"></p>
 <p>但是这里的文件路径是 Windows 短文件名，根据经验可以判断出文件的路径是：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Documents and Settings\Administrator\Local Settings\Temp\rad5D92D.tmp\后门程序.exe</span><br></pre></td></tr></table></figure>
 
 <p>将其删除。</p>
 <p>但是这里要注意，因为恶意文件正在运行，所以可能无法删除，需要先结束进程，但是一结束进程又会重启，这里可以先结束 wscript.exe 进程，因为恶意脚本文件是通过 wscript.exe 来调用的，然后再将其删除。</p>
 <p>但是这里发现恶意后门是动态产生的，当进程结束时后门程序随即被清除，于是判断真正的根源在于自动创建后门的恶意程序，在开始 -&gt; 运行 中输入 msinfo32 打开系统信息，查看软件环境 -&gt; 启动程序，定位到恶意程序：</p>
-<p><img src="http://47.95.140.43/tu/emergency0/%25E5%25B1%258F%25E5%25B9%2595%25E5%25BF%25AB%25E7%2585%25A7%25202020-01-07%2520%25E4%25B8%258A%25E5%258D%258811.23.37.png" alt="屏幕快照 2020-01-07 上午11.23.37"></p>
+<p><img src="http://47.95.140.43/tu/emergency0/4.png" alt="屏幕快照 2020-01-07 上午11.23.37"></p>
 <p>至此恶意程序被完全清除。</p>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck66lujzq000bceoz6x4athle" data-title="演练 | 一次应急响应" data-url="http://yoursite.com/2019/10/03/emergency0/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck67g2stq0007gnozoy1ppfs3" data-title="演练 | 一次应急响应" data-url="http://yoursite.com/2019/10/03/emergency0/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
