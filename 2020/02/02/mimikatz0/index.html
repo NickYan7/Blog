@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>🥝 内网 | mimikatz 攻与防 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">🥝 内网 | mimikatz 攻与防</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>7 Minutes</li><li><i class="icon icon-calendar"></i>February 2, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="🥝-内网-mimikatz-攻与防"><a href="#🥝-内网-mimikatz-攻与防" class="headerlink" title="🥝 内网 | mimikatz 攻与防"></a><center>🥝 内网 | mimikatz 攻与防</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>内网渗透时通常利用 <em>mimikatz</em> 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 <em>mimikatz</em> 的利用与防御。</p>
+<h3 id="Debug-Privilege-调试权限"><a href="#Debug-Privilege-调试权限" class="headerlink" title="Debug Privilege 调试权限"></a><em>Debug Privilege</em> 调试权限</h3><p>一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中，有一项策略名为「调试权限」，该权限可以用来调试进程，而本地管理员组默认是有这个权限的。如果目标本地管理员平常用不到该权限，且安全意识较高，删去了该权限的话，<em>mimikatz</em> 就抓不到密码了。</p>
+<p><img src="http://47.95.140.43/tu/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg" alt="Screenshot 2020-03-01 下午6.59.07"></p>
+<center>本地管理员组默认是具有此权限的</center>
+
+<p>但是，域的默认组策略在这一项是没有定义的。按照 Windows 策略的效力位阶，最终是管理员组拥有该权限。</p>
+<p>多条策略不冲突的默认情况下，多条策略是合并的关系；如果冲突的话，优先级高的适用，优先级从低到高为 local policy（本地）👉🏻 site policy （站点）👉🏻 domain policy（域）👉🏻 ou policy（组织单元）</p>
+<p><img src="http://47.95.140.43/tu/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.16.58.jpg" alt="Screenshot 2020-03-01 下午7.16.58"></p>
+<center>默认情况下可成功取得调试权限</center>
+
+<p><img src="http://47.95.140.43/tu/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.18.36.jpg" alt="Screenshot 2020-03-01 下午7.18.36"></p>
+<center>删去该权限后，获取调试权限失败</center>
+
+<h3 id="Credential-Caching"><a href="#Credential-Caching" class="headerlink" title="Credential Caching"></a><em>Credential Caching</em></h3><p>_Domain Cached Credentials_，简称 DDC，也叫 _mscache_，域缓存凭据。</p>
+<p>它是缓存在机器本地注册表中的域凭据 + 域授权信息。计算机加域之后就会开始进行 kerberos 认证，其中必须要有 KDC 的参与。例如在一家公司中，某员工使用的办公笔记本加了公司的域，那么它一直是用域账号登录此机器，尝试登录时将由 KDC 来进行验证，验证通过后就可登录该笔记本。但是有时候如果遇到了断网的情况，却依然可以登录该笔记本，也就是说此时验证身份时不与 KDC 交互，那么是谁负责验证输入的域账号密码是否正确呢？这就是 _mscache_，Windows 尝试使用本机缓存的凭证进行认证，默认缓存十条。超过十个之后，新凭据会覆盖旧凭据。</p>
+<p><em>mscache</em> 有两个版本，XP/2003 是第一代，Vista/2008 之后是第二代。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">缓存位置（默认本地管理员也没有权限访问）</span><br><span class="line">HKEY_LOCAL_MACHINE\SECURITY\Cache</span><br></pre></td></tr></table></figure>
+
+<h4 id="mscache-中的内容"><a href="#mscache-中的内容" class="headerlink" title="mscache 中的内容"></a><em>mscache</em> 中的内容</h4><p>我们比较关心的内容有：</p>
+<ul>
+<li>域用户的 <em>mscache hash_，或者叫 _dcc hash_，根据操作系统的版本不同，又分为 _dcc1 hash</em> 和 <em>dcc2 hash_。vista 之前保存的是 _dcc1_，之后保存的是 _dcc2_，两种 hash 的生成算法有所不同。这段 _mscache hash</em> 主要用于对用户输入的密码进行验证。</li>
+<li>域用户的授权信息，比如这个域用户是属于哪个域组的，授权信息主要用于在验证通过后生成 _access token_。</li>
+<li>一些其他的信息，比如 <em>UPN_、_logon server</em> 之类。</li>
+</ul>
+<p><img src="http://47.95.140.43/tu/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.48.51.jpg" alt="Screenshot 2020-03-01 下午7.48.51"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// mimikatz 执行</span><br><span class="line">lsadump::cache</span><br></pre></td></tr></table></figure>
+
+<p>导出 mscache 需要 system 权限，抓到的值是 _mscacheV2_，不可直接利用，需要用 hashcat 或 john 破解。</p>
+<p>当缓存数设置为 0 时（即不缓存），可以在一定程度上防御 <em>mimikatz</em> 的攻击。</p>
+<h3 id="Protected-User-Group"><a href="#Protected-User-Group" class="headerlink" title="Protected User Group"></a><em>Protected User Group</em></h3><p>受保护的用户组，这是在 Windows Server 2012 之后引入的一个新的安全组，用来让本地管理员这种高权限用户只能通过 Kerberos 来认证（Windows Server 2008 之前的系统打了 KB2871997 补丁也会增加这个安全组）。来防止明文存储在内存中和 Net-NTLM Hash 泄露：由于通过 Kerberos 认证，所以不会泄漏 Net-NTLM Hash。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Protected User Group 的权限限制</span><br><span class="line">* 不能通过 NTLM 协议进行认证</span><br><span class="line">* 不能在 Kerberos 域认证中使用 DES 或 RC4 这种弱加密算法</span><br><span class="line">* 不能被 Kerberos 委派或者非约束委派</span><br><span class="line">* Kerberos TGT 默认为 4 小时，4 小时后就要重新认证</span><br></pre></td></tr></table></figure>
+
+<p>将需要保护的用户直接拉入该组即可，一定程度上可以防御 <em>mimikatz</em> 攻击。</p>
+<h3 id="WDigest"><a href="#WDigest" class="headerlink" title="WDigest"></a><em>WDigest</em></h3><p>WDigest 协议在 Windows XP 就已经引入了，该协议被设计出来是把明文密码存在 lsass.exe 里，用来进行 http 认证。默认在 Windows Server 2008 之前是默认启用的，在此之后默认是关闭的。</p>
+<p>如果在 server 08 之前的系统打上了 KB2871997 补丁，那么就可以去启用或禁用 WDigest。</p>
+<p>配置如下键值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SecurityProviders\WDigest</span><br></pre></td></tr></table></figure>
+
+<p>当把 UseLogonCredential 的值设置为 0，WDigest 不会将凭证缓存在内存；如果设置为 1，则会进行缓存，通过 <em>mimikatz</em> 可直接抓取明文密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// mimikatz</span><br><span class="line"></span><br><span class="line">privilege::debug</span><br><span class="line">sekurlsa::wdigest</span><br></pre></td></tr></table></figure>
+
+<h3 id="Restricted-Admin-Mode"><a href="#Restricted-Admin-Mode" class="headerlink" title="Restricted Admin Mode"></a><em>Restricted Admin Mode</em></h3><p>在 NTLM 协议中，是存在中间人攻击的。通过 RDP 中间人攻击可获取到登录用户的密码，说明在认证过程中客户端输入的密码在登录过程中是会传输至服务器的。</p>
+<p>受限制管理员模式，使账户不暴露在目标系统里，也就是不会传送可被解密的明文密码。在 Windows 8.1/Windows Server 2012 R2（⚠️ 注意是 R2）中被引入。Windows 7/Windows Server 2008 需打补丁 KB2871997、KB1973351。此策略需要客户端和服务端相互配合。</p>
+<p>在服务端输入以下命令在注册表添加键值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">REG ADD &quot;HKLM\System\CurrentControlSet\Control\Lsa&quot; /v DisableRestrictedAdmin /t REG_DWORD /d 00000000 /f</span><br></pre></td></tr></table></figure>
+
+<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>记录几点 Tricks：</p>
+<ul>
+<li>拿下目标主机之后，如果账户禁止了调试权限，那 <em>mimikatz</em> 很大程度上将被限制。</li>
+<li>WDigest 默认是禁用的，可手动打开守株待兔。</li>
+<li><em>mscahce</em> 需要用 hashcat 破解后利用。</li>
+</ul>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://labs.portcullis.co.uk/tools/freerdp-pth/</span><br><span class="line">https://blogs.technet.microsoft.com/kfalde/2013/08/14/restricted-admin-mode-for-rdp-in-windows-8-1-2012-r2/</span><br><span class="line">http://wwwtt0401.blog.163.com/blog/static/361493062012010114020272/</span><br><span class="line">https://medium.com/blue-team/preventing-mimikatz-attacks-ed283e7ebdd5</span><br><span class="line">https://mp.weixin.qq.com/s/O1PUlffIbAh3trnB-YDZaw</span><br></pre></td></tr></table></figure>
+
+</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ck7ahfvz0000a96ozkj0120ak" data-title="🥝 内网 | mimikatz 攻与防" data-url="http://www.naykcin.top/2020/02/02/mimikatz0/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/24/cve-2020-1938/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/12/MS14-068/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
