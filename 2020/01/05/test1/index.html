@@ -1,59 +1,50 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>🔩 实战 - Web | 旁站渗透拿下主站 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">🔩 实战 - Web | 旁站渗透拿下主站</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>4 Minutes</li><li><i class="icon icon-calendar"></i>January 5, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="🔩-实战-Web-旁站渗透拿下主站"><a href="#🔩-实战-Web-旁站渗透拿下主站" class="headerlink" title="🔩 实战 - Web | 旁站渗透拿下主站"></a><center>🔩 实战 - Web | 旁站渗透拿下主站</center></h2><h3 id="🔌-0x00-前言"><a href="#🔌-0x00-前言" class="headerlink" title="🔌 0x00 前言"></a>🔌 0x00 前言</h3><p>记录一次实战渗透，中间用到了社工技巧。。。🤣 先简单说下过程：</p>
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>🔩 实战 - Web | 旁站渗透拿下主站 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/upload/background.JPG"><div class="post-title"><h1 class="title">🔩 实战 - Web | 旁站渗透拿下主站</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>4 Minutes</li><li><i class="icon icon-calendar"></i>January 5, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="🔩-实战-Web-旁站渗透拿下主站"><a href="#🔩-实战-Web-旁站渗透拿下主站" class="headerlink" title="🔩 实战 - Web | 旁站渗透拿下主站"></a><center>🔩 实战 - Web | 旁站渗透拿下主站</center></h2><h3 id="🔌-0x00-前言"><a href="#🔌-0x00-前言" class="headerlink" title="🔌 0x00 前言"></a>🔌 0x00 前言</h3><p>记录一次实战渗透，中间用到了社工技巧。。。🤣 先简单说下过程：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1）主站渗透</span><br><span class="line">2）旁站渗透</span><br></pre></td></tr></table></figure>
 
 <h3 id="📍-0x01-主站渗透"><a href="#📍-0x01-主站渗透" class="headerlink" title="📍 0x01 主站渗透"></a>📍 0x01 主站渗透</h3><p>在某网站扫到一个上传点，但是上传按钮点不动，看下源码：</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.25.18.png" alt="屏幕快照 2020-02-03 下午6.25.18"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.25.18.png" alt="屏幕快照 2020-02-03 下午6.25.18"></p>
 <p>在本地改一下前端代码，上传一句话木马。</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.37.25.png" alt="屏幕快照 2020-02-03 下午6.37.25"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.37.25.png" alt="屏幕快照 2020-02-03 下午6.37.25"></p>
 <p>但是目标网站对文件类型有白名单限制，上传失败。</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.32.27.png" alt="屏幕快照 2020-02-03 下午6.32.27"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.32.27.png" alt="屏幕快照 2020-02-03 下午6.32.27"></p>
 <p>换个思路，开始进行其他尝试，dirsearch 搞一波，发现一个 ewebeditor 编辑器的地址，但是打开返回 500。😓</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.42.37.png" alt="屏幕快照 2020-02-03 下午6.42.37"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%886.42.37.png" alt="屏幕快照 2020-02-03 下午6.42.37"></p>
 <p>接着尝试，找到一个注入点，直接上 sqlmap。</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.01.44.png" alt="屏幕快照 2020-02-03 下午7.01.44"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.01.44.png" alt="屏幕快照 2020-02-03 下午7.01.44"></p>
 <p>一系列注入后拿到后台账号密码：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">administrator/fangworkpassword</span><br><span class="line">admin/psskjpass</span><br></pre></td></tr></table></figure>
 
 <p>但是始终没有扫到后台地址。但是根据网页源代码等 banner 信息获取到 CMS 信息，社工建站公司拿到默认后台地址，尝试了一下居然真的没改。🤣</p>
 <p>同时这个登录页面还存在用户名可枚举等漏洞。😓</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.12.14.png" alt="屏幕快照 2020-02-03 下午7.12.14"></p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.12.26.png" alt="屏幕快照 2020-02-03 下午7.12.26"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.12.14.png" alt="屏幕快照 2020-02-03 下午7.12.14"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.12.26.png" alt="屏幕快照 2020-02-03 下午7.12.26"></p>
 <p>成功登入后台。</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.17.55.png" alt="屏幕快照 2020-02-03 下午7.17.55"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.17.55.png" alt="屏幕快照 2020-02-03 下午7.17.55"></p>
 <p>后台有网站数据库管理功能，但是没有用户名和密码，无法进行利用。</p>
 <p>各种挖掘后也没有什么值得利用的信息，后台的上传点依旧调用的是那个接口，无法利用。</p>
 <p>但是在 SQL 注入的过程中发现数据库中的某个表中的数据可能控制了允许上传的后缀：</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.25.48.png" alt="屏幕快照 2020-02-03 下午7.25.48"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.25.48.png" alt="屏幕快照 2020-02-03 下午7.25.48"></p>
 <p>尝试了下 –sql-shell 更新数据加入 php 后缀，失败，报错非堆查询：</p>
-<p><img src="http://47.95.140.43/tu/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.32.12.png" alt="屏幕快照 2020-02-03 下午7.32.12"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%887.32.12.png" alt="屏幕快照 2020-02-03 下午7.32.12"></p>
 <p>主站的一系列尝试结束，只好改变思路，尝试找下旁站。</p>
 <h3 id="📍-0x02-旁站渗透"><a href="#📍-0x02-旁站渗透" class="headerlink" title="📍 0x02 旁站渗透"></a>📍 0x02 旁站渗透</h3><p>找一波旁站，站长工具 - 同 IP 网站查询。发现几个可用的，选其中一个测了一下，发现具有弱口令 admin/admin，可直接进后台：</p>
-<p><img src="http://47.95.140.43/tu/test1/s.jpg" alt="s"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/s.jpg" alt="s"></p>
 <p>样式管理 👉🏻 添加样式，上传一句话，但是该服务器存在 waf，需要免杀的一句话（或直接上 Behinder），然后直接菜刀连接：</p>
-<p><img src="http://47.95.140.43/tu/test1/c.jpg" alt="c"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/c.jpg" alt="c"></p>
 <p>连接成功，但是权限控制很严格。在 filesystem\database.php 中有一个数据备份的功能点，但是在目标后台和旁站都不存在该功能点，有可能是管理员删除了该功能。</p>
-<p><img src="http://47.95.140.43/tu/test1/a1.jpg" alt="a1"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a1.jpg" alt="a1"></p>
 <p>抓包改包让后台主页面跳转到该功能上，得到账号密码：a0825135757/p1s3s6k8j9s3ql</p>
-<p><img src="http://47.95.140.43/tu/test1/a2.jpg" alt="a2"></p>
-<p><img src="http://47.95.140.43/tu/test1/a3.jpg" alt="a3"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a2.jpg" alt="a2"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a3.jpg" alt="a3"></p>
 <p>然后利用旁站刚才上传的 shell，连接数据库修改控制了文件类型的表中的数据：</p>
-<p><img src="http://47.95.140.43/tu/test1/a4.jpg" alt="a4"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a4.jpg" alt="a4"></p>
 <p>修改成功，然后回到最初的起点，再上传一句话。</p>
-<p><img src="http://47.95.140.43/tu/test1/a5.jpg" alt="a5"></p>
-<p><img src="http://47.95.140.43/tu/test1/a6.jpg" alt="a6"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a5.jpg" alt="a5"></p>
+<p><img src="//naykcin.top/2020/01/05/test1/a6.jpg" alt="a6"></p>
 <p>接下来就是内网的事儿了，先记录到这里。</p>
 <h3 id="📍-0x03-后话"><a href="#📍-0x03-后话" class="headerlink" title="📍 0x03 后话"></a>📍 0x03 后话</h3><p>这次实战经历后，再一次感觉到自身网络安全知识的贫瘠。。。🤣 尤其是代码审计这一块，还有很多利用细节掌握得不够彻底，在实际操作的时候再去查资料就会大幅拖慢工作进度。</p>
 <p>所以说平时的技术积累真的很重要，不说了，继续沉淀。</p>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ckaigj8mc000guq90rckjm6fm" data-title="🔩 实战 - Web | 旁站渗透拿下主站" data-url="https://naykcin.top/2020/01/05/test1/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
-var duoshuoQuery = {short_name: siteName};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0] 
-  || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/06/sqlibypass/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/03/windows-emergency/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/06/sqlibypass/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/03/windows-emergency/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {
   wrap.className += ' done';
 }</script></body></html>

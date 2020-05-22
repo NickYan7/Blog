@@ -1,0 +1,55 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>Web | PHP-include 文件包含漏洞复现 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/logo.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/upload/background.JPG"><div class="post-title"><h1 class="title">Web | PHP-include 文件包含漏洞复现</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>5 Minutes</li><li><i class="icon icon-calendar"></i>June 7, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="Web-PHP-include-文件包含漏洞复现"><a href="#Web-PHP-include-文件包含漏洞复现" class="headerlink" title="Web | PHP-include 文件包含漏洞复现"></a><center>Web | PHP-include 文件包含漏洞复现</center></h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">这里利用了 phpinfo。此漏洞与 php 版本无关。</span><br></pre></td></tr></table></figure>
+
+<p>在 php 文件包含漏洞中，如果找不到可以包含的文件，则可以通过包含临时文件的方法来 getshell。因为临时文件名是随机的，如果目标网站上存在 phpinfo，则可以通过 phpinfo 来获取临时文件名，进而进行包含。</p>
+<p>条件：</p>
+<ol>
+<li>开启了 php 文件包含函数。</li>
+<li>目标文件夹下有 phpinfo 函数。</li>
+</ol>
+<h3 id="📍-利用原理"><a href="#📍-利用原理" class="headerlink" title="📍 利用原理"></a>📍 利用原理</h3><p>在给 PHP 发送 POST 数据包时，如果数据包里包含文件区块，那么无论访问的代码中有没有处理文件上传的逻辑，PHP 都会将这个文件保存成一个临时文件（通常是 /tmp/php[6个随机字符]），文件名可以在 $_FILES 变量中找到。这个临时文件夹，在请求结束后就会被删除。</p>
+<p>同时，因为 phpinfo 页面会将当前请求上下文中的所有变量都打印出来，所以如果我们向 phpinfo 页面发送包含文件区块的数据包，那么就可以在返回包里找到 $_FILES 变量的内容，其中自然包含临时文件名。</p>
+<p>但是文件包含漏洞和 phpinfo 页面通常是两个页面，理论上需要先发送数据包给 phpinfo 页面，然后从返回页面中匹配出临时文件名，然后再将这个文件名发送给文件包含漏洞页面，进行 getshell。在第一个请求结束时，临时文件就被删除了，第二个请求自然也就无法进行包含。</p>
+<p>所以这里利用的方法是：</p>
+<ol>
+<li>发送包含了 webshell 的上传数据包给 phpinfo 页面，这个数据包的 header、get 等位置需要塞满垃圾数据。</li>
+<li>因为 phpinfo 页面会将所有数据都打印出来，1 中的垃圾数据会将整个 phpinfo 页面撑的非常大。</li>
+<li>php 默认的输出缓冲区大小为 4096，可以理解为 php 每次返回 4096 个字节给 socket 连接。</li>
+<li>因此我们直接操作原生 socket，每次读取 4096 个字节，只要读取到的字符里包含临时文件名，就立刻发送第二个数据包。</li>
+<li>此时，第一个数据包的 socket 连接实际上还没有结束，因为 php 还在继续每次输出 4096 个字节，所以临时文件此时还没有被删除。</li>
+<li>利用这个时间差，第二个数据包，也就是文件包含漏洞的利用，即可成功包含临时文件，最终 getshell。</li>
+</ol>
+<h3 id="📍-漏洞复现"><a href="#📍-漏洞复现" class="headerlink" title="📍 漏洞复现"></a>📍 漏洞复现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php 版本：5.5.10</span><br></pre></td></tr></table></figure>
+
+<p>分别访问 phpinfo 页面和文件包含漏洞页面：</p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.10.15.png" alt="屏幕快照 2019-12-05 上午11.10.15"></p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.10.43.png" alt="屏幕快照 2019-12-05 上午11.10.43"></p>
+<p>可以发现 lfi.php 页面是存在文件包含漏洞的。</p>
+<p>此时运行 exp 脚本，理论上会在目标主机的 /tmp 目录下写入 webshell 文件 g：</p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.18.12.png" alt="屏幕快照 2019-12-05 上午11.18.12"></p>
+<p>可见，在执行到第 200 个数据包的时候写入成功，然后利用 lfi.php 来包含写入的脚本文件执行任意命令：</p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.22.53.png" alt="屏幕快照 2019-12-05 上午11.22.53"></p>
+<p>尝试写入一句话木马：</p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.31.38.png" alt="屏幕快照 2019-12-05 上午11.31.38"></p>
+<p>蚁剑连接：</p>
+<p><img src="//naykcin.top/2019/06/07/phpinclude/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-05%20%e4%b8%8a%e5%8d%8811.33.34.png" alt="屏幕快照 2019-12-05 上午11.33.34"></p>
+<h3 id="📍-总结"><a href="#📍-总结" class="headerlink" title="📍 总结"></a>📍 总结</h3><ul>
+<li><p><strong>Linux 写入一句话的方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 命令行写入一句话</span><br><span class="line">$ echo &apos;&lt;?php eval($_POST[sb]);?&gt;&apos; &gt; a.php</span><br><span class="line"></span><br><span class="line">// 在 URL 中写入，注意反斜杠</span><br><span class="line">http://127.0.0.1/lfi.php?file=/tmp/g&amp;1=system(&apos;echo \&apos;&lt;?php eval($_POST[sb]);?&gt;\&apos;&apos;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Windows 写入一句话的方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">c:\&gt; copy con c:\test.php</span><br><span class="line">c:\&gt; &lt;?php eval($_POST[sb]);?&gt;</span><br><span class="line">按 control + z + enter 保存</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>写入一句话的时候要大写 POST。</li>
+<li>菜刀连接用 eval()，执行系统命令用 system()。</li>
+</ul>
+</li>
+<li><p>要注意目录必须含有可写入的权限才能够写入一句话木马，通常比如上传目录等具有可写入的权限。</p>
+</li>
+<li><p>Linux 中如果多个单引号的话可以用反斜杠 \ 来转义。</p>
+</li>
+</ul>
+</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/07/06/CVE-2014-0610/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/06/04/ms12020/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
