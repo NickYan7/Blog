@@ -7,16 +7,16 @@
 </ol>
 <p>这里 jsEncrypter 是黑客 c0ny1 的作品，相当于思路 1 和 2 的结合，可以用插件方便地跑起来。</p>
 <h3 id="📍-0x01-安装与配置"><a href="#📍-0x01-安装与配置" class="headerlink" title="📍 0x01 安装与配置"></a>📍 0x01 安装与配置</h3><p>首先安装 maven。Mac 直接 brew 安装即可。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install maven</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ brew install maven</span><br></pre></td></tr></table></figure>
 
 <p>安装 phantomjs，方法较多，可用 brew 安装。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew cask phantomjs</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ brew cask phantomjs</span><br></pre></td></tr></table></figure>
 
 <p>git clone 源码，或者直接下载 release 版本。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/c0ny1/jsEncrypter</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ git clone https://github.com/c0ny1/jsEncrypter</span><br></pre></td></tr></table></figure>
 
 <p>cd 到 jsEncrypter 目录，maven 编译。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mvn package</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ mvn package</span><br></pre></td></tr></table></figure>
 
 <p>编译好后会多出一个 target 文件夹。</p>
 <p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%881.59.45-5009661.png" alt="屏幕快照 2019-11-29 下午1.59.45-5009661"></p>
@@ -37,7 +37,7 @@
 <p>改写时要注意修改<strong>引入实现加密的 js 文件</strong>，其他的修改红框内的内容即可。</p>
 <p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.18.09.png" alt="屏幕快照 2019-11-29 下午3.18.09"></p>
 <p>然后运行 server 文件。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">phantomjs encrypt.js</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">phantomjs encrypt.js</span><br></pre></td></tr></table></figure>
 
 <p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.20.04.png" alt="屏幕快照 2019-11-29 下午3.20.04"></p>
 <p>如果有报错，一般是未修改引入实现加密的文件 xxx.js。</p>
