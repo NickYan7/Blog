@@ -1,4 +1,158 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>PenTest Vol.5 - Web | 拿下登录页面 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">PenTest Vol.5 - Web | 拿下登录页面</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>13 Minutes</li><li><i class="icon icon-calendar"></i>August 7, 2019</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="PenTest-Vol-5-Web-拿下登录页面"><a href="#PenTest-Vol-5-Web-拿下登录页面" class="headerlink" title="PenTest Vol.5 - Web | 拿下登录页面"></a><center>PenTest Vol.5 - Web | 拿下登录页面</center></h2><h3 id="💡-思路"><a href="#💡-思路" class="headerlink" title="💡 思路"></a>💡 思路</h3><p><img src="//naykcin.top/2019/08/07/denglu/a.png" alt="a"></p>
+<!DOCTYPE html>
+<html lang=en>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="PenTest Vol.5 - Web | 拿下登录页面💡 思路 条件允许的情况下，在测试前可以用扫描器来扫描，最常用的是 Nessus 和 AWVS，除此之外还可以用别的自动化测试工具，比如 Nikto扫描器，Appscan，W3af，长亭科技 Xray 扫描器。 //一些工具的使用方法    Nikto https://zhuanlan.zhihu.com/p/70225775    Xra">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PenTest Vol.5 - Web | 拿下登录页面">
+<meta property="og:url" content="https://naykcin.top/2019/08/07/denglu/index.html">
+<meta property="og:site_name" content="Naykcin&#39;s Page">
+<meta property="og:description" content="PenTest Vol.5 - Web | 拿下登录页面💡 思路 条件允许的情况下，在测试前可以用扫描器来扫描，最常用的是 Nessus 和 AWVS，除此之外还可以用别的自动化测试工具，比如 Nikto扫描器，Appscan，W3af，长亭科技 Xray 扫描器。 //一些工具的使用方法    Nikto https://zhuanlan.zhihu.com/p/70225775    Xra">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/a.png">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/1044570-20190902175828388-2104988991.png">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/jq8oxd8n8x.jpeg">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/gugxz6zje0-4756803.jpeg">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/qofa8mjuwf.jpeg">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/hgrqmmzp1s-4756890.png">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/col2xxrfsv.jpeg">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/11oizlqiip.png">
+<meta property="og:image" content="https://naykcin.top/2019/08/07/denglu/8qesiznrog.png">
+<meta property="og:updated_time" content="2020-05-22T18:25:56.134Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PenTest Vol.5 - Web | 拿下登录页面">
+<meta name="twitter:description" content="PenTest Vol.5 - Web | 拿下登录页面💡 思路 条件允许的情况下，在测试前可以用扫描器来扫描，最常用的是 Nessus 和 AWVS，除此之外还可以用别的自动化测试工具，比如 Nikto扫描器，Appscan，W3af，长亭科技 Xray 扫描器。 //一些工具的使用方法    Nikto https://zhuanlan.zhihu.com/p/70225775    Xra">
+<meta name="twitter:image" content="https://naykcin.top/2019/08/07/denglu/a.png">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>PenTest Vol.5 - Web | 拿下登录页面</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2019/09/02/IPC/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2019/08/03/IISshortcut/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2019/08/07/denglu/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2019/08/07/denglu/&text=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2019/08/07/denglu/&is_video=false&description=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PenTest Vol.5 - Web | 拿下登录页面&body=Check out this article: https://naykcin.top/2019/08/07/denglu/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2019/08/07/denglu/&name=PenTest Vol.5 - Web | 拿下登录页面&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2019/08/07/denglu/&t=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PenTest-Vol-5-Web-拿下登录页面"><span class="toc-number">1.</span> <span class="toc-text">PenTest Vol.5 - Web | 拿下登录页面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#💡-思路"><span class="toc-number">1.1.</span> <span class="toc-text">💡 思路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-SQL-注入"><span class="toc-number">1.1.1.</span> <span class="toc-text">📍 SQL 注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-明文传输-用户名可枚举-弱口令爆破"><span class="toc-number">1.1.2.</span> <span class="toc-text">📍 明文传输/用户名可枚举/弱口令爆破</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-扫描"><span class="toc-number">1.1.3.</span> <span class="toc-text">📍 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-框架漏洞"><span class="toc-number">1.1.4.</span> <span class="toc-text">📍 框架漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-社会工程"><span class="toc-number">1.1.5.</span> <span class="toc-text">📍 社会工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-逻辑漏洞"><span class="toc-number">1.1.6.</span> <span class="toc-text">📍 逻辑漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-禁用-JS-插件，查看页面源代码"><span class="toc-number">1.1.7.</span> <span class="toc-text">📍 禁用 JS 插件，查看页面源代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-URL-重定向"><span class="toc-number">1.1.8.</span> <span class="toc-text">📍 URL 重定向</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-未授权访问"><span class="toc-number">1.1.9.</span> <span class="toc-text">📍 未授权访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-验证码问题"><span class="toc-number">1.1.10.</span> <span class="toc-text">📍 验证码问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#📍-总结"><span class="toc-number">1.2.</span> <span class="toc-text">📍 总结</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        PenTest Vol.5 - Web | 拿下登录页面
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Naykcin's Page</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2019-08-07T07:53:18.000Z" itemprop="datePublished">2019-08-07</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="PenTest-Vol-5-Web-拿下登录页面"><a href="#PenTest-Vol-5-Web-拿下登录页面" class="headerlink" title="PenTest Vol.5 - Web | 拿下登录页面"></a><center>PenTest Vol.5 - Web | 拿下登录页面</center></h2><h3 id="💡-思路"><a href="#💡-思路" class="headerlink" title="💡 思路"></a>💡 思路</h3><p><img src="//naykcin.top/2019/08/07/denglu/a.png" alt="a"></p>
 <p>条件允许的情况下，在测试前可以用扫描器来扫描，最常用的是 Nessus 和 AWVS，除此之外还可以用别的自动化测试工具，比如 Nikto扫描器，Appscan，W3af，长亭科技 Xray 扫描器。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">//一些工具的使用方法</span><br><span class="line">    Nikto https://zhuanlan.zhihu.com/p/70225775</span><br><span class="line">    Xray  https://chaitin.github.io/xray/#/</span><br><span class="line">    W3af  https://www.freebuf.com/column/145984.html</span><br><span class="line">    Appscan https://zhuanlan.zhihu.com/p/28729371</span><br></pre></td></tr></table></figure>
 
@@ -133,7 +287,127 @@
 </li>
 <li>寻找框架漏洞</li>
 </ul>
-</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/09/02/IPC/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/08/03/IISshortcut/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
-window.onload = function () {
-  wrap.className += ' done';
-}</script></body></html>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PenTest-Vol-5-Web-拿下登录页面"><span class="toc-number">1.</span> <span class="toc-text">PenTest Vol.5 - Web | 拿下登录页面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#💡-思路"><span class="toc-number">1.1.</span> <span class="toc-text">💡 思路</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-SQL-注入"><span class="toc-number">1.1.1.</span> <span class="toc-text">📍 SQL 注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-明文传输-用户名可枚举-弱口令爆破"><span class="toc-number">1.1.2.</span> <span class="toc-text">📍 明文传输/用户名可枚举/弱口令爆破</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-扫描"><span class="toc-number">1.1.3.</span> <span class="toc-text">📍 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-框架漏洞"><span class="toc-number">1.1.4.</span> <span class="toc-text">📍 框架漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-社会工程"><span class="toc-number">1.1.5.</span> <span class="toc-text">📍 社会工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-逻辑漏洞"><span class="toc-number">1.1.6.</span> <span class="toc-text">📍 逻辑漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-禁用-JS-插件，查看页面源代码"><span class="toc-number">1.1.7.</span> <span class="toc-text">📍 禁用 JS 插件，查看页面源代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-URL-重定向"><span class="toc-number">1.1.8.</span> <span class="toc-text">📍 URL 重定向</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-未授权访问"><span class="toc-number">1.1.9.</span> <span class="toc-text">📍 未授权访问</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#📍-验证码问题"><span class="toc-number">1.1.10.</span> <span class="toc-text">📍 验证码问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#📍-总结"><span class="toc-number">1.2.</span> <span class="toc-text">📍 总结</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2019/08/07/denglu/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2019/08/07/denglu/&text=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2019/08/07/denglu/&is_video=false&description=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PenTest Vol.5 - Web | 拿下登录页面&body=Check out this article: https://naykcin.top/2019/08/07/denglu/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2019/08/07/denglu/&title=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2019/08/07/denglu/&name=PenTest Vol.5 - Web | 拿下登录页面&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2019/08/07/denglu/&t=PenTest Vol.5 - Web | 拿下登录页面"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Naykcin
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

@@ -1,4 +1,153 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究） - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>9 Minutes</li><li><i class="icon icon-calendar"></i>June 26, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h1 id="SSRF-攻击-Redis-Getshell（生成-gopher-payload）"><a href="#SSRF-攻击-Redis-Getshell（生成-gopher-payload）" class="headerlink" title="SSRF 攻击 Redis Getshell（生成 gopher payload）"></a><center>SSRF 攻击 Redis Getshell（生成 gopher payload）</center></h1><h2 id="📍-目录"><a href="#📍-目录" class="headerlink" title="📍 目录"></a>📍 目录</h2><blockquote>
+<!DOCTYPE html>
+<html lang=en>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="SSRF 攻击 Redis Getshell（生成 gopher payload）📍 目录 * 前言 * gopher 协议概述 * 构造和生成 payload * SSRF+gopher 访问内网 redis 后话   📍 前言这篇博客就不细讲 SSRF+gopher 的具体攻击过程了，主要针对 gopher 协议的特点生成 payload 做一点微小的研究。 📍 gopher 协议概述g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）">
+<meta property="og:url" content="https://naykcin.top/2020/06/26/ssrf-gopher/index.html">
+<meta property="og:site_name" content="Naykcin&#39;s Page">
+<meta property="og:description" content="SSRF 攻击 Redis Getshell（生成 gopher payload）📍 目录 * 前言 * gopher 协议概述 * 构造和生成 payload * SSRF+gopher 访问内网 redis 后话   📍 前言这篇博客就不细讲 SSRF+gopher 的具体攻击过程了，主要针对 gopher 协议的特点生成 payload 做一点微小的研究。 📍 gopher 协议概述g">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.40.02.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.39.59.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.59.50.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%885.04.03.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.42.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.22.jpg">
+<meta property="og:updated_time" content="2020-06-26T01:40:20.900Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）">
+<meta name="twitter:description" content="SSRF 攻击 Redis Getshell（生成 gopher payload）📍 目录 * 前言 * gopher 协议概述 * 构造和生成 payload * SSRF+gopher 访问内网 redis 后话   📍 前言这篇博客就不细讲 SSRF+gopher 的具体攻击过程了，主要针对 gopher 协议的特点生成 payload 做一点微小的研究。 📍 gopher 协议概述g">
+<meta name="twitter:image" content="https://naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.40.02.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2020/06/25/isolate-app-from-windows/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/06/26/ssrf-gopher/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/06/26/ssrf-gopher/&text=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/06/26/ssrf-gopher/&is_video=false&description=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）&body=Check out this article: https://naykcin.top/2020/06/26/ssrf-gopher/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/06/26/ssrf-gopher/&name=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/06/26/ssrf-gopher/&t=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SSRF-攻击-Redis-Getshell（生成-gopher-payload）"><span class="toc-number">1.</span> <span class="toc-text">SSRF 攻击 Redis Getshell（生成 gopher payload）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-目录"><span class="toc-number">1.1.</span> <span class="toc-text">📍 目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-前言"><span class="toc-number">1.2.</span> <span class="toc-text">📍 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-gopher-协议概述"><span class="toc-number">1.3.</span> <span class="toc-text">📍 gopher 协议概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#访问-Redis"><span class="toc-number">1.3.1.</span> <span class="toc-text">访问 Redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gopher-协议转换规则"><span class="toc-number">1.3.2.</span> <span class="toc-text">gopher 协议转换规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-构造和生成-Payload"><span class="toc-number">1.4.</span> <span class="toc-text">📍 构造和生成 Payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-SSRF-gopher-攻击内网-Redis"><span class="toc-number">1.5.</span> <span class="toc-text">📍 SSRF+gopher 攻击内网 Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写入-crontab-计划任务反弹-shell"><span class="toc-number">1.5.1.</span> <span class="toc-text">写入 crontab 计划任务反弹 shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-后话"><span class="toc-number">1.6.</span> <span class="toc-text">📍 后话</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#访问-mysql"><span class="toc-number">1.6.1.</span> <span class="toc-text">访问 mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发送-GET-POST-数据"><span class="toc-number">1.6.2.</span> <span class="toc-text">发送 GET/POST 数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#脚本"><span class="toc-number">1.6.3.</span> <span class="toc-text">脚本</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Naykcin's Page</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-06-25T19:51:40.000Z" itemprop="datePublished">2020-06-26</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="SSRF-攻击-Redis-Getshell（生成-gopher-payload）"><a href="#SSRF-攻击-Redis-Getshell（生成-gopher-payload）" class="headerlink" title="SSRF 攻击 Redis Getshell（生成 gopher payload）"></a><center>SSRF 攻击 Redis Getshell（生成 gopher payload）</center></h1><h2 id="📍-目录"><a href="#📍-目录" class="headerlink" title="📍 目录"></a>📍 目录</h2><blockquote>
 <pre><code>* 前言
 * gopher 协议概述
 * 构造和生成 payload
@@ -65,7 +214,127 @@
 <h3 id="访问-mysql"><a href="#访问-mysql" class="headerlink" title="访问 mysql"></a>访问 mysql</h3><p>访问 mysql 的步骤和访问 redis 其实大同小异，也是先监听端口转发流量分析流量的格式。但是有一个问题我一直没搞明白：redis 允许先连接，然后 <code>auth password</code> 这种方式来认证，方便分析流量，但是 mysql 在进行连接时必须带参数 <code>-p</code> 来输入密码，这样的话第一步密码的流量就抓不到了，那还怎么连 mysql 呢？费解。</p>
 <h3 id="发送-GET-POST-数据"><a href="#发送-GET-POST-数据" class="headerlink" title="发送 GET/POST 数据"></a>发送 GET/POST 数据</h3><p>浏览器访问，Burp 抓包，然后另存为文件，其他的思路都差不多。</p>
 <h3 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h3><p><em><a href="https://github.com/NickYan7/gopher_payload_generator" target="_blank" rel="noopener">https://github.com/NickYan7/gopher_payload_generator</a></em></p>
-</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/06/25/isolate-app-from-windows/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
-window.onload = function () {
-  wrap.className += ' done';
-}</script></body></html>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#SSRF-攻击-Redis-Getshell（生成-gopher-payload）"><span class="toc-number">1.</span> <span class="toc-text">SSRF 攻击 Redis Getshell（生成 gopher payload）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-目录"><span class="toc-number">1.1.</span> <span class="toc-text">📍 目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-前言"><span class="toc-number">1.2.</span> <span class="toc-text">📍 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-gopher-协议概述"><span class="toc-number">1.3.</span> <span class="toc-text">📍 gopher 协议概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#访问-Redis"><span class="toc-number">1.3.1.</span> <span class="toc-text">访问 Redis</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gopher-协议转换规则"><span class="toc-number">1.3.2.</span> <span class="toc-text">gopher 协议转换规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-构造和生成-Payload"><span class="toc-number">1.4.</span> <span class="toc-text">📍 构造和生成 Payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-SSRF-gopher-攻击内网-Redis"><span class="toc-number">1.5.</span> <span class="toc-text">📍 SSRF+gopher 攻击内网 Redis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#写入-crontab-计划任务反弹-shell"><span class="toc-number">1.5.1.</span> <span class="toc-text">写入 crontab 计划任务反弹 shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-后话"><span class="toc-number">1.6.</span> <span class="toc-text">📍 后话</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#访问-mysql"><span class="toc-number">1.6.1.</span> <span class="toc-text">访问 mysql</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发送-GET-POST-数据"><span class="toc-number">1.6.2.</span> <span class="toc-text">发送 GET/POST 数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#脚本"><span class="toc-number">1.6.3.</span> <span class="toc-text">脚本</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/06/26/ssrf-gopher/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/06/26/ssrf-gopher/&text=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/06/26/ssrf-gopher/&is_video=false&description=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）&body=Check out this article: https://naykcin.top/2020/06/26/ssrf-gopher/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/06/26/ssrf-gopher/&title=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/06/26/ssrf-gopher/&name=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/06/26/ssrf-gopher/&t=SSRF+gopher 攻击 Redis Getshell（生成 gopher payload 研究）"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Naykcin
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

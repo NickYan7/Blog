@@ -1,4 +1,151 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>内网 | MSF Session ♻️ CS Shell - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">内网 | MSF Session ♻️ CS Shell</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>3 Minutes</li><li><i class="icon icon-calendar"></i>March 2, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="内网-MSF-Session-♻️-CS-Shell"><a href="#内网-MSF-Session-♻️-CS-Shell" class="headerlink" title="内网 | MSF Session ♻️ CS Shell"></a><center>内网 | MSF Session ♻️ CS Shell</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>这里记录一下 MSF 和 CS 这两个后渗透利器的 shell 转换。</p>
+<!DOCTYPE html>
+<html lang=en>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="内网 | MSF Session ♻️ CS Shell📍这里记录一下 MSF 和 CS 这两个后渗透利器的 shell 转换。 CS Shell ♻️ MSF Session条件是 CS 已经拿到一个 shell，且该机器已上线。  📍 首先 msf 利用 handler 模块监听： msf5&amp;gt; use exploit/multi/handlermsf5&amp;gt; set LHOST 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网 | MSF Session ♻️ CS Shell">
+<meta property="og:url" content="https://naykcin.top/2020/03/02/shell-shift/index.html">
+<meta property="og:site_name" content="Naykcin&#39;s Page">
+<meta property="og:description" content="内网 | MSF Session ♻️ CS Shell📍这里记录一下 MSF 和 CS 这两个后渗透利器的 shell 转换。 CS Shell ♻️ MSF Session条件是 CS 已经拿到一个 shell，且该机器已上线。  📍 首先 msf 利用 handler 模块监听： msf5&amp;gt; use exploit/multi/handlermsf5&amp;gt; set LHOST 1">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://naykcin.top/2020/03/02/shell-shift/Screenshot%202020-03-02%20%E4%B8%8B%E5%8D%8810.25.52.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/03/02/shell-shift/Screenshot%202020-03-02%20%E4%B8%8B%E5%8D%8810.56.35.jpg">
+<meta property="og:updated_time" content="2020-05-22T17:51:54.774Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="内网 | MSF Session ♻️ CS Shell">
+<meta name="twitter:description" content="内网 | MSF Session ♻️ CS Shell📍这里记录一下 MSF 和 CS 这两个后渗透利器的 shell 转换。 CS Shell ♻️ MSF Session条件是 CS 已经拿到一个 shell，且该机器已上线。  📍 首先 msf 利用 handler 模块监听： msf5&amp;gt; use exploit/multi/handlermsf5&amp;gt; set LHOST 1">
+<meta name="twitter:image" content="https://naykcin.top/2020/03/02/shell-shift/Screenshot%202020-03-02%20%E4%B8%8B%E5%8D%8810.25.52.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>内网 | MSF Session ♻️ CS Shell</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/05/19/fuck-oa/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/02/24/cve-2020-1938/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/03/02/shell-shift/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/03/02/shell-shift/&text=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/03/02/shell-shift/&is_video=false&description=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网 | MSF Session ♻️ CS Shell&body=Check out this article: https://naykcin.top/2020/03/02/shell-shift/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/03/02/shell-shift/&name=内网 | MSF Session ♻️ CS Shell&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/03/02/shell-shift/&t=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网-MSF-Session-♻️-CS-Shell"><span class="toc-number">1.</span> <span class="toc-text">内网 | MSF Session ♻️ CS Shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#📍"><span class="toc-number">1.1.</span> <span class="toc-text">📍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CS-Shell-♻️-MSF-Session"><span class="toc-number">1.2.</span> <span class="toc-text">CS Shell ♻️ MSF Session</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MSF-Session-♻️-CS-Shell"><span class="toc-number">1.3.</span> <span class="toc-text">MSF Session ♻️ CS Shell</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        内网 | MSF Session ♻️ CS Shell
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Naykcin's Page</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-03-02T15:31:08.000Z" itemprop="datePublished">2020-03-02</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="内网-MSF-Session-♻️-CS-Shell"><a href="#内网-MSF-Session-♻️-CS-Shell" class="headerlink" title="内网 | MSF Session ♻️ CS Shell"></a><center>内网 | MSF Session ♻️ CS Shell</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>这里记录一下 MSF 和 CS 这两个后渗透利器的 shell 转换。</p>
 <h3 id="CS-Shell-♻️-MSF-Session"><a href="#CS-Shell-♻️-MSF-Session" class="headerlink" title="CS Shell ♻️ MSF Session"></a>CS Shell ♻️ MSF Session</h3><p>条件是 CS 已经拿到一个 shell，且该机器已上线。</p>
 <ol>
 <li><p>📍 首先 msf 利用 handler 模块监听：</p>
@@ -24,7 +171,127 @@
 <p><img src="//naykcin.top/2020/03/02/shell-shift/Screenshot%202020-03-02%20%E4%B8%8B%E5%8D%8810.56.35.jpg" alt="Screenshot 2020-03-02 下午10.56.35"></p>
 <p>CS 与 Armitage、Empire 的 shell 互转下次记录。</p>
 <p><em>Hard work and no play makes Nick a dull boy.</em></p>
-</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/05/19/fuck-oa/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/02/24/cve-2020-1938/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
-window.onload = function () {
-  wrap.className += ' done';
-}</script></body></html>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内网-MSF-Session-♻️-CS-Shell"><span class="toc-number">1.</span> <span class="toc-text">内网 | MSF Session ♻️ CS Shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#📍"><span class="toc-number">1.1.</span> <span class="toc-text">📍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CS-Shell-♻️-MSF-Session"><span class="toc-number">1.2.</span> <span class="toc-text">CS Shell ♻️ MSF Session</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MSF-Session-♻️-CS-Shell"><span class="toc-number">1.3.</span> <span class="toc-text">MSF Session ♻️ CS Shell</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/03/02/shell-shift/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/03/02/shell-shift/&text=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/03/02/shell-shift/&is_video=false&description=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网 | MSF Session ♻️ CS Shell&body=Check out this article: https://naykcin.top/2020/03/02/shell-shift/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/03/02/shell-shift/&title=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/03/02/shell-shift/&name=内网 | MSF Session ♻️ CS Shell&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/03/02/shell-shift/&t=内网 | MSF Session ♻️ CS Shell"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Naykcin
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>

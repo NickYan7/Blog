@@ -1,4 +1,153 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description"><meta name="keywords" content="github"><title>🥝 内网 | mimikatz 攻与防 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">🥝 内网 | mimikatz 攻与防</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>7 Minutes</li><li><i class="icon icon-calendar"></i>February 2, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="🥝-内网-mimikatz-攻与防"><a href="#🥝-内网-mimikatz-攻与防" class="headerlink" title="🥝 内网 | mimikatz 攻与防"></a><center>🥝 内网 | mimikatz 攻与防</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>内网渗透时通常利用 <em>mimikatz</em> 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 <em>mimikatz</em> 的利用与防御。</p>
+<!DOCTYPE html>
+<html lang=en>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="🥝 内网 | mimikatz 攻与防📍内网渗透时通常利用 mimikatz 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 mimikatz 的利用与防御。 Debug Privilege 调试权限一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="🥝 内网 | mimikatz 攻与防">
+<meta property="og:url" content="https://naykcin.top/2020/02/02/mimikatz0/index.html">
+<meta property="og:site_name" content="Naykcin&#39;s Page">
+<meta property="og:description" content="🥝 内网 | mimikatz 攻与防📍内网渗透时通常利用 mimikatz 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 mimikatz 的利用与防御。 Debug Privilege 调试权限一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.16.58.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.18.36.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.48.51.jpg">
+<meta property="og:updated_time" content="2020-05-22T17:51:14.495Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="🥝 内网 | mimikatz 攻与防">
+<meta name="twitter:description" content="🥝 内网 | mimikatz 攻与防📍内网渗透时通常利用 mimikatz 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 mimikatz 的利用与防御。 Debug Privilege 调试权限一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中">
+<meta name="twitter:image" content="https://naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>🥝 内网 | mimikatz 攻与防</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" href="/2020/02/24/cve-2020-1938/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" href="/2020/01/12/ms14068/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/02/02/mimikatz0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/02/02/mimikatz0/&text=🥝 内网 | mimikatz 攻与防"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/02/02/mimikatz0/&is_video=false&description=🥝 内网 | mimikatz 攻与防"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=🥝 内网 | mimikatz 攻与防&body=Check out this article: https://naykcin.top/2020/02/02/mimikatz0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/02/02/mimikatz0/&name=🥝 内网 | mimikatz 攻与防&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/02/02/mimikatz0/&t=🥝 内网 | mimikatz 攻与防"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#🥝-内网-mimikatz-攻与防"><span class="toc-number">1.</span> <span class="toc-text">🥝 内网 | mimikatz 攻与防</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#📍"><span class="toc-number">1.1.</span> <span class="toc-text">📍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Debug-Privilege-调试权限"><span class="toc-number">1.2.</span> <span class="toc-text">Debug Privilege 调试权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Credential-Caching"><span class="toc-number">1.3.</span> <span class="toc-text">Credential Caching</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mscache-中的内容"><span class="toc-number">1.3.1.</span> <span class="toc-text">mscache 中的内容</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Protected-User-Group"><span class="toc-number">1.4.</span> <span class="toc-text">Protected User Group</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WDigest"><span class="toc-number">1.5.</span> <span class="toc-text">WDigest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Restricted-Admin-Mode"><span class="toc-number">1.6.</span> <span class="toc-text">Restricted Admin Mode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后记"><span class="toc-number">1.7.</span> <span class="toc-text">后记</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#参考"><span class="toc-number">1.7.1.</span> <span class="toc-text">参考</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        🥝 内网 | mimikatz 攻与防
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Naykcin's Page</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-02-02T13:05:34.000Z" itemprop="datePublished">2020-02-02</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="🥝-内网-mimikatz-攻与防"><a href="#🥝-内网-mimikatz-攻与防" class="headerlink" title="🥝 内网 | mimikatz 攻与防"></a><center>🥝 内网 | mimikatz 攻与防</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>内网渗透时通常利用 <em>mimikatz</em> 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 <em>mimikatz</em> 的利用与防御。</p>
 <h3 id="Debug-Privilege-调试权限"><a href="#Debug-Privilege-调试权限" class="headerlink" title="Debug Privilege 调试权限"></a><em>Debug Privilege</em> 调试权限</h3><p>一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中，有一项策略名为「调试权限」，该权限可以用来调试进程，而本地管理员组默认是有这个权限的。如果目标本地管理员平常用不到该权限，且安全意识较高，删去了该权限的话，<em>mimikatz</em> 就抓不到密码了。</p>
 <p><img src="//naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg" alt="Screenshot 2020-03-01 下午6.59.07"></p>
 <center>本地管理员组默认是具有此权限的</center>
@@ -52,7 +201,127 @@
 </ul>
 <h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">https://labs.portcullis.co.uk/tools/freerdp-pth/</span><br><span class="line">https://blogs.technet.microsoft.com/kfalde/2013/08/14/restricted-admin-mode-for-rdp-in-windows-8-1-2012-r2/</span><br><span class="line">http://wwwtt0401.blog.163.com/blog/static/361493062012010114020272/</span><br><span class="line">https://medium.com/blue-team/preventing-mimikatz-attacks-ed283e7ebdd5</span><br><span class="line">https://mp.weixin.qq.com/s/O1PUlffIbAh3trnB-YDZaw</span><br></pre></td></tr></table></figure>
 
-</div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/02/24/cve-2020-1938/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/12/ms14068/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2020 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
-window.onload = function () {
-  wrap.className += ' done';
-}</script></body></html>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#🥝-内网-mimikatz-攻与防"><span class="toc-number">1.</span> <span class="toc-text">🥝 内网 | mimikatz 攻与防</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#📍"><span class="toc-number">1.1.</span> <span class="toc-text">📍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Debug-Privilege-调试权限"><span class="toc-number">1.2.</span> <span class="toc-text">Debug Privilege 调试权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Credential-Caching"><span class="toc-number">1.3.</span> <span class="toc-text">Credential Caching</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mscache-中的内容"><span class="toc-number">1.3.1.</span> <span class="toc-text">mscache 中的内容</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Protected-User-Group"><span class="toc-number">1.4.</span> <span class="toc-text">Protected User Group</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WDigest"><span class="toc-number">1.5.</span> <span class="toc-text">WDigest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Restricted-Admin-Mode"><span class="toc-number">1.6.</span> <span class="toc-text">Restricted Admin Mode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后记"><span class="toc-number">1.7.</span> <span class="toc-text">后记</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#参考"><span class="toc-number">1.7.1.</span> <span class="toc-text">参考</span></a></li></ol></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/02/02/mimikatz0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/02/02/mimikatz0/&text=🥝 内网 | mimikatz 攻与防"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/02/02/mimikatz0/&is_video=false&description=🥝 内网 | mimikatz 攻与防"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=🥝 内网 | mimikatz 攻与防&body=Check out this article: https://naykcin.top/2020/02/02/mimikatz0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/02/02/mimikatz0/&title=🥝 内网 | mimikatz 攻与防"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/02/02/mimikatz0/&name=🥝 内网 | mimikatz 攻与防&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/02/02/mimikatz0/&t=🥝 内网 | mimikatz 攻与防"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Naykcin
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
