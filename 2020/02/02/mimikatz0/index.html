@@ -1,14 +1,14 @@
 <!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description" content="黑客，仅是一种身份。"><meta name="keywords" content="github"><title>🥝 内网 | mimikatz 攻与防 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">🥝 内网 | mimikatz 攻与防</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>7 Minutes</li><li><i class="icon icon-calendar"></i>February 2, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h2 id="🥝-内网-mimikatz-攻与防"><a href="#🥝-内网-mimikatz-攻与防" class="headerlink" title="🥝 内网 | mimikatz 攻与防"></a><center>🥝 内网 | mimikatz 攻与防</center></h2><h3 id="📍"><a href="#📍" class="headerlink" title="📍"></a>📍</h3><p>内网渗透时通常利用 <em>mimikatz</em> 从内存中抓取到明文密码之后，就可以进行横向移动和提权操作了，进行更一步的渗透。最近跟一些甲方公司的面试官交流之后，想着从攻与防的角度记录一下 <em>mimikatz</em> 的利用与防御。</p>
 <h3 id="Debug-Privilege-调试权限"><a href="#Debug-Privilege-调试权限" class="headerlink" title="Debug Privilege 调试权限"></a><em>Debug Privilege</em> 调试权限</h3><p>一般情况下，只要拿到本地管理员的权限就可以从内存中抓取密码，这是因为在 Windows 本地安全策略中，有一项策略名为「调试权限」，该权限可以用来调试进程，而本地管理员组默认是有这个权限的。如果目标本地管理员平常用不到该权限，且安全意识较高，删去了该权限的话，<em>mimikatz</em> 就抓不到密码了。</p>
-<p><img src="//naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg" alt="Screenshot 2020-03-01 下午6.59.07"></p>
+<p><img src="//mucfo.cn/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%886.59.07.jpg" alt="Screenshot 2020-03-01 下午6.59.07"></p>
 <center>本地管理员组默认是具有此权限的</center>
 
 <p>但是，域的默认组策略在这一项是没有定义的。按照 Windows 策略的效力位阶，最终是管理员组拥有该权限。</p>
 <p>多条策略不冲突的默认情况下，多条策略是合并的关系；如果冲突的话，优先级高的适用，优先级从低到高为 local policy（本地）👉🏻 site policy （站点）👉🏻 domain policy（域）👉🏻 ou policy（组织单元）</p>
-<p><img src="//naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.16.58.jpg" alt="Screenshot 2020-03-01 下午7.16.58"></p>
+<p><img src="//mucfo.cn/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.16.58.jpg" alt="Screenshot 2020-03-01 下午7.16.58"></p>
 <center>默认情况下可成功取得调试权限</center>
 
-<p><img src="//naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.18.36.jpg" alt="Screenshot 2020-03-01 下午7.18.36"></p>
+<p><img src="//mucfo.cn/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.18.36.jpg" alt="Screenshot 2020-03-01 下午7.18.36"></p>
 <center>删去该权限后，获取调试权限失败</center>
 
 <h3 id="Credential-Caching"><a href="#Credential-Caching" class="headerlink" title="Credential Caching"></a><em>Credential Caching</em></h3><p>_Domain Cached Credentials_，简称 DDC，也叫 _mscache_，域缓存凭据。</p>
@@ -22,7 +22,7 @@
 <li>域用户的授权信息，比如这个域用户是属于哪个域组的，授权信息主要用于在验证通过后生成 _access token_。</li>
 <li>一些其他的信息，比如 <em>UPN_、_logon server</em> 之类。</li>
 </ul>
-<p><img src="//naykcin.top/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.48.51.jpg" alt="Screenshot 2020-03-01 下午7.48.51"></p>
+<p><img src="//mucfo.cn/2020/02/02/mimikatz0/Screenshot%202020-03-01%20%E4%B8%8B%E5%8D%887.48.51.jpg" alt="Screenshot 2020-03-01 下午7.48.51"></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// mimikatz 执行</span><br><span class="line">lsadump::cache</span><br></pre></td></tr></table></figure>
 
 <p>导出 mscache 需要 system 权限，抓到的值是 _mscacheV2_，不可直接利用，需要用 hashcat 或 john 破解。</p>

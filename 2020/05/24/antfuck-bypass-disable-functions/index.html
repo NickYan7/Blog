@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="zh-cn"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description" content="黑客，仅是一种身份。"><meta name="keywords" content="github"><title>AntSword BYPASS disable_function 分析 🚀 - Naykcin's Page</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/uploads/earth.png"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/NickYan7"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="/uploads/background3.JPG"><div class="post-title"><h1 class="title">AntSword BYPASS disable_function 分析 🚀</h1><ul class="meta"><li><i class="icon icon-author"></i>Naykcin</li><li><i class="icon icon-clock"></i>9 Minutes</li><li><i class="icon icon-calendar"></i>May 24, 2020</li></ul></div></div><div class="article-content" style="max-width:800px"><h1 id="AntSword-BYPASS-disable-functions-插件分析-🚀"><a href="#AntSword-BYPASS-disable-functions-插件分析-🚀" class="headerlink" title="AntSword BYPASS disable_functions 插件分析 🚀"></a><em>AntSword BYPASS disable_functions</em> 插件分析 🚀</h1><h2 id="📍-ABSTRACT"><a href="#📍-ABSTRACT" class="headerlink" title="📍 ABSTRACT"></a>📍 <em>ABSTRACT</em></h2><p>实战中很多次遇到上传了 webshell 却无法执行命令的情况，大多数时候是因为目标设置了 php disable_functions 禁用了一些用来执行命令的函数，本文主要分析一下 AntSword 插件 bypass_disable_functions 的绕过实现方式。</p>
 <h2 id="🤔️-Analyse"><a href="#🤔️-Analyse" class="headerlink" title="🤔️ Analyse"></a>🤔️ <em>Analyse</em></h2><p>加载插件，有几种利用方式：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200524180353495.jpg" alt="image-20200524180353495"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200524180353495.jpg" alt="image-20200524180353495"></p>
 <h3 id="📍-LD-PRELOAD"><a href="#📍-LD-PRELOAD" class="headerlink" title="📍 LD_PRELOAD"></a>📍 LD_PRELOAD</h3><h4 id="利用条件"><a href="#利用条件" class="headerlink" title="利用条件"></a>利用条件</h4><ul>
 <li>目标是 Linux 系统</li>
 <li>PHP 可执行 <code>putenv()</code> 函数</li>
@@ -26,42 +26,42 @@
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_PRELOAD=<span class="variable">$PWD</span>/unrandom.so</span><br></pre></td></tr></table></figure>
 
 <p>然后运行可执行程序 <code>random_num</code> ：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525001938428.jpg" alt="image-20200525001938428"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525001938428.jpg" alt="image-20200525001938428"></p>
 <p>按我们的期望，该可执行程序应该输出十个随机数才对，但是这里却输出了十个常量 10。这里就暴露出了问题，当我们的程序被启动后，某些库被加载，我们用 <code>ldd</code> 命令去查看它调用了哪些库：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%8812.23.32.jpg" alt="Screenshot 2020-05-25 上午12.23.32"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%8812.23.32.jpg" alt="Screenshot 2020-05-25 上午12.23.32"></p>
 <p>可见它调用了我们新建立的库，本来 <code>random_num</code> 应当去调用 <code>libc.so.6</code> 这个库中的 <code>rand()</code> 函数，但这里首先调用了我们设置的「恶意库」。所以，环境变量 <code>LD_PRELOAD</code> 为程序强制加载一些库，那么如果这个库可以被我们所构造，然后设置环境变量指向我们构造的「恶意库」，就可以达到攻击的目的。</p>
 <p>PHP 中有函数 <code>putenv()</code> ，是用来设置环境变量的值的。如果我们利用 <code>putenv()</code> 函数设置 <code>LD_PRELOAD</code> 环境变量来加载指定的 <code>.so</code> 库文件，而 <code>.so</code> 文件中包含相同名称的函数，那么就可以实现劫持动态链接库执行危险函数。</p>
 <p>利用方式比较简单，在此就不过多赘述：<a href="https://github.com/AntSwordProject/AntSword-Labs/tree/master/bypass_disable_functions/1" target="_blank" rel="noopener">https://github.com/AntSwordProject/AntSword-Labs/tree/master/bypass_disable_functions/1</a></p>
 <p>加载插件选择模式，启动插件后，发现上传了 <code>.antproxy.php</code> 文件，然后蚁剑创建副本连接该文件即可 BYPASS。</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525005405428.jpg" alt="image-20200525005405428"></p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525005745418.jpg" alt="image-20200525005745418"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525005405428.jpg" alt="image-20200525005405428"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525005745418.jpg" alt="image-20200525005745418"></p>
 <p>查看 <code>.antproxy.php</code> 代码：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525010635186.jpg" alt="image-20200525010635186"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525010635186.jpg" alt="image-20200525010635186"></p>
 <p>即向 127.0.0.1:63450 的 index.php 发送请求。我们在被攻击的主机上查看下：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525010949694.jpg" alt="image-20200525010949694"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525010949694.jpg" alt="image-20200525010949694"></p>
 <p>63450 端口运行了 php 命令，ps 查看下：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200525011118167.jpg" alt="image-20200525011118167"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200525011118167.jpg" alt="image-20200525011118167"></p>
 <p>可见这里是用 php 另起了一个 web 服务。</p>
 <blockquote>
 <p><code>-n</code> 不使用 <code>php.ini</code> 配置文件（ <code>php.ini</code> 中设置了 <code>disable_functions</code> ）</p>
 <p><code>-t</code> 指定目录，一开始上传的 shell 的目录</p>
 </blockquote>
 <p>这其实就是蚁剑 BYPASS disable_functions 的第一步：重新起一个没有应用 php.ini 的 web 服务，然后与新生成的 web 服务下的 shell 文件（即 index.php）建立连接执行命令。查看下插件的源码：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%881.27.47.jpg" alt="Screenshot 2020-05-25 上午1.27.47"></p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%881.24.38.jpg" alt="Screenshot 2020-05-25 上午1.24.38"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%881.27.47.jpg" alt="Screenshot 2020-05-25 上午1.27.47"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-25%20%E4%B8%8A%E5%8D%881.24.38.jpg" alt="Screenshot 2020-05-25 上午1.24.38"></p>
 <p>生成 extensions：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-31%20%E4%B8%8B%E5%8D%8811.21.42.jpg" alt="Screenshot 2020-05-31 下午11.21.42"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-05-31%20%E4%B8%8B%E5%8D%8811.21.42.jpg" alt="Screenshot 2020-05-31 下午11.21.42"></p>
 <p>这种攻击方式需要用到 <code>mail()</code> 或者 <code>error_log()</code> 函数，在运行的时候启动子进程，从而重新加载恶意环境变量，来劫持子进程所调用的库函数。</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200531232812179.jpg" alt="image-20200531232812179"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200531232812179.jpg" alt="image-20200531232812179"></p>
 <p><code>error_log()</code> 函数当第二个参数为 1 时，会启动子进程来调用系统的 sendmail，如上图（ <code>mail()</code> 函数在运行时，也会启动子进程来调用 sendmail）。</p>
 <p>所以如果要利用这种方式，目标主机必须装有 sendmail 以供调用，同时对于 sendmail 的调用没有做限制；可以调用 <code>mail()</code> 或 <code>error_log()</code> 。</p>
 <h3 id="📍-Fastcgi-PHP-FPM"><a href="#📍-Fastcgi-PHP-FPM" class="headerlink" title="📍 Fastcgi/PHP_FPM"></a>📍 Fastcgi/PHP_FPM</h3><p>Nginx 为 Fastcgi 提供了 fastcgi_param 来主要处理映射关系，将 Nginx 中的变量翻译成 php 能够理解的变量。</p>
 <p>判断 php-fpm 的连接方式是 TCP 连接还是 Unix Socket 连接：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200531235414631.jpg" alt="image-20200531235414631"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200531235414631.jpg" alt="image-20200531235414631"></p>
 <p>接着将启动新的 web 服务的命令写入 <code>.so</code> 库文件上传，初始化 fastcgi client。</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-06-01%20%E4%B8%8A%E5%8D%8812.06.57.jpg" alt="Screenshot 2020-06-01 上午12.06.57"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/Screenshot%202020-06-01%20%E4%B8%8A%E5%8D%8812.06.57.jpg" alt="Screenshot 2020-06-01 上午12.06.57"></p>
 <p>构造攻击 fastcgi 的 payload：</p>
-<p><img src="//naykcin.top/2020/05/24/antfuck-bypass-disable-functions/image-20200531234941675.jpg" alt="image-20200531234941675"></p>
+<p><img src="//mucfo.cn/2020/05/24/antfuck-bypass-disable-functions/image-20200531234941675.jpg" alt="image-20200531234941675"></p>
 <p>攻击包为什么是上面这个样子呢，因为 Nginx 会将请求解析成键值对，然后发送给 php 解析。<code>PHP_VALUE</code> 和 <code>PHP_ADMIN_VALUE</code> 将 ext 指向恶意的 <code>.so</code> 文件，发送攻击包动态加载恶意 <code>.so</code> 文件，于是启动了不配置 <code>php.ini</code> 的 web 服务。</p>
 <p>最后上传代理脚本 <code>.antproxy.php</code> ，使流量通过 shell 转发到新的 web 服务，从而绕过 php disable_function。</p>
 <h3 id="📍-Apache-mod-cgi"><a href="#📍-Apache-mod-cgi" class="headerlink" title="📍 Apache_mod_cgi"></a>📍 Apache_mod_cgi</h3><p>Mod_CGI 模式其实就是把 php 作为 Apache 的一个内置模块，让 Apache 本身能够支持解析 php。</p>

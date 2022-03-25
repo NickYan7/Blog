@@ -19,36 +19,36 @@
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ mvn package</span><br></pre></td></tr></table></figure>
 
 <p>编译好后会多出一个 target 文件夹。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%881.59.45-5009661.png" alt="屏幕快照 2019-11-29 下午1.59.45-5009661"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%881.59.45-5009661.png" alt="屏幕快照 2019-11-29 下午1.59.45-5009661"></p>
 <p>test 文件夹是本地测试 demo 和常见加密算法的 js 脚本，script 脚本就是自带的 phantomjs 服务端模版文件，每次运行需要根据情况修改。</p>
 <p>然后把 target 文件夹里的 jar 插件添加到 burp。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.03.40.png" alt="屏幕快照 2019-11-29 下午2.03.40"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.03.40.png" alt="屏幕快照 2019-11-29 下午2.03.40"></p>
 <p>如图所示添加成功。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.08.33.png" alt="屏幕快照 2019-11-29 下午2.08.33"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.08.33.png" alt="屏幕快照 2019-11-29 下午2.08.33"></p>
 <h3 id="📍-0x02-测试"><a href="#📍-0x02-测试" class="headerlink" title="📍 0x02 测试"></a>📍 0x02 测试</h3><p>将 jsencrypter/test/webapp 文件夹移动至 web 服务目录，把本地服务器搭建起来，然后访问 web 服务。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/image-20191129141357229.png" alt="image-20191129141357229"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/image-20191129141357229.png" alt="image-20191129141357229"></p>
 <p>抓包显示密码经过了加密。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.46.19.png" alt="屏幕快照 2019-11-29 下午2.46.19"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%882.46.19.png" alt="屏幕快照 2019-11-29 下午2.46.19"></p>
 <p>F12 调试源码</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.08.30.png" alt="屏幕快照 2019-11-29 下午3.08.30"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.08.30.png" alt="屏幕快照 2019-11-29 下午3.08.30"></p>
 <p>可以看到 js 文件下一共有五个加密函数文件，这里调用了 JSEncrypt() 函数，分析应该是调用了 jsencrypt.js 文件。这里还 set 了一个 publickey，于是在 index 文件下再次搜索 publickey。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.10.52.png" alt="屏幕快照 2019-11-29 下午3.10.52"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.10.52.png" alt="屏幕快照 2019-11-29 下午3.10.52"></p>
 <p>可知 public_key 是一个隐藏标签，post 时一同提交，接下来可以开始改写 phantomjs_server.js 文件。</p>
 <p>改写时要注意修改<strong>引入实现加密的 js 文件</strong>，其他的修改红框内的内容即可。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.18.09.png" alt="屏幕快照 2019-11-29 下午3.18.09"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.18.09.png" alt="屏幕快照 2019-11-29 下午3.18.09"></p>
 <p>然后运行 server 文件。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">phantomjs encrypt.js</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.20.04.png" alt="屏幕快照 2019-11-29 下午3.20.04"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.20.04.png" alt="屏幕快照 2019-11-29 下午3.20.04"></p>
 <p>如果有报错，一般是未修改引入实现加密的文件 xxx.js。</p>
 <p>然后 burp 打开插件，地址及端口默认即可，点击 connect 链接，连接成功会显示 true，点击 test 会根据算法在右边生成密文。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.27.06.png" alt="屏幕快照 2019-11-29 下午3.27.06"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.27.06.png" alt="屏幕快照 2019-11-29 下午3.27.06"></p>
 <p>此时 phantomjs 服务端会收到加密请求并生成密文，可以稍后用作对照来破解正确密码。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.24.36.png" alt="屏幕快照 2019-11-29 下午3.24.36"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.24.36.png" alt="屏幕快照 2019-11-29 下午3.24.36"></p>
 <p>接下来可以结合 burp 的 Intruder 模块来进行爆破，抓包发送至 Intruder，设置密码字段为 position，加载一个字典，选择 payload processing 为 jsencrypter。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.28.57.png" alt="屏幕快照 2019-11-29 下午3.28.57"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.28.57.png" alt="屏幕快照 2019-11-29 下午3.28.57"></p>
 <p>start attack。</p>
-<p><img src="//naykcin.top/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.34.58.png" alt="屏幕快照 2019-11-29 下午3.34.58"></p>
+<p><img src="//mucfo.cn/2019/11/24/jsEncrypter/%e5%b1%8f%e5%b9%95%e5%bf%ab%e7%85%a7%202019-11-29%20%e4%b8%8b%e5%8d%883.34.58.png" alt="屏幕快照 2019-11-29 下午3.34.58"></p>
 <p>爆破成功，将成功的 payload 前几位字母在 terminal 中进行搜索，发现明文是 admin。到这里测试成功结束。</p>
 </div><div class="article-meta" style="max-width:800px"></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2019/12/01/certutil/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2019/11/22/pentest7/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/NickYan7" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://47.95.140.43/tu/721580653348_.pic.jpg" title="wechat" target="_blank"><i class="icon icon-wechat"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2022 Naykcin's Page</p></div></div></div><script>var wrap = document.getElementById('wrap');
 window.onload = function () {

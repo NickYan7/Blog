@@ -19,7 +19,7 @@
 
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">// 查看当前登录用户（tty 本地登录/pts 远程登录）</span><br><span class="line">$ who</span><br><span class="line">// 查看系统信息，某一时刻用户的行为</span><br><span class="line">$ w</span><br><span class="line">// 查看登录时间、多少用户、负载</span><br><span class="line">$ uptime</span><br></pre></td></tr></table></figure>
 
-<p><img src="//naykcin.top/2020/01/02/linux-emergency/1.png" alt="屏幕快照 2020-01-08 下午2.39.17"></p>
+<p><img src="//mucfo.cn/2020/01/02/linux-emergency/1.png" alt="屏幕快照 2020-01-08 下午2.39.17"></p>
 <p>排查：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1.查询特权用户，其中特权用户的uid为0</span><br><span class="line">$ awk -F: &apos;$3==0&#123;print $1&#125;&apos; /etc/passwd</span><br><span class="line"></span><br><span class="line">2.查询可以远程登录的账号信息</span><br><span class="line">$ awk &apos;/\$1|\$6/&#123;print $1&#125;&apos; /etc/shadow</span><br><span class="line"></span><br><span class="line">3.查询除root账户外，其他账号是否存在sudo权限，如非管理需要，普通账号应该删除sudo权限</span><br><span class="line">$ more /etc/sudoers | grep -v &quot;^#\|^$&quot; | grep &quot;ALL=(ALL)&quot;</span><br><span class="line"></span><br><span class="line">4.禁用或删除多余及可疑的账号</span><br><span class="line">// 禁用账号，账号无法登录，/etc/shadow第二栏为!开头</span><br><span class="line">// -U 为解锁</span><br><span class="line">$ usermod -L user</span><br><span class="line">// 删除user账户</span><br><span class="line">$ userdel user</span><br><span class="line">// 删除user用户，并且将/home目录下的user目录一同删除</span><br><span class="line">$ userdel -r uesr</span><br></pre></td></tr></table></figure>
 
